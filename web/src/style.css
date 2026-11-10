@@ -2,18 +2,20 @@
 @import "./charts.css";
 /* --u: one design pixel. 1px up to a 1440 x 900 window, then it grows with the window (to 1.5px) so text keeps its
    size relative to the frame on a projector or a large display. Sizes below are written as calc(n * var(--u)). */
-:root { --u: clamp(1px, min(.0694vw, .1111vh), 1.5px); }
+:root { --u: clamp(1px, min(.0694vw, .1111vh), 1.5px);
+  /* the square frame: its side, its left edge, and the text column beside it */
+  --s: min(92vh, 58vw); --fl: calc(96vw - 26px - var(--s)); --col: max(340px, 38vw); }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); }
 body { font-family: var(--text); font-size: calc(18 * var(--u)); line-height: 1.6; -webkit-font-smoothing: antialiased; }
 
-#app { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(340px, 38%) 1fr; }
+#app { position: fixed; inset: 0; display: grid; grid-template-columns: var(--col) 1fr; }
 
 /* stage: one square frame, photo + height + outlines share the same pixel space.
    The frame has explicit position and size so the full-screen opening can animate into the square. */
 #stage { position: fixed; inset: 0; pointer-events: none; }
-#frame { --s: min(92vh, 58vw); position: absolute; width: var(--s); height: var(--s);
-  top: calc(50vh - var(--s) / 2); left: calc(96vw - 26px - var(--s)); overflow: hidden; background: var(--paper-2);
+#frame { position: absolute; width: var(--s); height: var(--s);
+  top: calc(50vh - var(--s) / 2); left: var(--fl); overflow: hidden; background: var(--paper-2);
   transition: width 1.1s var(--ease), height 1.1s var(--ease), top 1.1s var(--ease), left 1.1s var(--ease); }
 #frame > img, #frame > canvas, #frame > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 #frame > img { object-fit: cover; transition: opacity 1s var(--ease); }
@@ -53,7 +55,7 @@ body { font-family: var(--text); font-size: calc(18 * var(--u)); line-height: 1.
 #chart.rail .cells { opacity: .55; }
 #chart.rail .stations { opacity: 1; }
 
-.facts { display: flex; gap: 2.2rem; margin: .4em 0 1.1em; }
+.facts { display: flex; flex-wrap: wrap; gap: .5rem 2.2rem; margin: .4em 0 1.1em; }
 .facts div { font-size: calc(15 * var(--u)); color: var(--ink-2); line-height: 1.3; }
 .facts b { display: block; font-family: var(--display); font-weight: 600; font-size: clamp(30px, 3vw, calc(46 * var(--u))); color: var(--ink); letter-spacing: -.02em; }
 
@@ -73,7 +75,9 @@ body.hero #text { grid-column: 1 / -1; align-self: end; justify-self: end; margi
   background: var(--paper); padding: calc(35 * var(--u)) calc(38 * var(--u)) calc(32 * var(--u)); }
 
 /* text column */
-#text { grid-column: 1; grid-row: 1; align-self: center; padding: 0 3vw 0 6vw; z-index: 2; }
+/* the text always ends at least 24px before the picture: in a wide window the picture is limited by the height and
+   3vw is plenty; in a narrow or tall window the picture takes 58vw and the padding grows to keep the gap */
+#text { grid-column: 1; grid-row: 1; align-self: center; padding: 0 max(3vw, calc(var(--col) - var(--fl) + 24px)) 0 6vw; z-index: 2; min-width: 0; }
 .step { animation: rise .9s var(--ease) both; }
 @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 h1 { font-family: var(--display); font-weight: 600; font-size: clamp(40px, 5.2vw, calc(76 * var(--u))); line-height: 1.02;
@@ -89,8 +93,10 @@ strong.em { font-weight: 600; color: var(--ink); }
   display: block; margin: .1em 0 .15em; }
 
 /* timelines for "two kinds of data" */
-.track { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin: .4em 0 1.2em; max-width: calc(544 * var(--u)); }
-.track span { font-family: var(--display); font-size: calc(15 * var(--u)); padding: calc(4 * var(--u)) 0; text-align: center;
+/* eight equal boxes on one line; in a narrow column the digits shrink with the strip (cqw = 1% of its width) */
+.track { container-type: inline-size; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; margin: .4em 0 1.2em;
+  max-width: calc(544 * var(--u)); }
+.track span { font-family: var(--display); font-size: min(calc(15 * var(--u)), 4cqw); padding: calc(4 * var(--u)) 0; text-align: center;
   border: 1px solid var(--rule); color: var(--ink-2); }
 .track span.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 .track.photo span.on { background: #8f8a6f; border-color: #8f8a6f; color: var(--paper); }

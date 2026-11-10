@@ -14,7 +14,7 @@ export function renderLayers(el) {
   el.classList.toggle("collapsed", collapsed);
   if (collapsed) {
     // the colour scale of the active layer stays visible while the switches are folded away
-    el.innerHTML = `<button type="button" class="lbar" aria-expanded="false">Map layers<span class="chev"></span></button>${f.type ? legend(f, true) : ""}`;
+    el.innerHTML = `<button type="button" class="lbar" aria-expanded="false">Map layers<span class="chev"></span></button>${f.type ? legend(f, true) : ""}${s.rail ? `<div class="legend"><div class="ramp"><span><i class="dot"></i>Rail stops</span></div></div>` : ""}`;
     el.querySelector(".lbar").addEventListener("click", () => setCollapsed(false, el));
     return;
   }

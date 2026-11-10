@@ -118,6 +118,18 @@ async function answerWith(env: Env, P: Provider, t: Tables, question: string, hi
   const parts: string[] = [];          // text the model writes in every round (also next to tool calls)
   const memo = new Set<string>();       // areas and layers of this turn, sent back with the answer as follow-up context
   let looked = 0, nudged = false, mapped = false;
+  // stations: the answer used the station tools; figures: it also read growth or census numbers. An answer about the
+  // stations themselves shows the rail stops and no data layer (the previous answer's layer would say nothing about it).
+  let stations = false, figures = false, railShown = false, layerSet = false;
+  const DATA_TOOLS = new Set(["area_stats", "rank_areas", "rank_stations", "citywide", "compare_groups"]);
+  const forStations = (a: any) => {
+    const out = { ...a };
+    if (stations && typeof out.show_rail !== "boolean") out.show_rail = true;
+    if (stations && !figures && (!out.layer || out.layer === "keep")) out.layer = "off";
+    if (out.show_rail === true) railShown = true;
+    if (out.layer && out.layer !== "keep") layerSet = true;
+    return out;
+  };
   const areas: { level: string; id: string }[] = [];   // areas read in this turn, for the fallback map action
   const run = async (calls: any[]) => {
     messages.push({ role: "assistant", content: "", tool_calls: calls });
@@ -127,6 +139,8 @@ async function answerWith(env: Env, P: Provider, t: Tables, question: string, hi
       const name = call.function.name;
       if (name !== "update_map") looked++;
       if (name === "update_map") mapped = true;
+      if (name === "find_station" || name === "rank_stations") stations = true;
+      if (DATA_TOOLS.has(name)) figures = true;
       if (name === "area_stats" && (args.level === "zip" || args.level === "neighbourhood" || args.level === "tract") && typeof args.id === "string"
         && !areas.some((a) => a.level === args.level && a.id === args.id)) areas.push({ level: args.level, id: args.id });
       for (const k of ["name", "id"]) if (typeof args[k] === "string" && args[k] !== "city") memo.add(`${args.level || "area"} ${args[k]}`);
@@ -134,7 +148,7 @@ async function answerWith(env: Env, P: Provider, t: Tables, question: string, hi
       if (name === "rank_areas") memo.add(`ranked ${args.level} by ${args.metric}${args.period ? ` ${args.period}` : args.year ? ` ${args.year}` : ""}`);
       if (name === "update_map" && args.layer && args.layer !== "keep") memo.add(`map layer ${args.layer}`);
       await emit({ t: "status", text: (STATUS[name] || (() => "Working…"))(args) });
-      if (name === "update_map") await emit({ t: "map", action: mapAction(t, args) });
+      if (name === "update_map") await emit({ t: "map", action: mapAction(t, forStations(args)) });
       let result: any;
       try { result = runTool(t, name, args); } catch { result = { error: "tool failed" }; }
       if (name === "lookup_area" && ["zip", "neighbourhood", "tract"].includes(result?.level) && !areas.some((a) => a.id === result.id))
@@ -190,9 +204,11 @@ async function answerWith(env: Env, P: Provider, t: Tables, question: string, hi
   if (!mapped && !areas.length) areas.push(...mentioned(t, question));
   if (!mapped && areas.length) {
     const lv = areas[0].level, same = areas.filter((a) => a.level === lv).slice(0, 8);
-    await emit({ t: "map", action: mapAction(t, { focus: same, highlight: { level: lv, ids: same.map((a) => a.id) },
-      ...(lv === "zip" ? { show_zips: true } : lv === "tract" ? { show_tracts: true } : { show_neighbourhoods: true }) }) });
+    await emit({ t: "map", action: mapAction(t, forStations({ focus: same, highlight: { level: lv, ids: same.map((a) => a.id) },
+      ...(lv === "zip" ? { show_zips: true } : lv === "tract" ? { show_tracts: true } : { show_neighbourhoods: true }) })) });
   }
+  // the map was moved before the station lookup, or not at all: still bring in the stops (and drop a stale layer)
+  if (stations && (!railShown || (!figures && !layerSet))) await emit({ t: "map", action: mapAction(t, forStations({})) });
   if (memo.size) await emit({ t: "memo", text: [...memo].slice(0, 12).join("; ") });
   await emit({ t: "usage", tokens: hit + miss + out, prompt_cache_hit: hit, prompt_cache_miss: miss, completion: out, cost_usd: acc.usd,
     model: P.model, ...(raw.length ? { raw } : {}) });

@@ -79,6 +79,7 @@ body.explore.mapped { height: 100vh; overflow: hidden; display: flex; flex-direc
 .ramp { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px 8px; font-size: 12.5px; color: var(--ink-2); }
 .ramp span { display: flex; align-items: center; gap: 5px; }
 .ramp i { width: 14px; height: 12px; border-radius: 2px; flex: none; }
+.ramp i.dot { width: 10px; height: 10px; margin: 0 2px; border-radius: 50%; background: #3f4650; box-shadow: 0 0 0 1.5px #fff; }
 .legend .ln, .hint { font-size: 12.5px; color: var(--ink-2); margin: 6px 0 0; line-height: 1.45; }
 
 .map-wrap { position: relative; min-width: 0; }
