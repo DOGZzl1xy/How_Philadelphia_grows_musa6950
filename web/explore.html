@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Explore · Teaching Annual Aerial Imagery to See Growth</title>
+  <meta name="description" content="Ask where and when Philadelphia grew, 2018–2025, and see the answer on a map." />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#f1eee8" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Teaching Annual Aerial Imagery to See Growth" />
+  <meta property="og:title" content="Explore · Teaching Annual Aerial Imagery to See Growth" />
+  <meta property="og:description" content="Ask where and when Philadelphia grew, 2018–2025, and see the answer on a map." />
+  <meta property="og:url" content="https://musa6950-philly-growth.xuanyuzhou.org/explore" />
+  <meta property="og:image" content="https://musa6950-philly-growth.xuanyuzhou.org/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" />
+</head>
+<body class="explore">
+  <main id="ask" class="ask">
+    <div class="ask-inner">
+      <h1 class="wordmark">See Growth</h1>
+      <p class="ask-sub">Ask where and when Philadelphia grew, 2018–2025.</p>
+      <form id="ask-form" class="ask-box" autocomplete="off">
+        <span class="ask-icon" id="ask-icon"></span>
+        <input id="ask-input" type="text" name="q" maxlength="300"
+               placeholder="Where did new homes go up near the subway?" aria-label="Your question" />
+        <button type="submit" class="ask-go" aria-label="Ask">Ask</button>
+      </form>
+      <p class="ask-error" id="ask-error" role="alert"></p>
+      <div class="chips" id="chips"></div>
+    </div>
+    <p class="ask-note">Answers use only this project's aggregated results: blocks, block groups and ZIP codes, never
+      single buildings. <a href="#map" id="open-map">Or open the map.</a></p>
+  </main>
+  <section id="app" class="app" hidden>
+    <aside class="panel">
+      <form id="ask-form-2" class="ask-box small" autocomplete="off">
+        <input id="ask-input-2" type="text" name="q" maxlength="300" placeholder="Ask another question" aria-label="Your question" />
+        <button type="submit" class="ask-go" aria-label="Ask">Ask</button>
+      </form>
+      <div id="thread" class="thread" aria-live="polite"></div>
+      <div id="layers" class="layers"></div>
+    </aside>
+    <div class="map-wrap">
+      <div id="map" class="map"></div>
+      <div id="card" class="card" hidden><button type="button" class="card-x" aria-label="Close">×</button><div id="card-body"></div></div>
+    </div>
+  </section>
+  <script type="module" src="/src/explore.js"></script>
+</body>
+</html>

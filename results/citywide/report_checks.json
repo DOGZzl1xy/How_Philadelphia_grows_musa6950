@@ -1,0 +1,34 @@
+{
+ "test_new_construction_units": {
+  "units": 62422,
+  "lidar": 97,
+  "model_flags": 94,
+  "true_pos": 68,
+  "precision": 0.723404255319149,
+  "recall": 0.7010309278350515,
+  "grew_flags": 236,
+  "popup_flags": 321,
+  "popup_flags_outside_grew": 179
+ },
+ "yearly_new_shared_units": {
+  "units": 261056,
+  "per_1000_per_year": {
+   "2018:2019": 1.77,
+   "2018:2020": 2.297,
+   "2018:2022": 1.305,
+   "2022:2023": 0.98,
+   "2022:2024": 1.432,
+   "2022:2025": 1.278
+  }
+ },
+ "test_new_r_250m_bootstrap": {
+  "cells": 600,
+  "r": 0.961,
+  "ci95": [
+   0.668,
+   0.983
+  ],
+  "draws": 10000,
+  "method": "percentile bootstrap over 250 m cells, seed 0"
+ }
+}

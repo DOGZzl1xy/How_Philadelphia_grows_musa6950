@@ -1,0 +1,18 @@
+// Cloudflare Worker: the static site (assets) and /api/ask (Explore assistant). Deploy only with the author's approval:
+//   npm --prefix web run build && npx wrangler deploy --config web/wrangler.jsonc
+// Secret (set by the author, never in git): npx wrangler secret put DEEPSEEK_API_KEY
+// Local: put DEEPSEEK_API_KEY=... in web/.dev.vars (git-ignored), npm run build, npx wrangler dev; vite proxies /api there.
+{
+  "name": "musa6950-philly-growth",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": ["/api/*"], "not_found_handling": "404-page" },
+  "durable_objects": { "bindings": [{ "name": "BUDGET", "class_name": "Budget" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Budget"] }],
+  // per visitor IP: at most 8 questions a minute (counters only, nothing stored)
+  "ratelimits": [{ "name": "ASK_LIMIT", "namespace_id": "6950", "simple": { "limit": 8, "period": 60 } }],
+  "observability": { "enabled": false },
+  "routes": [{ "pattern": "musa6950-philly-growth.xuanyuzhou.org", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}

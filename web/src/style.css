@@ -1,0 +1,118 @@
+@import "./tokens.css";
+@import "./charts.css";
+/* --u: one design pixel. 1px up to a 1440 x 900 window, then it grows with the window (to 1.5px) so text keeps its
+   size relative to the frame on a projector or a large display. Sizes below are written as calc(n * var(--u)). */
+:root { --u: clamp(1px, min(.0694vw, .1111vh), 1.5px); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink); }
+body { font-family: var(--text); font-size: calc(18 * var(--u)); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+#app { position: fixed; inset: 0; display: grid; grid-template-columns: minmax(340px, 38%) 1fr; }
+
+/* stage: one square frame, photo + height + outlines share the same pixel space.
+   The frame has explicit position and size so the full-screen opening can animate into the square. */
+#stage { position: fixed; inset: 0; pointer-events: none; }
+#frame { --s: min(92vh, 58vw); position: absolute; width: var(--s); height: var(--s);
+  top: calc(50vh - var(--s) / 2); left: calc(96vw - 26px - var(--s)); overflow: hidden; background: var(--paper-2);
+  transition: width 1.1s var(--ease), height 1.1s var(--ease), top 1.1s var(--ease), left 1.1s var(--ease); }
+#frame > img, #frame > canvas, #frame > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#frame > img { object-fit: cover; transition: opacity 1s var(--ease); }
+#photo-b { opacity: 0; }
+#height { opacity: 0; transition: opacity 1s var(--ease); image-rendering: auto; }
+#outlines polygon { fill: transparent; stroke: transparent; stroke-width: 3; transition: fill .8s var(--ease), stroke .8s var(--ease); }
+#outlines polygon.on { stroke: var(--signal); fill: rgba(255, 90, 31, .28); }
+#outlines polygon.ghost { stroke: rgba(255, 255, 255, .55); stroke-width: 1.5; }
+#zoom { opacity: 1; transition: opacity .8s var(--ease); }
+
+/* model act: patch grid, three-input stack, charts (each fades in over the photo) */
+#grid, #stack, #chart { opacity: 0; transition: opacity .9s var(--ease); pointer-events: none; }
+#grid.on, #stack.on, #chart.on { opacity: 1; }
+#grid .tok { fill: var(--signal); opacity: 0; }
+#grid.on .tok { animation: tok 2.4s var(--ease) infinite; }
+@keyframes tok { 0%, 100% { opacity: 0; } 30% { opacity: .55; } }
+#stack { position: absolute; inset: 0; background: var(--paper); perspective: 2200px; }
+.stack-3d { position: absolute; left: 30%; top: 36%; width: 40%; height: 40%; transform-style: preserve-3d;
+  transform: rotateX(38deg) rotateZ(-24deg); }
+.layer { position: absolute; inset: 0; transform: translateZ(0); transform-style: preserve-3d;
+  transition: transform 1.3s var(--ease); box-shadow: 0 0 0 1px rgba(27, 42, 58, .15); }
+#stack.on .layer { transform: translateZ(calc(var(--k) * min(19vh, 12vw))); }
+.layer img { width: 100%; height: 100%; display: block; }
+.stack-legend { position: absolute; left: 6%; top: 6%; margin: 0; padding: 0; list-style: none; counter-reset: s;
+  font-family: var(--display); font-weight: 500; font-size: clamp(13px, 1.2vw, calc(18 * var(--u))); color: var(--ink); line-height: 1.7; }
+.stack-legend li::before { content: "↑ "; color: var(--ink-2); }
+.stack-legend li:first-child::before { content: "top · "; }
+.stack-legend li:nth-child(2)::before { content: "middle · "; }
+.stack-legend li:last-child::before { content: "bottom · "; }
+#chart { position: absolute; inset: 0; background: var(--paper); }
+#chart svg { width: 100%; height: 100%; display: block; }
+@media (min-width: 821px) { #chart { --iso-k: 1.15; } }
+
+/* city map: one map for two screens; the rail screen dims the blocks and brings in the stops */
+#chart .cells { transition: opacity 1s var(--ease); }
+#chart .stations { opacity: 0; transition: opacity 1s var(--ease) .3s; }
+#chart.rail .cells { opacity: .55; }
+#chart.rail .stations { opacity: 1; }
+
+.facts { display: flex; gap: 2.2rem; margin: .4em 0 1.1em; }
+.facts div { font-size: calc(15 * var(--u)); color: var(--ink-2); line-height: 1.3; }
+.facts b { display: block; font-family: var(--display); font-weight: 600; font-size: clamp(30px, 3vw, calc(46 * var(--u))); color: var(--ink); letter-spacing: -.02em; }
+
+/* compact spec list in the text column */
+dl.spec { display: grid; grid-template-columns: max-content 1fr; gap: .25em 1em; margin: .2em 0 1em; font-size: calc(15.5 * var(--u)); line-height: 1.45; }
+dl.spec dt { color: var(--ink-2); }
+dl.spec dd { margin: 0; }
+body.hero #year { opacity: 0; }
+#year { position: absolute; right: 18px; bottom: 14px; font-family: var(--display); font-weight: 500; font-size: calc(44 * var(--u));
+  color: #fff; letter-spacing: -.02em; text-shadow: 0 1px 12px rgba(0, 0, 0, .35); transition: opacity .6s, color .8s var(--ease); }
+/* on the pale LiDAR height picture the year is drawn in ink */
+#frame.pale #year { color: var(--ink); text-shadow: none; }
+
+/* hero: the frame opens to the full screen behind the title */
+body.hero #frame { width: 100vw; height: 100vh; top: 0; left: 0; }
+body.hero #text { grid-column: 1 / -1; align-self: end; justify-self: end; margin: 0 6vw 9vh 0; max-width: calc(704 * var(--u));
+  background: var(--paper); padding: calc(35 * var(--u)) calc(38 * var(--u)) calc(32 * var(--u)); }
+
+/* text column */
+#text { grid-column: 1; grid-row: 1; align-self: center; padding: 0 3vw 0 6vw; z-index: 2; }
+.step { animation: rise .9s var(--ease) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+h1 { font-family: var(--display); font-weight: 600; font-size: clamp(40px, 5.2vw, calc(76 * var(--u))); line-height: 1.02;
+  letter-spacing: -.025em; margin: 0 0 .5em; }
+h2 { font-family: var(--display); font-weight: 500; font-size: clamp(28px, 2.9vw, calc(42 * var(--u))); line-height: 1.1;
+  letter-spacing: -.015em; margin: 0 0 .6em; }
+p { margin: 0 0 1em; max-width: calc(544 * var(--u)); color: var(--ink); }
+p.sub { font-size: calc(21 * var(--u)); color: var(--ink-2); margin: 0; }
+p.small { font-size: calc(15 * var(--u)); color: var(--ink-2); }
+.hl { color: var(--signal); font-weight: 500; }
+strong.em { font-weight: 600; color: var(--ink); }
+.num { font-family: var(--display); font-weight: 600; font-size: clamp(56px, 6vw, calc(92 * var(--u))); line-height: 1; letter-spacing: -.03em;
+  display: block; margin: .1em 0 .15em; }
+
+/* timelines for "two kinds of data" */
+.track { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin: .4em 0 1.2em; max-width: calc(544 * var(--u)); }
+.track span { font-family: var(--display); font-size: calc(15 * var(--u)); padding: calc(4 * var(--u)) 0; text-align: center;
+  border: 1px solid var(--rule); color: var(--ink-2); }
+.track span.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.track.photo span.on { background: #8f8a6f; border-color: #8f8a6f; color: var(--paper); }
+
+/* progress: one dot per step, grouped by act */
+#progress { position: fixed; right: 22px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 9px; z-index: 5; }
+#progress button { width: 9px; height: 9px; padding: 0; border-radius: 50%; border: 1px solid var(--ink-2); background: transparent; cursor: pointer; }
+#progress button.on { background: var(--signal); border-color: var(--signal); }
+#progress button.gap { margin-top: 10px; }
+
+#to-explore { position: fixed; top: 18px; right: 20px; z-index: 6; }
+#app .btn { font-size: calc(15 * var(--u)); padding: calc(9 * var(--u)) calc(16 * var(--u)); }
+#app .btn svg { width: calc(18 * var(--u)); height: calc(18 * var(--u)); }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 1.4em; }
+#credit { position: fixed; left: 6vw; bottom: 10px; margin: 0; padding: 2px 8px; background: var(--paper); font-size: calc(12 * var(--u)); color: var(--ink-2); z-index: 3; }
+
+@media (max-width: 820px) {
+  #app { grid-template-columns: 1fr; grid-template-rows: 52vh 1fr; }
+  #frame, body.hero #frame { width: 100vw; height: 52vh; top: 0; left: 0; }
+  #text { grid-row: 2; align-self: start; padding: 1.2rem 1.2rem 0; }
+  body { font-size: 16px; }
+  .track { display: flex; flex-wrap: wrap; }
+  .track span { padding: 4px 9px; }
+  #progress { display: none; }
+}

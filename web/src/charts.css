@@ -1,0 +1,33 @@
+/* chart and diagram styles shared by the story and the method page (SVG text, 3D lots) */
+.c-axis text { font-family: var(--text); font-size: 26px; fill: var(--ink-2); }
+.c-axis path, .c-axis line { stroke: var(--rule); }
+.c-title { font-family: var(--display); font-weight: 500; font-size: 32px; fill: var(--ink); }
+.c-note { font-family: var(--text); font-size: 24px; fill: var(--ink-2); }
+.c-label { font-family: var(--display); font-weight: 500; font-size: 30px; fill: var(--ink); }
+.c-label.hl { fill: var(--signal); }
+.c-axis-big text { font-family: var(--display); font-weight: 500; font-size: 30px; fill: var(--ink); }
+/* "seen from above / from the side": CSS 3D blocks; #chart.side tilts the camera */
+.iso-wrap { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; perspective: 6000px; }
+.iso-scene { position: relative; transform-style: preserve-3d; transform: scale(var(--iso-k, 1)) rotateX(0deg) rotateZ(0deg);
+  transition: transform 1.8s var(--ease); }
+.side .iso-scene { transform: scale(var(--iso-k, 1)) translateY(12%) rotateX(62deg) rotateZ(-28deg); }
+.iso-ground { position: absolute; left: -40px; top: -40px; right: -40px; background: var(--paper-2); }
+.cub { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
+.cub .f { position: absolute; left: 0; top: 0; backface-visibility: visible; }
+.f.top.roof { background: #8a96a3; } .f.top.new { background: var(--signal); } .f.top.none { display: none; }
+.f.front.old { background: #a7b0ba; } .f.side.old { background: #7b8693; }
+.f.front.new { background: #ff7a45; } .f.side.new { background: #d9481a; }
+.f.top { box-shadow: inset 0 0 0 1px rgba(27, 42, 58, .12); }
+.flat { position: absolute; transform: translateZ(1px); }
+.flat.centre { transform: translateZ(2px); }
+.flat.walk { background: #d9d3c6; } .flat.street { background: #7d8287; }
+.flat.centre { background: repeating-linear-gradient(90deg, #f1eee8 0 22px, transparent 22px 40px); }
+.f.top.trunk, .f.front.trunk { background: #8a6f52; } .f.side.trunk { background: #6e5640; }
+.c-fo { font-family: var(--text); font-size: 24px; line-height: 1.25; color: var(--ink-2); }
+.shade { position: absolute; background: rgba(27, 42, 58, .3); filter: blur(9px); transform: translate3d(12px, 10px, 1.5px); border-radius: 6px; }
+.shade.round { border-radius: 50%; background: rgba(27, 42, 58, .22); }
+/* billboard ball: counter-rotates against the camera tilt, with the same timing, so it always faces the viewer */
+.ball { position: absolute; left: -24px; top: -24px; width: 48px; height: 48px; border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, #b4cf98 0 14%, #86a66b 46%, #5f7f47 100%);
+  transform: rotateZ(0deg) rotateX(0deg); transition: transform 1.8s var(--ease); }
+.side .ball { transform: rotateZ(28deg) rotateX(-62deg); }

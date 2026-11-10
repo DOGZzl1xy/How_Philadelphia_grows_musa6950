@@ -1,0 +1,35 @@
+/* design tokens shared by every page */
+/* Archivo and Inter (variable, SIL Open Font License) are served from this site, from the @fontsource-variable packages:
+   no request to a font service before the first paint. Latin and Latin Extended only; other scripts use system fonts. */
+@font-face { font-family: "Archivo"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../node_modules/@fontsource-variable/archivo/files/archivo-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Archivo"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 100 900; font-display: swap;
+  src: url("../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+
+:root {
+  --paper: #f1eee8;
+  --paper-2: #e7e2d8;
+  --ink: #1b2a3a;
+  --ink-2: #4c5966;
+  --rule: #d6d0c4;
+  --signal: #ff5a1f;
+  --display: "Archivo", system-ui, sans-serif;
+  --text: "Inter", system-ui, sans-serif;
+  --ease: cubic-bezier(.22, .7, .2, 1);
+}
+
+/* buttons shared by every page: paper pill, ink text, readable on photos and on paper alike */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 999px; text-decoration: none;
+  font-family: var(--display); font-weight: 500; font-size: 15px; line-height: 1; color: var(--ink);
+  background: rgba(241, 238, 232, .88); border: 1px solid rgba(27, 42, 58, .2); transition: background .2s, border-color .2s; }
+.btn:hover { background: var(--paper); border-color: rgba(27, 42, 58, .45); }
+.btn.primary { background: var(--signal); border-color: var(--signal); color: #fff; }
+.btn.primary:hover { background: #e94e14; }

@@ -1,0 +1,7 @@
+node_modules/
+dist/
+public/data/
+.wrangler/
+public/report.pdf
+.dev.vars
+tests/agent/*.out.txt

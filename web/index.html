@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teaching Annual Aerial Imagery to See Growth</title>
+  <meta name="description" content="How Philadelphia grows, lot by lot: a foundation model taught by LiDAR reads new construction from yearly aerial photographs." />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#f1eee8" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Teaching Annual Aerial Imagery to See Growth" />
+  <meta property="og:title" content="Teaching Annual Aerial Imagery to See Growth" />
+  <meta property="og:description" content="How Philadelphia grows, lot by lot: a foundation model taught by LiDAR reads new construction from yearly aerial photographs." />
+  <meta property="og:url" content="https://musa6950-philly-growth.xuanyuzhou.org/" />
+  <meta property="og:image" content="https://musa6950-philly-growth.xuanyuzhou.org/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" />
+</head>
+<body>
+  <main id="app">
+    <section id="stage" aria-hidden="true">
+      <div id="frame">
+        <img id="photo-a" alt="" decoding="async" />
+        <img id="photo-b" alt="" decoding="async" />
+        <canvas id="height"></canvas>
+        <svg id="outlines" viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid slice"></svg>
+        <svg id="grid" viewBox="0 0 1024 1024" preserveAspectRatio="xMidYMid slice"></svg>
+        <div id="stack"></div>
+        <div id="chart"></div>
+        <canvas id="zoom"></canvas>
+        <div id="year"></div>
+      </div>
+    </section>
+    <section id="text" aria-live="polite"></section>
+    <nav id="progress" aria-label="Progress"></nav>
+    <a id="to-explore" class="btn" href="/explore" aria-label="Explore the data"></a>
+    <p id="credit">Aerial photography: City of Philadelphia. LiDAR: PASDA / City of Philadelphia.</p>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

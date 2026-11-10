@@ -1,0 +1,109 @@
+/* explore: a search page first (centred), a map with answers after the first question (phase two) */
+body.explore { min-height: 100vh; }
+.ask { min-height: calc(100vh - 70px); display: flex; flex-direction: column; align-items: center; padding: 24px 24px 20px; }
+.ask-inner { width: min(680px, 100%); text-align: center; margin: auto 0; padding-bottom: 6vh; }
+.wordmark { font-family: var(--display); font-weight: 600; font-size: clamp(54px, 8vw, 96px); letter-spacing: -.035em;
+  line-height: 1; margin: 0 0 .2em; }
+.ask-sub { color: var(--ink-2); font-size: 19px; margin: 0 0 1.6em; }
+.ask-box { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--rule); border-radius: 999px;
+  padding: 6px 6px 6px 18px; box-shadow: 0 2px 12px rgba(27, 42, 58, .06); transition: box-shadow .2s, border-color .2s; }
+.ask-box:focus-within { border-color: var(--ink-2); box-shadow: 0 4px 22px rgba(27, 42, 58, .12); }
+.ask-icon { color: var(--ink-2); display: flex; }
+.ask-box input { flex: 1; border: 0; outline: 0; background: transparent; font: inherit; font-size: 18px; color: var(--ink);
+  padding: 10px 4px; min-width: 0; }
+.ask-go { border: 0; border-radius: 999px; background: var(--ink); color: var(--paper); font-family: var(--display);
+  font-weight: 500; font-size: 15px; padding: 11px 20px; cursor: pointer; }
+.ask-go:hover { background: #2a3d52; }
+.ask-error { min-height: 1.5em; margin: .6em 0 0; font-size: 14.5px; color: #b8360a; }
+.chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: .6em 0 1.6em; }
+.chip { font: inherit; font-size: 14.5px; color: var(--ink-2); background: transparent; border: 1px solid var(--rule);
+  border-radius: 999px; padding: 7px 14px; cursor: pointer; transition: all .2s; }
+.chip:hover { color: var(--ink); border-color: var(--ink-2); background: #fff; }
+.ask-note { font-size: 13.5px; color: var(--ink-2); max-width: 560px; margin: 0; text-align: center; }
+
+/* after the first question: panel on the left, map filling the rest */
+body.explore.mapped { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+.ask[hidden] { display: none; }
+.app { flex: 1; min-height: 0; display: grid; grid-template-columns: 400px 1fr; }
+.app[hidden] { display: none; }
+.panel { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--rule); background: var(--paper); }
+.ask-box.small { margin: 6px 16px 10px; padding: 4px 4px 4px 14px; box-shadow: none; }
+.ask-box.small input { font-size: 15.5px; padding: 8px 2px; }
+.ask-box.small .ask-go { padding: 9px 15px; font-size: 14px; }
+.thread { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 18px 12px; font-size: 15.5px; line-height: 1.55; }
+.turn { padding: 12px 0 14px; border-bottom: 1px solid var(--rule); }
+.turn .q { font-family: var(--display); font-weight: 500; font-size: 17px; margin: 0 0 .5em; color: var(--ink); }
+.turn .a p, .turn .a ul { margin: 0 0 .6em; }
+.turn .a ul { padding-left: 1.1em; }
+.turn .a strong { font-weight: 600; }
+.turn .status { color: var(--ink-2); font-style: italic; }
+.turn .err { color: #b8360a; }
+.turn .meta { margin: .2em 0 0; font-size: 12.5px; color: var(--ink-2); }
+/* question lines and the layer header are buttons drawn as plain text (no browser button look) */
+.turn .q, .lbar { -webkit-appearance: none; appearance: none; display: flex; align-items: baseline; gap: 10px; width: 100%;
+  margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; text-align: left; font: inherit;
+  color: var(--ink); cursor: pointer; }
+.turn .q { font-family: var(--display); font-weight: 500; font-size: 17px; line-height: 1.35; margin: 0 0 .5em; cursor: default; }
+.turn.old .q { font-size: 15px; font-weight: 500; color: var(--ink-2); margin: 0; cursor: pointer; }
+.turn.old .q:hover, .turn.old.open .q { color: var(--ink); }
+.turn.old.open .q { margin-bottom: .5em; }
+.turn.old:not(.open) .a, .turn.old:not(.open) .meta { display: none; }
+.turn.old { padding: 9px 0; }
+/* chevron: a small rotated stroke, like the rest of the line icons */
+.chev { flex: none; margin-left: auto; width: 7px; height: 7px; border-right: 1.5px solid var(--ink-2); border-bottom: 1.5px solid var(--ink-2);
+  transform: translateY(-2px) rotate(45deg); transition: transform .2s var(--ease); }
+.turn.old .q::after { content: ""; flex: none; margin-left: auto; width: 7px; height: 7px; border-right: 1.5px solid var(--ink-2);
+  border-bottom: 1.5px solid var(--ink-2); transform: translateY(-2px) rotate(-45deg); transition: transform .2s var(--ease); }
+.turn.old.open .q::after { transform: translateY(-3px) rotate(45deg); }
+.lbar { font-family: var(--display); font-weight: 500; font-size: 14px; padding: 2px 0; }
+.lbar[aria-expanded="true"] { margin-bottom: 10px; }
+.lbar[aria-expanded="false"] .chev { transform: translateY(1px) rotate(-135deg); }
+.layers.collapsed { padding: 12px 18px; }
+.layers.collapsed .legend { margin-top: 10px; }
+
+.layers { border-top: 1px solid var(--rule); padding: 10px 18px 14px; max-height: 52%; overflow-y: auto; font-size: 14px; background: var(--paper); }
+.lg { margin: 0 0 10px; }
+.lg h3 { font-family: var(--display); font-weight: 500; font-size: 14px; margin: 0 0 6px; color: var(--ink); }
+.lg .est { font-family: var(--text); font-weight: 400; color: var(--ink-2); font-size: 12.5px; margin-left: 4px; }
+.seg { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 6px; }
+.seg button { font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--rule); background: transparent;
+  color: var(--ink-2); cursor: pointer; transition: all .15s; }
+.seg button:hover { border-color: var(--ink-2); color: var(--ink); }
+.seg button.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.lg select { font: inherit; font-size: 13.5px; width: 100%; padding: 6px 8px; border: 1px solid var(--rule); border-radius: 8px;
+  background: #fff; color: var(--ink); margin: 0 0 6px; }
+.lg.ctx label { display: inline-flex; align-items: center; gap: 5px; margin: 0 12px 4px 0; color: var(--ink); cursor: pointer; }
+.lg.ctx input { accent-color: var(--ink); }
+.legend { border-top: 1px solid var(--rule); padding-top: 8px; }
+.legend .lt { font-family: var(--display); font-weight: 500; margin: 0 0 6px; }
+.ramp { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3px 8px; font-size: 12.5px; color: var(--ink-2); }
+.ramp span { display: flex; align-items: center; gap: 5px; }
+.ramp i { width: 14px; height: 12px; border-radius: 2px; flex: none; }
+.legend .ln, .hint { font-size: 12.5px; color: var(--ink-2); margin: 6px 0 0; line-height: 1.45; }
+
+.map-wrap { position: relative; min-width: 0; }
+.map-wrap .map { position: absolute; inset: 0; }
+.card { position: absolute; top: 12px; left: 12px; width: 300px; max-height: calc(100% - 24px); overflow-y: auto; background: rgba(241, 238, 232, .96);
+  border: 1px solid var(--rule); border-radius: 10px; padding: 12px 14px; font-size: 13.5px; line-height: 1.45; box-shadow: 0 4px 18px rgba(27, 42, 58, .1); }
+.card[hidden] { display: none; }
+.card h4 { font-family: var(--display); font-weight: 600; font-size: 17px; margin: 0 22px 2px 0; }
+.card .cm { margin: 0 0 8px; color: var(--ink-2); }
+.card .ch { font-family: var(--display); font-weight: 500; margin: 10px 0 4px; }
+.card .cn { color: var(--ink-2); font-size: 12.5px; margin: 8px 0 0; }
+.card-x { position: absolute; top: 6px; right: 8px; border: 0; background: transparent; font-size: 20px; line-height: 1; color: var(--ink-2); cursor: pointer; }
+.mini { width: 100%; border-collapse: collapse; }
+.mini th, .mini td { text-align: right; padding: 3px 0 3px 6px; border-bottom: 1px solid var(--rule); font-variant-numeric: tabular-nums; }
+.mini th:first-child, .mini td:first-child { text-align: left; padding-left: 0; }
+.mini th { font-weight: 500; color: var(--ink-2); font-size: 12.5px; }
+.mini tr.sub td { color: var(--ink-2); font-size: 12.5px; }
+.bars { display: flex; gap: 6px; align-items: flex-end; height: 60px; }
+.bars span { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; font-size: 11px; color: var(--ink-2); gap: 3px; }
+.bars b { width: 100%; background: var(--signal); border-radius: 2px 2px 0 0; min-height: 1px; }
+.maplibregl-ctrl-attrib { font-size: 11px; }
+
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 52% 48%; }
+  .panel { order: 2; border-right: 0; border-top: 1px solid var(--rule); }
+  .card { width: auto; right: 12px; }
+}
+.thread .intro { color: var(--ink-2); margin: 10px 0; }

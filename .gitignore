@@ -1,0 +1,27 @@
+# Data lives outside the repository (data is a symbolic link); environments and caches are local.
+/data
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+.env
+.DS_Store
+tmp/
+
+# Rasters and archives stay local.
+*.[tT][iI][fF]
+*.[tT][iI][fF][fF]
+*.[zZ][iI][pP]
+*.aux.xml
+
+# Kept local, never published: run logs and processing records, LaTeX by-products,
+# and anything that shows single buildings or addresses (review pages, building-level
+# case images, per-parcel tables).
+*.log
+*.aux
+*.out
+/results/citywide/logs/
+/results/citywide/processing/
+/results/**/review*.html
+/results/popup_feasibility/figs/missed_cases.png
+/results/popup_feasibility/figs/popup_case_*.png
+flagged_parcels.parquet

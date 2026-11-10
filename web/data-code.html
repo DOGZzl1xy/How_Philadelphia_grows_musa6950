@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data &amp; Code · Teaching Annual Aerial Imagery to See Growth</title>
+  <meta name="description" content="Report, code and data sources for Teaching Annual Aerial Imagery to See Growth." />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#f1eee8" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Teaching Annual Aerial Imagery to See Growth" />
+  <meta property="og:title" content="Data &amp; Code · Teaching Annual Aerial Imagery to See Growth" />
+  <meta property="og:description" content="Report, code and data sources for Teaching Annual Aerial Imagery to See Growth." />
+  <meta property="og:url" content="https://musa6950-philly-growth.xuanyuzhou.org/data-code" />
+  <meta property="og:image" content="https://musa6950-philly-growth.xuanyuzhou.org/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" />
+</head>
+<body>
+  <main class="doc">
+    <h1>Data &amp; Code</h1>
+    <p class="lede">Everything this project used is public. The report describes the full method; the code reproduces it
+      from the raw data.</p>
+
+    <h2>Report and code</h2>
+    <p>The final report for MUSA 6950 AI for Urban Sustainability, University of Pennsylvania, and the code repository:
+      data processing, LiDAR change labels, model training and evaluation, and the analysis behind every number on this
+      site.</p>
+    <div class="cta" id="dc-cta"></div>
+    <p>Raw data (about 300 GB) and model checkpoints are not in the repository; the scripts download the public inputs
+      listed below. Nothing on this site identifies an address or a parcel: scenes are shown without coordinates and
+      every city-wide figure is aggregated to 250 m cells or block groups.</p>
+
+    <h2>Data sources</h2>
+    <table>
+      <tr><th>Data</th><th>Provider</th><th>Used for</th></tr>
+      <tr><td>Aerial photography, 2010–2025</td><td><a href="https://opendataphilly.org/" target="_blank" rel="noopener">City of Philadelphia</a></td><td>model input, all photographs on this site</td></tr>
+      <tr><td>LiDAR point clouds, 2010–2025</td><td><a href="https://www.pasda.psu.edu/" target="_blank" rel="noopener">PASDA</a> / City of Philadelphia</td><td>building height, change labels</td></tr>
+      <tr><td>Building permits</td><td><a href="https://opendataphilly.org/" target="_blank" rel="noopener">Philadelphia L&amp;I, OpenDataPhilly</a></td><td>permits vs. buildings</td></tr>
+      <tr><td>Parcels, building footprints, zoning</td><td><a href="https://opendataphilly.org/" target="_blank" rel="noopener">City of Philadelphia, OpenDataPhilly</a></td><td>lots, study area</td></tr>
+      <tr><td>American Community Survey, 5-year</td><td><a href="https://www.census.gov/programs-surveys/acs" target="_blank" rel="noopener">U.S. Census Bureau</a></td><td>income level and change</td></tr>
+      <tr><td>Transit network (GTFS)</td><td><a href="https://www3.septa.org/developer/" target="_blank" rel="noopener">SEPTA</a></td><td>distance to rail stops</td></tr>
+      <tr><td>DINOv3 (SAT-493M weights)</td><td><a href="https://github.com/facebookresearch/dinov3" target="_blank" rel="noopener">Meta AI</a></td><td>image encoder</td></tr>
+    </table>
+
+    <h2>References</h2>
+    <ol class="refs">
+      <li>Meta AI and World Resources Institute (2026). <i>Canopy Height Maps v2.</i></li>
+      <li>Siméoni, O., et al. (2025). <i>DINOv3.</i> <a href="https://arxiv.org/abs/2508.10104" target="_blank" rel="noopener">arXiv:2508.10104</a>.</li>
+      <li>Ranftl, R., Bochkovskiy, A., Koltun, V. (2021). <i>Vision Transformers for Dense Prediction.</i> ICCV.</li>
+      <li>Lin, T.-Y., et al. (2017). <i>Focal Loss for Dense Object Detection.</i> ICCV.</li>
+      <li>Zhu, D., et al. (2024). <i>ChangeViT: Unleashing plain vision transformers for change detection.</i> <a href="https://arxiv.org/abs/2406.12847" target="_blank" rel="noopener">arXiv:2406.12847</a>.</li>
+      <li>Wang, Y., et al. (2026). <i>Multi-modal building change detection for large-scale small changes.</i> <a href="https://arxiv.org/abs/2603.19077" target="_blank" rel="noopener">arXiv:2603.19077</a>.</li>
+      <li>Pang, C., et al. (2023). <i>Detecting building changes with off-nadir aerial images.</i> <a href="https://arxiv.org/abs/2301.10922" target="_blank" rel="noopener">arXiv:2301.10922</a>.</li>
+      <li>City of Philadelphia, Bill No. 230574 (2023), Brewerytown–Sharswood overlay.</li>
+    </ol>
+  </main>
+  <script type="module" src="/src/datacode.js"></script>
+</body>
+</html>
