@@ -113,13 +113,24 @@ export function lookupArea(t: Tables, a: { name: string }) {
 
 // named rail stations: subway / elevated and regional rail (trolley stops are street corners and have no names here)
 const stationKey = (x: string) => norm(x.replace(/\bstreet\b/gi, "st").replace(/\bavenue\b/gi, "av").replace(/\bstation\b/gi, ""));
-export function findStation(t: Tables, a: { name: string }) {
+export function findStation(t: Tables, a: { name?: string; neighbourhood?: string; zip?: string }) {
+  const row = (v: Row) => ({ station: v.name, mode: v.mode, lines: v.lines, neighbourhood: v.neighbourhood, zip: v.zip,
+    map_focus: v.cell ? { level: "cell", id: v.cell } : { level: "neighbourhood", id: v.neighbourhood } });
+  // every named station of one neighbourhood or ZIP code: the complete list, so "how many" has one answer
+  if (a.neighbourhood || a.zip) {
+    const hood = a.neighbourhood ? (t.hoods[a.neighbourhood] ? a.neighbourhood : findHood(t, a.neighbourhood).match) : null;
+    if (a.neighbourhood && !hood) return { error: `no neighbourhood matches "${a.neighbourhood}"`, candidates: findHood(t, a.neighbourhood).candidates };
+    const zip = a.zip ? String(a.zip) : null;
+    if (zip && !t.zips[zip]) return { error: "unknown ZIP code" };
+    const inArea = Object.values(t.stations).filter((v) => (hood ? v.neighbourhood === hood : v.zip === zip));
+    return { area: hood ? { level: "neighbourhood", id: hood } : { level: "zip", id: zip }, named_stations: inArea.length, stations: inArea.map(row),
+      note: "complete list of named stations (subway / elevated and regional rail) inside this area; trolley stops have no names in this project and are not counted" };
+  }
   const q = stationKey(String(a.name || ""));
-  if (q.length < 2) return { error: "give a station name" };
+  if (q.length < 2) return { error: "give a station name, a neighbourhood or a ZIP code" };
   const hits = Object.entries(t.stations).filter(([k, v]) => stationKey(v.name).includes(q) || (q.length > 4 && q.includes(stationKey(v.name))));
   if (!hits.length) return { error: `no subway, elevated or regional rail station matches "${a.name}"; trolley stops have no names in this project` };
-  return { stations: hits.slice(0, 6).map(([k, v]) => ({ station: v.name, mode: v.mode, lines: v.lines, neighbourhood: v.neighbourhood, zip: v.zip,
-    map_focus: v.cell ? { level: "cell", id: v.cell } : { level: "neighbourhood", id: v.neighbourhood } })) };
+  return { stations: hits.slice(0, 6).map(([, v]) => row(v)) };
 }
 
 export function areaStats(t: Tables, a: { level: Level; id: string }) {
@@ -301,8 +312,8 @@ export function compareGroups(t: Tables, a: { by: string }) {
 export const TOOL_DEFS = [
   { type: "function", function: { name: "lookup_area", description: "Resolve a place the reader names (neighbourhood name, ZIP code, census tract such as 'CT 30.01', or the city) to an area id, with where it lies in words (direction and distance from City Hall, neighbouring areas and their directions). Use the English neighbourhood name from the list in the instructions.",
     parameters: { type: "object", properties: { name: { type: "string" } }, required: ["name"] } } },
-  { type: "function", function: { name: "find_station", description: "Find a subway, elevated or regional rail station by name (e.g. '30th Street', 'City Hall', 'Temple') and the neighbourhood and ZIP code it is in. Use map_focus from the result in update_map.",
-    parameters: { type: "object", properties: { name: { type: "string" } }, required: ["name"] } } },
+  { type: "function", function: { name: "find_station", description: "Subway, elevated and regional rail stations. Give name to find a station (e.g. '30th Street', 'City Hall', 'Temple') and the neighbourhood and ZIP code it is in; give neighbourhood or zip instead to get the complete list and the number of named stations in that area (use this for 'which / how many stations in ...'). Use map_focus or area from the result in update_map.",
+    parameters: { type: "object", properties: { name: { type: "string" }, neighbourhood: { type: "string" }, zip: { type: "string" } } } } },
   { type: "function", function: { name: "rank_stations", description: "Rank subway, elevated and regional rail stations by growth around them (counts in about 600 m each way): which station areas built the most.",
     parameters: { type: "object", properties: { metric: { type: "string", enum: ["new", "popup", "demo", "model_new"] }, period: { type: "string", enum: ["2018_2022", "2022_2025"] },
       year: { type: "string", enum: Object.keys(MODEL_YEARS) }, order: { type: "string", enum: ["desc", "asc"] }, limit: { type: "integer" } }, required: ["metric"] } } },

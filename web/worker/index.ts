@@ -82,7 +82,7 @@ const STATUS: Record<string, (a: any) => string> = {
   area_stats: (a) => (a.level === "city" ? "Reading city-wide results…" : `Reading the numbers for ${a.level === "zip" ? `ZIP ${a.id}` : a.level === "neighbourhood" ? a.id : a.level === "tract" ? `census tract ${String(a.id).replace(/^\D+/, "")}` : "this area"}…`),
   rank_areas: (a) => `Ranking ${({ zip: "ZIP codes", neighbourhood: "neighbourhoods", tract: "census tracts", cell: "250 m blocks", block_group: "block groups" } as any)[a.level] || "areas"}…`,
   citywide: () => "Reading city-wide results…",
-  find_station: (a) => `Looking up the station ${a.name}…`,
+  find_station: (a) => (a.name ? `Looking up the station ${a.name}…` : `Listing the stations in ${a.neighbourhood || `ZIP ${a.zip}`}…`),
   rank_stations: () => "Ranking station areas…",
   compare_groups: () => "Comparing groups…",
   update_map: () => "Updating the map…",
@@ -156,6 +156,7 @@ async function answerWith(env: Env, P: Provider, t: Tables, question: string, hi
       if (name === "rank_stations") for (const st of (result.results || []).slice(0, 3)) {
         if (st.neighbourhood && !areas.some((a) => a.id === st.neighbourhood)) areas.push({ level: "neighbourhood", id: st.neighbourhood });
       }
+      if (name === "find_station" && result.area && !areas.some((a) => a.id === result.area.id)) areas.push(result.area);
       if (name === "find_station") for (const st of result.stations || []) {
         if (st.neighbourhood && !areas.some((a) => a.id === st.neighbourhood)) areas.push({ level: "neighbourhood", id: st.neighbourhood });
       }

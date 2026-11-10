@@ -303,7 +303,7 @@ for name in ("google_bus.zip", "google_rail.zip"):
     stops = pd.read_csv(f.open("stops.txt"), usecols=["stop_id", "stop_name", "stop_lat", "stop_lon"], dtype={"stop_id": str})
     x = stt.merge(routes[["route_id", "route_long_name", "route_type"]], on="route_id").merge(stops, on="stop_id")
     st_rows.append(x)
-st = pd.concat(st_rows)
+st = pd.concat(st_rows, ignore_index=True)   # one index for both feeds: the joins below are matched back by row label
 st["line"] = st.route_long_name.str.replace(r" (All Stops|Local|Express)$", "", regex=True)
 st["stop_name"] = st.stop_name.str.replace(r"\s+-\s+[A-Z]\d$", "", regex=True)       # "15th St/City Hall - B1" -> one station
 st["mode"] = st.route_type.map({"1": "subway / elevated", "2": "regional rail"})
