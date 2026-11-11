@@ -38,7 +38,7 @@ a { color: inherit; }
 .fig[data-chart="arch"] { aspect-ratio: 1000 / 790; }
 .fig[data-chart="backbones"] { aspect-ratio: 1000 / 945; }
 .fig[data-chart="iso"] { aspect-ratio: 620 / 520; }
-.fig[data-chart="flow"] { aspect-ratio: 1000 / 940; }
+.fig[data-chart="flow"] { aspect-ratio: 1000 / 640; background: none; }
 .fig.triple { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: none; }
 .fig.triple img { width: 100%; aspect-ratio: 1; display: block; border-radius: 4px; background: var(--paper-2); }
 .fig svg { width: 100%; height: 100%; display: block; }

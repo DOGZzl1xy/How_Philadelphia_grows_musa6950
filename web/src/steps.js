@@ -94,8 +94,8 @@ export const steps = [
            <p>The starting point is <span class="hl">DINOv3</span>, a vision foundation model from Meta. Its satellite
            version learned what roofs, trees, streets, and shadows look like from 493 million satellite images, without
            a single label.</p>
-           <p>It reads a photograph as a grid of small patches—4 m squares here—and describes each patch with
-           1,024 numbers.</p>`,
+           <p>It cuts a photograph into small patches, the 4 m squares of this grid, and describes each patch with
+           1,024 numbers. The model reads a 128 m window at a time, about a thousand patches.</p>`,
   },
   {
     act: 3,
@@ -120,7 +120,7 @@ export const steps = [
   {
     act: 4,
     stage: { scene: "s2", year: 2025, chart: "scatter" },
-    html: `<h2>One exam, taken once</h2>
+    html: `<h2>How well it sees new buildings</h2>
            <p>The locked ZIP codes and years stayed closed until the model was finished. Then it was tested once.</p>
            <span class="num">0.96</span>
            <p>correlation with LiDAR when new buildings are counted block by block; the model finds 12% fewer than

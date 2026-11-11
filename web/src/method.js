@@ -8,7 +8,7 @@ topbar("method");
 document.querySelectorAll("img[data-src]").forEach((i) => (i.src = v(i.dataset.src)));   // data URLs carry the build version
 
 // the story draws every chart in a 1000 x 1000 square; here the empty bands are cut off (matches pages.css)
-const CROP = { arch: "0 170 1000 790", backbones: "0 0 1000 945", street: "0 60 1000 880", flow: "0 10 1000 940" };
+const CROP = { arch: "0 170 1000 790", backbones: "0 0 1000 945", street: "0 60 1000 880", flow: "0 0 1000 640" };
 
 // draw each figure when it scrolls into view, so its animation plays where the reader is
 const io = new IntersectionObserver((entries) => {

@@ -32,9 +32,10 @@
   transform: rotateZ(0deg) rotateX(0deg); transition: transform 1.8s var(--ease); }
 .side .ball { transform: rotateZ(28deg) rotateX(-62deg); }
 
-/* the project flow on the Method page: boxes with a title and one line */
-.flow-b { font-family: var(--text); color: var(--ink); line-height: 1.25; }
-.flow-b b { display: block; font-family: var(--display); font-weight: 600; font-size: 25px; margin-bottom: 5px; }
-.flow-b span { font-size: 19.5px; color: var(--ink-2); }
-.flow-b.inv, .flow-b.inv span { color: var(--paper); }
-.flow-l { font-family: var(--text); font-size: 19px; fill: var(--ink-2); font-style: italic; }
+/* research workflow on the Method page */
+.flow-h { font-family: var(--display); font-weight: 600; font-size: 22px; fill: var(--ink); }
+.flow-n { font-family: var(--display); font-weight: 600; font-size: 16px; fill: var(--paper); }
+.flow-t { font-family: var(--display); font-weight: 600; font-size: 19px; fill: var(--ink); }
+.flow-s { font-family: var(--text); font-size: 15.5px; fill: var(--ink-2); }
+.flow-c { font-family: var(--text); font-size: 15px; }
+.flow-l { font-family: var(--text); font-size: 15px; fill: var(--ink-2); font-style: italic; }

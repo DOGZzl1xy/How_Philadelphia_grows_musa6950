@@ -122,3 +122,8 @@ strong.em { font-weight: 600; color: var(--ink); }
   .track span { padding: 4px 9px; }
   #progress { display: none; }
 }
+
+/* photographs drift very slowly, so a still screen is never quite still (not the 3D pictures, which touch the frame) */
+@keyframes drift { from { transform: scale(1); } to { transform: scale(1.045) translate(-0.6%, -0.4%); } }
+#frame:not(.pale) :is(#photo-a, #photo-b, #outlines, #grid, #height) { animation: drift 16s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { #frame :is(#photo-a, #photo-b, #outlines, #grid, #height) { animation: none !important; } }

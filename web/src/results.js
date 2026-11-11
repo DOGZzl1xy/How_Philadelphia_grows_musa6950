@@ -105,40 +105,51 @@ export async function yearly(div) {
   g.selectAll("text.v").data(d.years).join("text").attr("class", "c-label v").attr("text-anchor", "middle")
     .attr("x", (v) => x(v.label) + x.bandwidth() / 2).attr("y", (v) => y(v.rate) - 16).text((v) => v.rate.toFixed(1))
     .attr("opacity", 0).transition().delay((v, k) => 120 * k + 800).duration(400).attr("opacity", 1);   // after the bar
-  const leg = [[SIGNAL, "years read from photographs"], [INK, "remaining years, from LiDAR totals"]];
+  const leg = [[SIGNAL, "from photographs"], [INK, "from LiDAR"]];
   leg.forEach(([c, t], k) => {
-    svg.append("rect").attr("x", 520).attr("y", 50 + k * 44).attr("width", 26).attr("height", 26).attr("fill", c);
-    svg.append("text").attr("x", 560).attr("y", 72 + k * 44).attr("class", "c-note").text(t);
+    svg.append("rect").attr("x", 690).attr("y", 50 + k * 44).attr("width", 26).attr("height", 26).attr("fill", c);
+    svg.append("text").attr("x", 730).attr("y", 72 + k * 44).attr("class", "c-note").text(t);
   });
 }
 
-// the city: 250 m blocks with new construction 2018-2025. One map serves two screens: #chart.rail dims the blocks a
-// little and brings in the rail stops (dark grey), so nothing else on the map moves.
+// the city: every 250 m block with new construction 2018-2025 stands as a column, as tall as its number of new
+// buildings; the city is seen from the south at an angle. One drawing serves two screens: #chart.rail dims the columns
+// a little and brings in the rail stops (dark dots on the ground), so nothing else moves.
 export async function cityMap(div) {
   const [cells, zips, stops] = await Promise.all([get("cells.geojson"),
     (cache.zips ??= await (await fetch(v(`${DATA}/model/zips.geojson`))).json()), get("rail.json")]);
   const svg = base(div);
-  const proj = d3.geoMercator().fitExtent([[30, 30], [970, 970]], zips), path = d3.geoPath(proj);
+  const flat = d3.geoMercator().fitExtent([[40, 0], [960, 1000]], zips);
+  const TILT = 0.62, Y0 = 330, K = 4.6;                    // ground squash, top margin, pixels per new building
+  const P = (c) => { const [x, y] = flat(c); return [x, Y0 + (y - 500) * TILT + 190]; };
+  const path = d3.geoPath(d3.geoTransform({ point(x, y) { const q = P([x, y]); this.stream.point(q[0], q[1]); } }));
   svg.append("g").selectAll("path").data(zips.features).join("path").attr("d", path).attr("fill", "#e7e2d8").attr("stroke", PAPER).attr("stroke-width", 2);
-  const built = cells.features.filter((f) => f.properties.n > 0);
-  const cap = d3.quantile(built.map((f) => f.properties.rate).sort(d3.ascending), 0.95);
-  const col = d3.scaleSequential([0, cap], d3.interpolateRgb("#f6c9b4", "#b8360a")).clamp(true);
-  svg.append("g").attr("class", "cells").selectAll("path").data(built).join("path").attr("d", path)
-    .attr("fill", (f) => col(f.properties.rate));
   svg.append("g").attr("class", "stations").selectAll("circle").data(stops).join("circle")
-    .attr("cx", (p) => proj(p)[0]).attr("cy", (p) => proj(p)[1]).attr("r", 3.4).attr("fill", "#5a6068");
-  // colour scale, in the empty corner south-east of the city; the rail key comes in with the stops
-  const ramp = svg.append("defs").append("linearGradient").attr("id", "city-ramp");
-  ramp.append("stop").attr("offset", "0%").attr("stop-color", col(0));
-  ramp.append("stop").attr("offset", "100%").attr("stop-color", col(cap));
-  const lg = svg.append("g").attr("transform", "translate(560,872)");
-  lg.append("text").attr("class", "c-note").attr("y", -16).text("new buildings per 1,000 lots per year");
-  lg.append("rect").attr("width", 400).attr("height", 16).attr("fill", "url(#city-ramp)");
-  lg.append("text").attr("class", "c-note").attr("y", 46).text("fewer");
-  lg.append("text").attr("class", "c-note").attr("x", 400).attr("y", 46).attr("text-anchor", "end").text(`${Math.round(cap)} or more`);
-  const rk = lg.append("g").attr("class", "stations").attr("transform", "translate(0,84)");
-  rk.append("circle").attr("cx", 8).attr("cy", -8).attr("r", 6).attr("fill", "#5a6068");
-  rk.append("text").attr("class", "c-note").attr("x", 26).text("rail stop");
+    .attr("cx", (p) => P(p)[0]).attr("cy", (p) => P(p)[1]).attr("r", 3.6).attr("fill", "#3d4650");
+  // columns, drawn from the north (back) to the south (front) so that nearer ones cover farther ones
+  const built = cells.features.filter((f) => f.properties.n > 0).map((f) => {
+    const r = f.geometry.coordinates[0].slice(0, 4).map(P), xs = r.map((q) => q[0]), ys = r.map((q) => q[1]);
+    return { n: f.properties.n, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) };
+  }).sort((p, q) => p.y1 - q.y1);
+  const cap = 60, h = (c) => Math.min(c.n, cap) * K;
+  const col = d3.scaleSequential([0, 40], d3.interpolateRgb("#ff9a66", "#d9400f")).clamp(true);
+  const g = svg.append("g").attr("class", "cells").selectAll("g").data(built).join("g");
+  const front = g.append("rect").attr("x", (c) => c.x0).attr("width", (c) => c.x1 - c.x0).attr("y", (c) => c.y1).attr("height", 0)
+    .attr("fill", (c) => d3.rgb(col(c.n)).darker(0.7));
+  const top = g.append("rect").attr("x", (c) => c.x0).attr("width", (c) => c.x1 - c.x0).attr("y", (c) => c.y0)
+    .attr("height", (c) => c.y1 - c.y0).attr("fill", (c) => col(c.n));
+  const T = (sel) => sel.transition().delay((c, k) => 250 + k * 2.2).duration(900).ease(d3.easeCubicOut);
+  T(front).attr("y", (c) => c.y1 - h(c)).attr("height", (c) => h(c));
+  T(top).attr("y", (c) => c.y0 - h(c));
+  // key: one column of 20 new buildings, and the rail stop (shown with the stops)
+  const lg = svg.append("g").attr("transform", "translate(660,900)");
+  lg.append("rect").attr("x", 0).attr("y", -20 * K).attr("width", 16).attr("height", 20 * K).attr("fill", d3.rgb(col(20)).darker(0.7));
+  lg.append("rect").attr("x", 0).attr("y", -20 * K - 10).attr("width", 16).attr("height", 10).attr("fill", col(20));
+  lg.append("text").attr("class", "c-note").attr("x", 30).attr("y", -40).text("20 new buildings");
+  lg.append("text").attr("class", "c-note").attr("x", 30).attr("y", -10).text("in a 250 m block");
+  const rk = lg.append("g").attr("class", "stations").attr("transform", "translate(0,44)");
+  rk.append("circle").attr("cx", 8).attr("cy", -8).attr("r", 6).attr("fill", "#3d4650");
+  rk.append("text").attr("class", "c-note").attr("x", 30).text("rail stop");
 }
 
 // who: new buildings and added storeys per 1,000 lots per year by block-group income quintile (2015-19). The two kinds
@@ -255,7 +266,9 @@ export function street(div, timeline) {
 }
 
 // the houses seen taller from the street, 2018-2025: one dot per house, on the part of the city where they are.
-// The dots arrive in three waves, by the photographs in which the change first shows; a count per wave fills in.
+// Three colours for the photographs in which the change first shows (validated as a set for colour-blind readers);
+// the dots arrive period by period and the count of each fills in under its label.
+const PERIOD = ["#2a78d6", "#1baf7a", "#eb6834"];
 export async function streetMap(div) {
   const [d, zips] = await Promise.all([get("street.json"), (cache.zips ??= await (await fetch(v(`${DATA}/model/zips.geojson`))).json())]);
   const svg = base(div);
@@ -264,14 +277,14 @@ export async function streetMap(div) {
   svg.append("g").selectAll("path").data(zips.features).join("path").attr("d", path).attr("fill", "#e7e2d8").attr("stroke", PAPER).attr("stroke-width", 3);
   const WAVE = 1300;
   svg.append("g").selectAll("circle").data(d.points).join("circle")
-    .attr("cx", (p) => proj(p)[0]).attr("cy", (p) => proj(p)[1]).attr("r", 0).attr("fill", SIGNAL).attr("fill-opacity", 0.85)
+    .attr("cx", (p) => proj(p)[0]).attr("cy", (p) => proj(p)[1]).attr("r", 0).attr("fill", (p) => PERIOD[p[2]]).attr("fill-opacity", 0.9)
     .attr("stroke", PAPER).attr("stroke-width", 0.8)
     .transition().delay((p, k) => 300 + p[2] * WAVE + (k % 40) * 12).duration(450).attr("r", 5);
-  // the three waves, top left: label and count appear as their dots do
   d.periods.forEach((label, k) => {
     const g = svg.append("g").attr("transform", `translate(${60 + k * 300},70)`).attr("opacity", 0.25);
-    g.append("text").attr("class", "c-note").text(`first seen in ${label}`);
-    const n = g.append("text").attr("class", "c-label").attr("y", 44).text("0");
+    g.append("circle").attr("cx", 9).attr("cy", -8).attr("r", 9).attr("fill", PERIOD[k]);
+    g.append("text").attr("class", "c-note").attr("x", 28).text(`first seen ${label}`);
+    const n = g.append("text").attr("class", "c-label").attr("x", 28).attr("y", 44).text("0");
     g.transition().delay(300 + k * WAVE).duration(400).attr("opacity", 1);
     n.transition().delay(300 + k * WAVE).duration(WAVE - 200).tween("text", () => {
       const f = d3.interpolateRound(0, d.by_period[k]);
