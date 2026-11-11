@@ -41,9 +41,10 @@
 ## 5. 街景看加层（stage8/）
 | 文件 | 内容 |
 |---|---|
-| **[stage8_plan.md](stage8_plan.md)** | 模型和许可筛候选、街景照片由视觉语言模型确认；候选、选片、判断、与 LiDAR 的比较、封存 ZIP 的一次性评估和门槛（r ≥ 0.8）；修订 1（2026-11-10）冻结了设置；文末是封存评估的执行记录 |
+| **[stage8_plan.md](stage8_plan.md)** | 模型和许可筛候选、街景照片由视觉语言模型确认；候选、选片、判断、与 LiDAR 的比较、封存 ZIP 的一次性评估和门槛（r ≥ 0.8）；修订 1（2026-11-10）冻结了设置；文末是封存评估和修订 2 的执行记录 |
 | `stage8/FROZEN`、`stage8/eval_dev_*.json`、`cells_dev_*.csv`、`dev_v1ob.json` | 冻结的设置；开发区 19146 的结果（按格子汇总） |
 | `stage8/eval_sealed.json`、`cells_sealed.csv`、`sealed_eval_log.csv` | **封存评估**（只运行一次；锁文件存在就拒绝再跑）：r = 0.54，未达到 0.8 |
+| `stage8/hot_cells.csv`、`stage8/review_marked.json` | 修订 2：热点格子（航拍模型判为长高 ≥ 3 栋，571 个）；作者对 60 栋标出房子的人工抽查结果（81% 变高）。单栋地图和清单只在本地 |
 
 ## 6. 过程记录
 | 位置 | 内容 |

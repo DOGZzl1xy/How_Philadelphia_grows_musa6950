@@ -238,3 +238,38 @@ unpermitted work, and the author decided not to pursue that.
 Philadelphia ZIP codes 19147, 19148, 19145 and a few others): hot cells have more photographs than estimated (72% of
 candidates observable). The author allowed up to $60; the script cap is set to $58, under the limit of $60 on the
 provider's side, and the rest is judged with the same settings.
+
+---
+
+## Execution record: amendment 2, find and map (2026-11-10 night to 2026-11-11)
+
+All 15,401 candidates in the 571 hot cells were photographed; 11,139 (72%) are observable and all of them are judged.
+Model calls cost $54.53 in total for the stage. Map, table and review page are local
+(`data/interim/stage8/map/`); nothing of them is committed.
+
+| Candidates in hot cells | Judged | Taller | New building |
+|---|---|---|---|
+| Upward-addition permit | 737 | 343 (47%) | 6 (1%) |
+| Model score only | 3,427 | 417 (12%) | 352 (10%) |
+| Zoning permit | 6,975 | 752 (11%) | 2,267 (33%) |
+
+**1,538 buildings are marked as taller between 2018 and 2025** (1,512 in hot cells, the rest from the development and
+sealed runs), in 31 ZIP codes and 357 of the 571 hot cells: 523 first seen taller in the 2018–2019 photographs, 348
+in 2020–2023, 667 from 2024 on. 468 of them carry the mark "may predate the April 2018 flight" (the last photograph
+without the change is older than the flight); this mark is conservative, a house torn down and rebuilt gets it when
+the photographs in between show a building site. 2,668 further candidates are judged "new building". For scale:
+LiDAR counted 2,215 pop-ups in the study area in 2018–2025; the two numbers are not the same thing (street view
+includes rebuilds and some changes from before 2018, and misses streets without photographs and additions hidden
+from the street).
+
+**Check by hand (the author, 2026-11-11, blind page, 80 buildings drawn when 1,437 were marked):** of 60 marked
+buildings, 2 were unclear; of the other 58 the author calls 47 taller (81%, 95% interval 69–89%), 10 a new building on
+a lot that was empty in the earlier photograph, and 1 unchanged (the neighbour had grown). Of 20 buildings judged
+"no change", the author agrees on 17 and sees 3 as taller. So a mark on the map is almost always a real construction
+(57 of 58); about four in five are an addition or a taller rebuild, the rest new buildings, most of them among the
+zoning-permit candidates. Records of 2016 (building description) and 2017 (footprints) do not separate the two well
+(they catch 4–5 of the 10 new buildings and 3 of the 47 others), so no filter is applied. Result in
+`stage8/review_marked.json`.
+
+Two weaknesses seen in the check: the target mark sometimes falls between two narrow rowhouses, and "taller" and
+"new building" are confused when an old house was torn down before the first photograph.

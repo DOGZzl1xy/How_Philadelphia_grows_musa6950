@@ -1,0 +1,14 @@
+{
+ "marked_drawn": 60,
+ "answered": 60,
+ "unclear": 2,
+ "taller_confirmed": 47,
+ "of": 58,
+ "share": 0.8103448275862069,
+ "ci95": [
+  0.6914738161458368,
+  0.8906585995743256
+ ],
+ "no_change_agreed": 17,
+ "no_change_of": 20
+}
