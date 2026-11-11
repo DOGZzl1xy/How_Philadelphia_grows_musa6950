@@ -175,3 +175,33 @@ primary estimate.
 
 **Order from here:** photographs of the sealed ZIP codes (917 tier-1 candidates), judging, the evaluation once
 (`scripts/stage8_eval.py --area sealed`, lock file `stage8/sealed_eval_log.csv`), then the other ZIP codes.
+
+---
+
+## Execution record: sealed evaluation (2026-11-10 23:07, run once, lock `stage8/sealed_eval_log.csv`)
+
+Settings of amendment 1. 917 tier-1 candidates in the 8 sealed ZIP codes; 560 observable (61%; in the far north-east
+ZIP 19116 only 8 of 152) and all judged: 459 no change, 34 taller, 25 new building, 42 unclear. 584 cells, 96 LiDAR
+pop-ups (47 + 49) in 65 cells, at most 4 in one cell. Results in `stage8/eval_sealed.json`, per cell in
+`stage8/cells_sealed.csv`.
+
+| Estimate | r per 250 m cell | 95% interval |
+|---|---|---|
+| **Primary: street view, candidates without photographs imputed** | **0.54** | 0.39–0.66 |
+| Street view, observed candidates only | 0.50 | 0.35–0.62 |
+| Baseline without any photograph (candidates × mean credit of their source) | 0.56 | 0.42–0.67 |
+| Plain count of candidates | 0.35 | 0.23–0.46 |
+
+**The gate (r ≥ 0.8) is not passed.** Also: r = 0.67 per block group (167 block groups); r = 0.53 on the 130 cells
+with at least 90% LiDAR coverage in 2018 (41 pop-ups); calibrated estimate 63 against 96 LiDAR pop-ups (ratio 0.65,
+with the factor from 19146). The primary estimate is 0.19 above the plain candidate count (interval 0.05 to 0.33) and
+not different from the baseline without photographs (−0.02, interval −0.15 to 0.11). For reference, the aerial
+model alone had r = 0.42 for pop-ups in these ZIP codes (2022→2025 only).
+
+What the verdicts show about the candidates here: of the judged candidates with an upward-addition permit, 24% are
+seen taller (14 of 58); of those chosen by the model score alone, 4% (20 of 502). 12 of the 96 LiDAR pop-ups lie in
+cells without any tier-1 candidate.
+
+**Consequence, as set in the plan:** the numbers are reported as they are; pop-ups stay a LiDAR-only result and no
+street-view pop-up map of the study area is published. The unit-level findings of development (19146 and the
+validation blocks) are reported with it. The sealed evaluation is not run again.
