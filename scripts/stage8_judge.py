@@ -130,8 +130,12 @@ def main():
     cand = pd.read_parquet(OUT / "candidates.parquet")
     tiers = [int(t) for t in a.tiers.split(",")]
     for z in a.zips.split(","):
-        if (cand[cand.zip == z].area == "sealed").any() and not FROZEN.exists():
-            raise SystemExit(f"{z} is a sealed ZIP code and the settings are not frozen yet")
+        area = cand[cand.zip == z].area.iloc[0] if (cand.zip == z).any() else "dev"
+        if area != "dev" and not a.prefix:      # outside the development ZIP only the frozen settings are used
+            if not FROZEN.exists():
+                raise SystemExit(f"{z} is outside the development ZIP code and the settings are not frozen yet")
+            fz = json.loads(FROZEN.read_text())
+            a.tag, a.name, a.old_baseline, tiers = fz["prompt"], fz["name"], fz["old_baseline"], fz["tiers"]
         recs = [json.loads(line) for line in (OUT / "photos" / f"{a.prefix}{z}.jsonl").open()]
         recs = [r for r in recs if r["status"] == "ok" and r["tier"] in tiers]
         if a.units:
