@@ -4,7 +4,10 @@ Tier 1: model pop-up score above the fixed stage-6 threshold in the 2018->2020 o
 upward-addition permit issued 2015-04-01 to 2025-04-30. Tier 2: a zoning permit for an addition or new development in
 the same dates (used only if development in ZIP 19146 says so). Units in high-rise 250 m cells are left out.
 
-Output: data/interim/stage8/candidates.parquet (zip, unit, cell, area role, model, upward, zdev, tier); a count table
+Amendment 2 adds `hot`: the unit lies in a 250 m cell where the aerial model flags at least 3 buildings as grown
+(results/citywide/stage8/hot_cells.csv).
+
+Output: data/interim/stage8/candidates.parquet (zip, unit, cell, area role, model, upward, zdev, tier, hot); a count table
 is printed. Run: uv run python scripts/stage8_candidates.py
 """
 import glob
@@ -23,6 +26,7 @@ OUT = ROOT / "data/interim/stage8"
 FT = 0.3048006096
 DEV_ZIP = "19146"
 PERMIT_FROM, PERMIT_TO = "2015-04-01", "2025-05-01"
+HOT_MIN = 3
 
 
 def units():
@@ -72,7 +76,15 @@ def main():
     A.loc[A.zdev, "tier"] = 2
     A.loc[A.model | A.upward, "tier"] = 1
     A = A[A.tier > 0].reset_index(drop=True)
+    # amendment 2: hot cells = the aerial model flags at least HOT_MIN buildings as grown over its two long pairs
+    cells["flagged"] = cells.model_flags_grew_2018_2020 + cells.model_flags_grew_2022_2024
+    hot = cells[~cells.high_rise & (cells.flagged >= HOT_MIN)][["cell", "units", "flagged"]]
+    (ROOT / "results/citywide/stage8").mkdir(parents=True, exist_ok=True)
+    hot.to_csv(ROOT / "results/citywide/stage8/hot_cells.csv", index=False)
+    A["hot"] = A.cell.isin(set(hot.cell))
     A.to_parquet(OUT / "candidates.parquet")
+    print(f"hot cells (at least {HOT_MIN} buildings flagged as grown): {len(hot)}; candidates inside: "
+          f"{A[A.hot].groupby('tier').size().to_dict()}")
     t = A.groupby(["area", "tier"]).size().unstack(fill_value=0)
     t.loc["all"] = t.sum()
     print(f"model threshold {thr:.4f}; permits {PERMIT_FROM} to {PERMIT_TO}")

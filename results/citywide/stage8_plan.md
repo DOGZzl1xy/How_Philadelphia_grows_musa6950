@@ -205,3 +205,31 @@ cells without any tier-1 candidate.
 **Consequence, as set in the plan:** the numbers are reported as they are; pop-ups stay a LiDAR-only result and no
 street-view pop-up map of the study area is published. The unit-level findings of development (19146 and the
 validation blocks) are reported with it. The sealed evaluation is not run again.
+
+---
+
+## Amendment 2 (2026-11-10, asked for by the author after the sealed evaluation): find and map pop-ups
+
+A new aim, set after the result above and not a test: **find where pop-ups happened and mark the buildings on a map
+kept on the author's machine.** Counting pop-ups per cell did not pass the gate; finding them does not need every
+pop-up, only that the marked buildings are right. The sealed evaluation and its record stay as they are.
+
+1. **Hot cells from the aerial model.** A 250 m cell is hot when the model flags at least 3 buildings as grown over its
+   two long pairs (2018→2020 and 2022→2024, stage 6): 571 cells, 14% of the cells outside high-rise blocks
+   (`stage8/hot_cells.csv`). Outside the sealed ZIP codes they hold 85% of the LiDAR pop-ups of 2018–2025.
+2. **Candidates in hot cells, both tiers:** model score or upward-addition permit (5,955 units) and zoning permit for an
+   addition or new development (9,446); 15,401 in 38 ZIP codes, 11,434 of them not yet photographed. Tier 2 is used
+   here because the aim is to find buildings, not to pass the count rule of amendment 1.
+3. **Photographs and judging** exactly as frozen in amendment 1 (slots with the older baseline, view, Gemini, prompt v1).
+4. **Output, local only** (under `data/`, never committed or published): a table of the buildings judged taller with
+   the photographs between which they changed, and an interactive map that marks each of them, coloured by when the
+   change appears, with the timeline photographs on click; buildings whose change may predate the 2018 flight are
+   marked apart. Layers for "new building", "checked, no change" and "no photographs" show what was looked at.
+5. **Check by hand:** 60 marked buildings drawn at random are reviewed by the author on a blind page; the share that is
+   right is reported.
+6. **Spending:** about $33 more; the cap for model calls is raised from $40 to $50 (the limit the author set on the
+   provider's side).
+
+Limits: the map shows pop-ups confirmed from the street, not all of them (streets without recent photographs,
+additions set back from the facade and buildings outside hot cells are missing); candidates from permits cannot show
+unpermitted work, and the author decided not to pursue that.

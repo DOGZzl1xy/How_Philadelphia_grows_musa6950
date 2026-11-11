@@ -182,12 +182,15 @@ def main():
     ap.add_argument("--zips", required=True)
     ap.add_argument("--tiers", default="1,2")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--hot", action="store_true", help="amendment 2: only candidates in hot cells")
     ap.add_argument("--list", default="", help="a parquet of (zip, unit) to use instead of the candidate table")
     ap.add_argument("--prefix", default="", help="prefix of the log files written for --list, e.g. val_")
     a = ap.parse_args()
     cand = pd.read_parquet(OUT / "candidates.parquet")
     sealed = set(pd.read_csv(ROOT / "results/citywide/splits_citywide_zips.csv", dtype={"zip": str}).query("test").zip)
     tiers = [int(t) for t in a.tiers.split(",")]
+    if a.hot:
+        cand = cand[cand.hot]
     if a.list:
         cand = pd.read_parquet(a.list).assign(tier=0)
         tiers = [0]

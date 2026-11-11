@@ -29,7 +29,7 @@ FROZEN = ROOT / "results/citywide/stage8/FROZEN"
 MODEL = "gemini-3.8-flash"
 URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 PRICE_IN, PRICE_OUT = 0.75, 3.75   # USD per 1M tokens, as in web/worker/index.ts (valid to 2026-12-31)
-CAP_USD = 40.0
+CAP_USD = 50.0   # raised from 40 by amendment 2
 
 PROMPTS = {"v1": """You get {n} street-level photographs of the same spot in date order; the date is given before each photograph and the camera position may differ slightly between them. In every photograph a small orange triangle at the top centre marks the horizontal position of the TARGET building: the building directly below the triangle.
 
@@ -121,6 +121,7 @@ def main():
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--units", default="")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--hot", action="store_true", help="amendment 2: candidates of both tiers in hot cells")
     ap.add_argument("--prefix", default="", help="photo log prefix, e.g. val_ for the validation-block check")
     ap.add_argument("--name", default="", help="label of the output file when it differs from the prompt tag (development variants)")
     ap.add_argument("--old-baseline", action="store_true", help="development: include slot 00 (latest photograph before 2016)")
@@ -135,9 +136,13 @@ def main():
             if not FROZEN.exists():
                 raise SystemExit(f"{z} is outside the development ZIP code and the settings are not frozen yet")
             fz = json.loads(FROZEN.read_text())
-            a.tag, a.name, a.old_baseline, tiers = fz["prompt"], fz["name"], fz["old_baseline"], fz["tiers"]
+            a.tag, a.name, a.old_baseline = fz["prompt"], fz["name"], fz["old_baseline"]
+            tiers = [int(t) for t in a.tiers.split(",")] if a.hot else fz["tiers"]
         recs = [json.loads(line) for line in (OUT / "photos" / f"{a.prefix}{z}.jsonl").open()]
         recs = [r for r in recs if r["status"] == "ok" and r["tier"] in tiers]
+        if a.hot:
+            hot = set(cand[(cand.zip == z) & cand.hot].unit)
+            recs = [r for r in recs if r["unit"] in hot]
         if a.units:
             keep = {int(x) for x in a.units.split(",")}
             recs = [r for r in recs if r["unit"] in keep]
