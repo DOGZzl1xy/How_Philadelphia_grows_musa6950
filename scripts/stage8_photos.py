@@ -15,6 +15,7 @@ data/interim/stage8/views/{zip}/{unit}_{slot}_{date}.jpg, panoramas cached in da
 Sealed ZIP codes are refused until results/citywide/stage8/FROZEN exists (amendment 1 of the plan).
 
 Run: uv run --with streetlevel python scripts/stage8_photos.py --zips 19146 [--tiers 1,2] [--limit N]
+     ... --zips all --list data/interim/stage8/val_units.parquet --prefix val_   (the validation-block check)
 """
 import argparse
 import json
@@ -181,17 +182,23 @@ def main():
     ap.add_argument("--zips", required=True)
     ap.add_argument("--tiers", default="1,2")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--list", default="", help="a parquet of (zip, unit) to use instead of the candidate table")
+    ap.add_argument("--prefix", default="", help="prefix of the log files written for --list, e.g. val_")
     a = ap.parse_args()
     cand = pd.read_parquet(OUT / "candidates.parquet")
+    sealed = set(pd.read_csv(ROOT / "results/citywide/splits_citywide_zips.csv", dtype={"zip": str}).query("test").zip)
     tiers = [int(t) for t in a.tiers.split(",")]
-    for z in a.zips.split(","):
+    if a.list:
+        cand = pd.read_parquet(a.list).assign(tier=0)
+        tiers = [0]
+    for z in (sorted(cand.zip.unique()) if a.zips == "all" else a.zips.split(",")):
         c = cand[(cand.zip == z) & cand.tier.isin(tiers)].sort_values(["tier", "unit"])
-        if (c.area == "sealed").any() and not FROZEN.exists():
+        if z in sealed and not FROZEN.exists():
             raise SystemExit(f"{z} is a sealed ZIP code and the settings are not frozen yet")
         (OUT / "photos").mkdir(parents=True, exist_ok=True)
         (OUT / "panos").mkdir(exist_ok=True)
         (OUT / "views" / z).mkdir(parents=True, exist_ok=True)
-        log = OUT / "photos" / f"{z}.jsonl"
+        log = OUT / "photos" / f"{a.prefix}{z}.jsonl"
         done = {json.loads(line)["unit"] for line in log.open()} if log.exists() else set()
         todo = c[~c.unit.isin(done)]
         if a.limit:

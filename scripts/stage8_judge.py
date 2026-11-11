@@ -4,7 +4,7 @@ One call per observable unit: the fixed instruction, then every photograph with 
 gets no address, coordinate, permit or score. Answer: storeys per photograph, the last photograph in which the target is
 clearly not yet taller, the first in which it is, and a verdict (taller, new_building, no_change, unclear).
 
-Output (never committed): data/interim/stage8/judge/{zip}_{tag}.jsonl, resumable; spending is added up in
+Output (never committed): data/interim/stage8/judge/{zip}_{tag or name}.jsonl, resumable; spending is added up in
 data/interim/stage8/judge/spend.json and the run stops at the cap of the plan ($40) unless a new cap is approved.
 Key: GEMINI_API_KEY from web/.dev.vars, read locally. Sealed ZIP codes are refused until
 results/citywide/stage8/FROZEN exists.
@@ -35,6 +35,16 @@ PROMPTS = {"v1": """You get {n} street-level photographs of the same spot in dat
 
 Decide whether the target building became taller at some point in this series, and between which photographs.
 - "taller": the target gained height between two photographs: an added storey, a rooftop addition (also one set back from the facade), or it was rebuilt taller.
+- "new_building": in the first photograph the target lot is empty (vacant land, parking, a fenced lot) and a later photograph shows a building on it.
+- "no_change": the same number of storeys and the same roof line throughout. A new facade, cladding, paint, windows or cornice alone is not a change in height. A change on a neighbouring building does not count.
+- "unclear": the target is hidden (trees, vehicles), the view is too oblique, or the photographs do not show the same building.
+
+Answer with one JSON object and nothing else:
+{{"storeys": [<storeys of the target in each photograph, in order; null where it cannot be seen>], "last_before": <number of the last photograph in which the target is clearly not yet taller, or null>, "first_after": <number of the first photograph in which the target is taller or newly built, or null>, "verdict": "taller" | "new_building" | "no_change" | "unclear", "reason": "<at most 25 words>"}}""",
+           "v2": """You get {n} street-level photographs of the same spot in date order; the date is given before each photograph and the camera position may differ slightly between them. In every photograph a small orange triangle at the top centre marks the horizontal position of the TARGET building: the building directly below the triangle.
+
+Decide whether the target building became taller at some point in this series, and between which photographs.
+- "taller": the target gained height between two photographs: an added storey, a rooftop addition, or it was rebuilt taller. Additions are often set back from the facade, so that from the street only their top shows above the old roof line: a new upper wall, a stair or pilot house, or a new roof deck with its railing above the cornice also counts as taller.
 - "new_building": in the first photograph the target lot is empty (vacant land, parking, a fenced lot) and a later photograph shows a building on it.
 - "no_change": the same number of storeys and the same roof line throughout. A new facade, cladding, paint, windows or cornice alone is not a change in height. A change on a neighbouring building does not count.
 - "unclear": the target is hidden (trees, vehicles), the view is too oblique, or the photographs do not show the same building.
@@ -78,6 +88,10 @@ def ask(rec, tag, k, old_baseline=False):
         try:
             t0 = time.time()
             r = requests.post(URL, json=body, headers={"Authorization": f"Bearer {k}"}, timeout=120)
+            if r.status_code == 429 and "spending cap" in r.text:
+                out["reason"] = "the Gemini project's own monthly spending cap is reached (set in AI Studio)"
+                out["stop"] = True
+                return out
             if r.status_code != 200:
                 out["reason"] = f"HTTP {r.status_code}: {r.text[:160]}"
                 time.sleep(4 + 6 * attempt)
@@ -107,6 +121,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--units", default="")
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--prefix", default="", help="photo log prefix, e.g. val_ for the validation-block check")
+    ap.add_argument("--name", default="", help="label of the output file when it differs from the prompt tag (development variants)")
     ap.add_argument("--old-baseline", action="store_true", help="development: include slot 00 (latest photograph before 2016)")
     a = ap.parse_args()
     k = key()
@@ -116,18 +132,18 @@ def main():
     for z in a.zips.split(","):
         if (cand[cand.zip == z].area == "sealed").any() and not FROZEN.exists():
             raise SystemExit(f"{z} is a sealed ZIP code and the settings are not frozen yet")
-        recs = [json.loads(line) for line in (OUT / "photos" / f"{z}.jsonl").open()]
+        recs = [json.loads(line) for line in (OUT / "photos" / f"{a.prefix}{z}.jsonl").open()]
         recs = [r for r in recs if r["status"] == "ok" and r["tier"] in tiers]
         if a.units:
             keep = {int(x) for x in a.units.split(",")}
             recs = [r for r in recs if r["unit"] in keep]
-        log = OUT / "judge" / f"{z}_{a.tag}.jsonl"
+        log = OUT / "judge" / f"{a.prefix}{z}_{a.name or a.tag}.jsonl"
         done = {json.loads(line)["unit"] for line in log.open()} if log.exists() else set()
         todo = [r for r in recs if r["unit"] not in done]
         if a.limit:
             todo = todo[:a.limit]
         print(f"{z} {a.tag}: {len(recs)} observable units, {len(done)} done, {len(todo)} to do; spent so far ${spend():.2f}", flush=True)
-        t0 = time.time()
+        t0, errors = time.time(), 0
         with log.open("a") as out, ThreadPoolExecutor(a.workers) as ex:
             for n, res in enumerate(ex.map(lambda r: ask(r, a.tag, k, a.old_baseline), todo), 1):
                 if res["verdict"] != "error":
@@ -135,6 +151,10 @@ def main():
                     out.flush()
                 else:
                     print("  error", res["unit"], res.get("reason"), flush=True)
+                    errors += 1
+                    if res.get("stop") or errors >= 20:
+                        ex.shutdown(wait=False, cancel_futures=True)
+                        raise SystemExit("stopping: " + str(res.get("reason")))
                 if n % 100 == 0:
                     print(f"  {n}/{len(todo)}  ${spend():.2f} spent  {(time.time() - t0) / n:.1f} s per unit", flush=True)
                 if spend() >= CAP_USD:
