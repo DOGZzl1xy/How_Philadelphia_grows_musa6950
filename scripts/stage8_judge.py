@@ -5,7 +5,9 @@ gets no address, coordinate, permit or score. Answer: storeys per photograph, th
 clearly not yet taller, the first in which it is, and a verdict (taller, new_building, no_change, unclear).
 
 Output (never committed): data/interim/stage8/judge/{zip}_{tag or name}.jsonl, resumable; spending is added up in
-data/interim/stage8/judge/spend.json and the run stops at the cap of the plan ($40) unless a new cap is approved.
+data/interim/stage8/judge/spend.json and the run stops at the cap of the plan ($50 since amendment 2). When the
+provider refuses (its own spending cap, 401, 403) the run stops at once, writes judge/PROVIDER_REFUSED and makes no
+further call until that file is removed; a rate limit gets one slow retry per unit and 8 failed units end the run.
 Key: GEMINI_API_KEY from web/.dev.vars, read locally. Sealed ZIP codes are refused until
 results/citywide/stage8/FROZEN exists.
 
@@ -26,6 +28,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "data/interim/stage8"
 FROZEN = ROOT / "results/citywide/stage8/FROZEN"
+STOP = OUT / "judge" / "PROVIDER_REFUSED"   # written when the provider refuses; no call is made while it exists
 MODEL = "gemini-3.8-flash"
 URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 PRICE_IN, PRICE_OUT = 0.75, 3.75   # USD per 1M tokens, as in web/worker/index.ts (valid to 2026-12-31)
@@ -91,7 +94,19 @@ def ask(rec, tag, k, old_baseline=False):
             if r.status_code == 429 and "spending cap" in r.text:
                 out["reason"] = "the Gemini project's own monthly spending cap is reached (set in AI Studio)"
                 out["stop"] = True
+                STOP.write_text(f"{time.strftime('%Y-%m-%d %H:%M')} {out['reason']}\n")
                 return out
+            if r.status_code in (401, 403):       # refused: do not try again
+                out["reason"] = f"HTTP {r.status_code}: {r.text[:160]}"
+                out["stop"] = True
+                STOP.write_text(f"{time.strftime('%Y-%m-%d %H:%M')} {out['reason']}\n")
+                return out
+            if r.status_code == 429:              # rate limit: one slow retry, then give the unit up
+                out["reason"] = f"HTTP 429: {r.text[:160]}"
+                if attempt >= 1:
+                    return out
+                time.sleep(60)
+                continue
             if r.status_code != 200:
                 out["reason"] = f"HTTP {r.status_code}: {r.text[:160]}"
                 time.sleep(4 + 6 * attempt)
@@ -128,6 +143,8 @@ def main():
     a = ap.parse_args()
     k = key()
     (OUT / "judge").mkdir(parents=True, exist_ok=True)
+    if STOP.exists():
+        raise SystemExit(f"not calling the provider: {STOP.read_text().strip()} (delete {STOP} once the author says so)")
     cand = pd.read_parquet(OUT / "candidates.parquet")
     tiers = [int(t) for t in a.tiers.split(",")]
     for z in a.zips.split(","):
@@ -161,7 +178,7 @@ def main():
                 else:
                     print("  error", res["unit"], res.get("reason"), flush=True)
                     errors += 1
-                    if res.get("stop") or errors >= 20:
+                    if res.get("stop") or errors >= 8:
                         ex.shutdown(wait=False, cancel_futures=True)
                         raise SystemExit("stopping: " + str(res.get("reason")))
                 if n % 100 == 0:
