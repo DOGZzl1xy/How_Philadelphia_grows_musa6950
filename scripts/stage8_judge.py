@@ -5,7 +5,7 @@ gets no address, coordinate, permit or score. Answer: storeys per photograph, th
 clearly not yet taller, the first in which it is, and a verdict (taller, new_building, no_change, unclear).
 
 Output (never committed): data/interim/stage8/judge/{zip}_{tag or name}.jsonl, resumable; spending is added up in
-data/interim/stage8/judge/spend.json and the run stops at the cap of the plan ($50 since amendment 2). When the
+data/interim/stage8/judge/spend.json and the run stops at the cap ($58 since 2026-11-11). When the
 provider refuses (its own spending cap, 401, 403) the run stops at once, writes judge/PROVIDER_REFUSED and makes no
 further call until that file is removed; a rate limit gets one slow retry per unit and 8 failed units end the run.
 Key: GEMINI_API_KEY from web/.dev.vars, read locally. Sealed ZIP codes are refused until
@@ -32,7 +32,7 @@ STOP = OUT / "judge" / "PROVIDER_REFUSED"   # written when the provider refuses;
 MODEL = "gemini-3.8-flash"
 URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 PRICE_IN, PRICE_OUT = 0.75, 3.75   # USD per 1M tokens, as in web/worker/index.ts (valid to 2026-12-31)
-CAP_USD = 50.0   # raised from 40 by amendment 2
+CAP_USD = 58.0   # 40 in the plan, 50 by amendment 2, 58 approved by the author on 2026-11-11 (their provider cap is 60)
 
 PROMPTS = {"v1": """You get {n} street-level photographs of the same spot in date order; the date is given before each photograph and the camera position may differ slightly between them. In every photograph a small orange triangle at the top centre marks the horizontal position of the TARGET building: the building directly below the triangle.
 

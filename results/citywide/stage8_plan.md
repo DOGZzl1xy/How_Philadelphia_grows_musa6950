@@ -233,3 +233,8 @@ pop-up, only that the marked buildings are right. The sealed evaluation and its 
 Limits: the map shows pop-ups confirmed from the street, not all of them (streets without recent photographs,
 additions set back from the facade and buildings outside hot cells are missing); candidates from permits cannot show
 unpermitted work, and the author decided not to pursue that.
+
+**Note, 2026-11-11.** The hot-cell run reached the $50 cap with 1,026 zoning-permit candidates unjudged (South
+Philadelphia ZIP codes 19147, 19148, 19145 and a few others): hot cells have more photographs than estimated (72% of
+candidates observable). The author allowed up to $60; the script cap is set to $58, under the limit of $60 on the
+provider's side, and the rest is judged with the same settings.
