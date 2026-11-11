@@ -6,7 +6,7 @@ import { heightURL } from "./height.js";
 topbar("method");
 
 // the story draws every chart in a 1000 x 1000 square; here the empty bands are cut off (matches pages.css)
-const CROP = { arch: "0 170 1000 790", backbones: "0 0 1000 945" };
+const CROP = { arch: "0 170 1000 790", backbones: "0 0 1000 945", street: "0 60 1000 880" };
 
 // draw each figure when it scrolls into view, so its animation plays where the reader is
 const io = new IntersectionObserver((entries) => {

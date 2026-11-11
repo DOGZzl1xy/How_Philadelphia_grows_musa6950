@@ -91,6 +91,7 @@ const PREFETCH = {
   scatter: ["results/test_cells.json"], yearly: ["results/yearly.json"], income: ["results/income.json"],
   area: ["results/area_type.json"],
   map: ["results/cells.geojson", "results/rail.json", "model/zips.geojson"],
+  streetmap: ["results/street.json", "model/zips.geojson"],
 };
 let busyUntil = 0;
 async function go(i) {

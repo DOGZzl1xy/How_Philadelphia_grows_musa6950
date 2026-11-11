@@ -1,6 +1,7 @@
 # Teaching Annual Aerial Imagery to See Growth: Tracking Philadelphia's Gentle Densification with LiDAR-Supervised Foundation Models
 
-**Xuanyu Zhou** · MUSA 6950 AI for Urban Sustainability · Final Report (November 2026)
+**Xuanyu Zhou**  
+MUSA 6950 AI for Urban Sustainability, final report, November 2026
 
 ---
 
@@ -15,14 +16,17 @@ Three citywide LiDAR flights (2018, 2022, 2025) label every building unit as new
 With these labels, a LiDAR-anchored, bi-temporal DINOv3 model learns to read change from two aerial images. On a
 sealed test of 8 ZIP codes and the unseen period 2022→2025, its new-construction counts match LiDAR at **r = 0.96**
 (95% interval 0.67–0.98) per 250 m cell, so annual imagery can fill the years between flights. Pop-ups fail
-(r = 0.42): an added storey is nearly invisible from directly above.
+(r = 0.42): an added storey is nearly invisible from directly above. Street-level photographs, read by a
+vision-language model, find them one building at a time: 1,538 buildings are marked as taller, and about four in five
+of a sample checked by hand are added storeys or taller rebuilds. Counted per cell they reach r = 0.54, so pop-up
+counts remain those of LiDAR.
 
 With new construction dated year by year across 521,000 units, the city's growth becomes visible. Construction peaked
 in 2020, and from 2018–22 to 2022–25 the yearly rate fell by 26% for new construction and 33% for pop-ups; 10% of
 250 m cells hold 94% of new construction, almost all within 1.6 km of rail. 61% of new-construction permits issued in 2018–2020 were visibly built by 2025, and only 3.6–9.1% of visible
 changes lack a matching permit.
 
-From above, the model can see new buildings, but not new floors.
+From above, the model can see new buildings. New floors have to be found from the street.
 
 ---
 
@@ -39,7 +43,7 @@ parts of the city, for example in Brewerytown–Sharswood (Bill No. 230574, 2023
 Yet there is no record of *where* and *when* the built fabric actually grows. Permits record an application, not a
 structure: many are never built, and some construction has none.
 
-### 1.2 Two kinds of data, each missing half
+### 1.2 Three views, each missing something
 
 The city has two views from above. **LiDAR** measures building height directly but is expensive and flown only every
 three to four years (2018, 2022, 2025). **Aerial imagery** is flown every spring, but a photograph is flat. The idea of
@@ -55,6 +59,10 @@ Change is harder than height. Building change detectors reach F1 92–95% on the
 which are change-dense and scored per pixel, but drop to about 81% when changes are sparse [11] and to 69% in unseen
 cities [12]. Philadelphia is the hard case: in the test period about 0.2% of units grew, and a pop-up raises an
 existing roof by a single storey.
+
+A third view is at street level. Photographs taken from cars show every storey of a house front, but only along the
+streets that were driven, and only every few years [14]. The project turns to them for what cannot be seen from above
+(Sections 3.6 and 4.4).
 
 ### 1.3 Research questions
 
@@ -88,6 +96,7 @@ lot splits do not look like construction.
 | Parcels, building footprints, zoning [4] | Citywide | Analysis units, study area |
 | ACS 5-year estimates [6], TIGER block groups | 2015–19, 2019–23 | Income and population change (RQ2) |
 | SEPTA GTFS [7] | Current network | Distance to rail stops (RQ2) |
+| Street-level photographs [14] | 2007–2026, streets as driven | Finding pop-ups (Section 4.4) |
 
 LiDAR was processed into 0.5 m height-above-ground grids with a vegetation mask (2,661 tiles). Vegetation needed care:
 the 2022 cloud classifies only ground, so canopy is detected from multiple laser returns, and the 2025 flight
@@ -160,8 +169,20 @@ The final model scored the 2019 and 2020 images against the 2018 anchor, and the
 anchor. The yearly series uses one fixed set of 261,056 units covered by both anchors and both LiDAR periods, so
 that a change of denominator cannot pass for a trend. RQ2 uses rates per 1,000 units per year, maps at 250 m and
 block group, distance to rail-type stops, and negative binomial models per block group (rail distance, income level and
-change, population change, rowhouse share). RQ3 matches permits to units by property account. All outputs are
-aggregated; no address is published.
+change, population change, rowhouse share). RQ3 matches permits to units by property account. Outputs are
+aggregated, except one map of the buildings found from the street (Figure 9), and no address is published.
+
+### 3.6 A second look from the street
+
+An added storey shows from the side, so pop-ups were also looked for in street-level photographs. Candidates are
+units with a model pop-up score above its threshold or with a permit for an upward addition; the search for buildings
+(Section 4.4) adds units with a zoning permit for an addition or new development. For each candidate, the capture
+point nearest the lot supplies one photograph per period (before the 2018 flight, 2018–2019, 2020–2023, from 2024),
+cut from the panorama towards the lot. A vision-language model (Gemini 3.8 Flash [15]) reads the two to five dated
+photographs together and answers whether the building became taller, was newly built, did not change or cannot be
+judged, and between which two photographs it changed. Prompt, photographs and candidate rule were settled in one ZIP
+code and frozen. Counts per 250 m cell were then compared with LiDAR once, in the 8 sealed ZIP codes, under the same
+0.8 bar; a candidate without photographs was given the mean of the judged candidates from the same source.
 
 ---
 
@@ -202,7 +223,7 @@ scores rare changes per building in unseen places and an unseen year.
 
 **Answer to RQ1.** Yes for new construction, no for pop-ups. LiDAR can teach a foundation model to date new
 construction from yearly imagery, reliably at 250 m cells and block groups. It cannot teach it to see added storeys:
-the information is not in the photograph.
+the information is not in the photograph. Section 4.4 looks for them from the street.
 
 ### 4.2 RQ2 — How much, when and where did Philadelphia densify?
 
@@ -278,20 +299,44 @@ the remainder is parcel matching rather than unpermitted work.
 a year of issue, and only a small share of visible change lacks a permit. The permit record is a reasonable but lagged
 picture of what gets built.
 
+### 4.4 Pop-ups from the street
+
+**Counting.** In the sealed ZIP codes 917 candidates were checked, and 61% had photographs on both sides of
+2018–2025. Street-view counts per 250 m cell correlate with the LiDAR pop-ups of both periods at r = 0.54 (95%
+interval 0.39–0.66; 0.67 per block group), against 0.42 for the aerial model. The 0.8 bar is not met. About three in
+ten candidates stand on streets with no recent photograph, an addition set back from the façade is hidden from a
+camera a few metres in front of it, and outside its training area the aerial model proposes few true pop-ups: 4% of
+its candidates are seen taller, against 24% of those with an upward-addition permit. Pop-up counts therefore remain
+those of LiDAR.
+
+**Finding.** Street view does find pop-ups one building at a time. In the 571 cells where the aerial model flags at
+least three buildings as grown, 15,401 candidates were photographed and 11,139 judged. 1,538 buildings are marked as
+taller between 2018 and 2025 (Figure 9): 523 first seen taller in the 2018–2019 photographs, 348 in 2020–2023 and 667
+from 2024. In a blind check by hand of 58 marked buildings, 47 (81%, 95% interval 69–89%) are added storeys or taller
+rebuilds, 10 are new buildings on lots that were empty in the earlier photograph, and 1 is wrong. Of the candidates
+with an upward-addition permit, 47% are seen taller; of those picked by the model score alone, 12%.
+
+![Buildings seen taller from the street](figs/street_map.png)
+
+*Figure 9. The 1,538 buildings seen taller from the street between 2018 and 2025 (dots), in the 250 m cells where the aerial model flags at least three buildings as grown (grey).*
+
 ---
 
 ## 5. Discussion
 
 **What the AI adds.** The model turns three LiDAR snapshots into an annual series of new construction for half a
 million units. That is what makes the "when" of RQ2 and the lags of RQ3 measurable, and each new spring of imagery can
-be scored against the latest LiDAR without new labels.
+be scored against the latest LiDAR without new labels. A vision-language model reading street-level photographs adds
+the buildings themselves: LiDAR counts pop-ups per cell every few years, and the street shows which house grew and
+between which photographs.
 
 **Where it stops.** Added storeys are not visible from directly above, whatever the model. In principle a storey
 of 3–4 m should lengthen the building's shadow in spring imagery, and a 128 m window is wide enough to contain it.
 Two likely reasons this cue did not help, neither tested here: in rowhouse blocks the new shadow falls on the
 neighbouring roof of the same height or into narrow rear yards already in shade, and the flights differ in date and
 time of day, so shadows change between years even where nothing was built. Using shadows would need the sun position
-of each flight as an input; oblique or street-level images would show the extra storey directly. Counts of rare changes also
+of each flight as an input. Street-level photographs do show the extra storey (Section 4.4), but only on streets
+driven in the right years, so they find pop-ups without counting them. Counts of rare changes also
 need recalibration when their frequency shifts, ideally against each new LiDAR flight.
 
 **For the city.** Philadelphia densifies near rail and on vacant lots in the urban core, but the pace is slowing and
@@ -299,10 +344,12 @@ confined to a small share of the city. The slowdown coincides with the pandemic,
 the reduction of the city's ten-year tax abatement for new homes on 1 January 2022, which developers rushed to beat
 with a record number of permit applications in 2021 [13]. New construction concentrates in low-income areas with rising
 incomes, consistent with gentrification pressure; pop-ups, the target of height caps, concentrate in higher-income
-areas. New construction can now be monitored every year from imagery; pop-ups still need LiDAR.
+areas. New construction can now be monitored every year from imagery; pop-ups still need LiDAR to be counted, and
+street-level photographs point to the houses in between flights.
 
 **Limitations.** Results hold for cells and block groups, not single buildings; pop-up trends rest on two LiDAR periods;
-the 2018 flight covers only 64% of units; and the RQ2 relationships are associations, not causes.
+the 2018 flight covers only 64% of units; the buildings marked from the street were checked by hand on a sample of 58
+and cover only streets with recent photographs; and the RQ2 relationships are associations, not causes.
 
 The results are public as a story website with an interactive map. Its question-answering assistant, a language
 model with tools that read only the aggregated tables, answers within these limits and moves the map to the areas it
@@ -315,10 +362,11 @@ describes: https://musa6950-philly-growth.xuanyuzhou.org
 Philadelphia grows one lot at a time, and until now nobody could say exactly where and when. Letting LiDAR teach
 aerial imagery works for new construction: tested once on unseen places and an unseen year, the model matches LiDAR at
 r = 0.96 on 250 m cells and fills the years between flights. It fails for added storeys, because from directly above
-the information is not there. With it, the city's recent growth comes into view: a 2020 peak, a slowdown since,
+the information is not there; street-level photographs find them one house at a time, 1,538 so far, without counting
+them. With the model, the city's recent growth comes into view: a 2020 peak, a slowdown since,
 growth concentrated near rail and in a tenth of the city, and a permit record that mostly matches what was built.
 
-From above, we can see new buildings, but not new floors.
+From above, we can see new buildings. New floors have to be found from the street.
 
 ---
 
@@ -326,8 +374,9 @@ From above, we can see new buildings, but not new floors.
 
 Code is in `src/`, `scripts/` and `cloud/`, and the website and its assistant in `web/`; each stage's plan and
 results are in `results/` (index: `results/citywide/README.md`), and the full project log is in `README.md`. All
-inputs are public (PASDA, OpenDataPhilly, Census, SEPTA; sources and download dates in `data_sources/`). Raw data
-(≈ 300 GB) and model checkpoints are not in the repository.
+inputs are public (PASDA, OpenDataPhilly, Census, SEPTA; sources and download dates in `data_sources/`), except the
+street-level photographs, which are Google's and are not redistributed. Raw data (≈ 300 GB) and model checkpoints
+are not in the repository.
 
 Repository: https://github.com/DOGZzl1xy/How_Philadelphia_grows_musa6950
 
@@ -346,3 +395,5 @@ Repository: https://github.com/DOGZzl1xy/How_Philadelphia_grows_musa6950
 11. Wang, Y., et al. (2026). *Multi-modal building change detection for large-scale small changes: Benchmark and baseline.* arXiv:2603.19077.
 12. Pang, C., et al. (2023). *Detecting building changes with off-nadir aerial images.* Science China Information Sciences; arXiv:2301.10922.
 13. Axios Philadelphia (7 January 2022). *Philly construction permits soar ahead of tax abatement changes.* https://www.axios.com/local/philadelphia/2022/01/07/philadelphia-tax-abatement-permit-applications
+14. Google, Street View imagery of Philadelphia, 2007–2026.
+15. Google (2026). Gemini 3.8 Flash, vision-language model.

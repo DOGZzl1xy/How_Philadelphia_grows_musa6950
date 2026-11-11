@@ -112,7 +112,7 @@ async function ask(q) {
         if (ev.t === "map") apply(ev.action);
         if (ev.t === "answer") { answer = ev.text; a.innerHTML = md(answer); setCollapsed(true, layersEl); }
         if (ev.t === "memo") memo = ev.text;
-        if (ev.t === "usage") meta.textContent = `${ev.tokens.toLocaleString("en-US")} tokens · $${ev.cost_usd.toFixed(4)}`;
+        if (ev.t === "usage") meta.textContent = `${ev.tokens.toLocaleString("en-US")} tokens, $${ev.cost_usd.toFixed(4)}`;
         if (ev.t === "error") throw new Error(ev.text);
       }
     }

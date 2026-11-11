@@ -7,7 +7,7 @@ lines = open(src, encoding='utf-8').read().split('\n')
 
 WIDTH = {'story_schematic': 0.78, 'split_map': 0.45, 'method_flow': 1.0, 'height_example': 0.95,
          'round2_scatter': 0.95, 'rq2_maps_250m': 0.85, 'rq2_when_transit_income': 0.8,
-         'rq3_time_to_detection': 0.58}
+         'rq3_time_to_detection': 0.58, 'street_map': 0.62}
 
 
 def esc(s):
@@ -67,7 +67,8 @@ while i < len(blocks):
     if first.startswith('# '):
         out.append(r'\begin{center}{\LARGE\bfseries ' + inline(first[2:]) + r'\par}\vspace{8pt}')
         i += 1
-        out.append('{\\large ' + inline(' '.join(blocks[i]).replace('**', '')) + r'\par}\end{center}')
+        # the byline block: one line each, centred (name, then course and date)
+        out.append('{\\large ' + r' \\ '.join(inline(x.replace('**', '')) for x in blocks[i]) + r'\par}\end{center}')
     elif first == '---':
         pass
     elif first.startswith('## '):

@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Data &amp; Code · Teaching Annual Aerial Imagery to See Growth</title>
-  <meta name="description" content="Report, code and data sources for Teaching Annual Aerial Imagery to See Growth." />
+  <title>Data &amp; Code – How Philadelphia Grows</title>
+  <meta name="description" content="Report, code and data sources for How Philadelphia Grows." />
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="theme-color" content="#f1eee8" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Teaching Annual Aerial Imagery to See Growth" />
-  <meta property="og:title" content="Data &amp; Code · Teaching Annual Aerial Imagery to See Growth" />
-  <meta property="og:description" content="Report, code and data sources for Teaching Annual Aerial Imagery to See Growth." />
+  <meta property="og:site_name" content="How Philadelphia Grows" />
+  <meta property="og:title" content="Data &amp; Code – How Philadelphia Grows" />
+  <meta property="og:description" content="Report, code and data sources for How Philadelphia Grows." />
   <meta property="og:url" content="https://musa6950-philly-growth.xuanyuzhou.org/data-code" />
   <meta property="og:image" content="https://musa6950-philly-growth.xuanyuzhou.org/og.jpg" />
   <meta property="og:image:width" content="1200" />
@@ -33,8 +33,9 @@
       site.</p>
     <div class="cta" id="dc-cta"></div>
     <p>Raw data (about 300 GB) and model checkpoints are not in the repository; the scripts download the public inputs
-      listed below. Nothing on this site identifies an address or a parcel: scenes are shown without coordinates and
-      every city-wide figure is aggregated to 250 m cells or block groups.</p>
+      listed below. No address is shown on this site. Scenes are shown without coordinates, and city-wide figures are
+      aggregated to 250 m cells or block groups; the one exception is the map of houses seen taller from the street,
+      which marks each house with a dot. Street-level photographs are not shown.</p>
 
     <h2>Data sources</h2>
     <table>
@@ -45,6 +46,8 @@
       <tr><td>Parcels, building footprints, zoning</td><td><a href="https://opendataphilly.org/" target="_blank" rel="noopener">City of Philadelphia, OpenDataPhilly</a></td><td>lots, study area</td></tr>
       <tr><td>American Community Survey, 5-year</td><td><a href="https://www.census.gov/programs-surveys/acs" target="_blank" rel="noopener">U.S. Census Bureau</a></td><td>income level and change</td></tr>
       <tr><td>Transit network (GTFS)</td><td><a href="https://www3.septa.org/developer/" target="_blank" rel="noopener">SEPTA</a></td><td>distance to rail stops</td></tr>
+      <tr><td>Street-level photographs, 2007–2026</td><td>Google Street View</td><td>finding extra storeys (read by a model, not shown here)</td></tr>
+      <tr><td>Gemini</td><td>Google</td><td>reading the street-level photographs</td></tr>
       <tr><td>DINOv3 (SAT-493M weights)</td><td><a href="https://github.com/facebookresearch/dinov3" target="_blank" rel="noopener">Meta AI</a></td><td>image encoder</td></tr>
     </table>
 

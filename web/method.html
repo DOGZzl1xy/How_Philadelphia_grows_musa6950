@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Method · Teaching Annual Aerial Imagery to See Growth</title>
+  <title>Method – How Philadelphia Grows</title>
   <meta name="description" content="How LiDAR teaches a DINOv3 foundation model to read new construction from yearly aerial photographs of Philadelphia." />
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="theme-color" content="#f1eee8" />
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Teaching Annual Aerial Imagery to See Growth" />
-  <meta property="og:title" content="Method · Teaching Annual Aerial Imagery to See Growth" />
+  <meta property="og:site_name" content="How Philadelphia Grows" />
+  <meta property="og:title" content="Method – How Philadelphia Grows" />
   <meta property="og:description" content="How LiDAR teaches a DINOv3 foundation model to read new construction from yearly aerial photographs of Philadelphia." />
   <meta property="og:url" content="https://musa6950-philly-growth.xuanyuzhou.org/method" />
   <meta property="og:image" content="https://musa6950-philly-growth.xuanyuzhou.org/og.jpg" />
@@ -25,8 +25,9 @@
   <main class="doc">
     <h1>Method</h1>
     <p class="lede">A few LiDAR flights teach a satellite foundation model to read new construction from the aerial
-      photographs Philadelphia takes every spring. This page describes the data, the labels, the model, its training
-      and the single test that decides what the model may be used for.</p>
+      photographs Philadelphia takes every spring. Street-level photographs then find the extra storeys that cannot be
+      seen from above. This page describes the data, the labels, the model, its training, the single test that decides
+      what the model may be used for, and the look from the street.</p>
 
     <h2>1. Study area and data</h2>
     <p>The study area is the city's residential and low- to mid-density mixed-use zoning: 152.5 km² and 526,928
@@ -121,10 +122,37 @@
     <p class="cap">An extra storey keeps the same roof from above; only its height changes.</p>
     <p>Extra storeys fail the bar (r = 0.42). An added storey is nearly invisible in a photograph taken straight down,
       and extra storeys were five times rarer in the test period than in validation, so false alarms outnumber them.
-      Extra storeys are therefore measured from LiDAR alone. Shadows could in principle reveal height, but in rowhouse
+      Extra storeys are therefore counted from LiDAR alone. Shadows could in principle reveal height, but in rowhouse
       blocks they fall on neighbouring roofs, and flight dates and times differ between years.</p>
 
-    <h2>8. From the model to the city</h2>
+    <h2>8. From the street</h2>
+    <div class="fig square" data-chart="street"></div>
+    <p class="cap">Drawn, not photographed: the same house front in three years. The model says between which two
+      photographs the house grew.</p>
+    <p>An extra storey shows from the side, so the project looks at street-level photographs. Houses to check come from
+      three hints: the aerial model's own extra-storey score, building permits that describe an upward addition, and
+      zoning permits for an addition or new development. They are checked in the 571 blocks of 250 m where the aerial
+      model marks at least three buildings as grown, which gives 15,401 houses.</p>
+    <p>For each house, the capture point nearest its lot supplies one photograph per period (before the 2018 flight,
+      2018–2019, 2020–2023, 2024 on), cut from the panorama towards the lot. 11,139 houses (72%) have photographs on both
+      sides of 2018–2025. A vision-language model (Gemini) reads the two to five dated photographs of a house together
+      and answers whether it became taller, was newly built on an empty lot, did not change, or cannot be judged, and
+      between which two photographs it changed. The prompt, the choice of photographs and the list of hints were settled
+      in one ZIP code and then frozen.</p>
+    <div class="fig square" data-chart="streetmap"></div>
+    <p class="cap">The 1,538 houses seen taller from the street between 2018 and 2025.</p>
+    <table>
+      <tr><th></th><th>Result</th></tr>
+      <tr><td>Houses marked as taller, 2018–2025</td><td class="num">1,538</td></tr>
+      <tr><td>Checked by hand, 58 of them</td><td>47 extra storeys or taller rebuilds (81%), 10 new buildings, 1 wrong</td></tr>
+      <tr><td>Counted per 250 m block against LiDAR, sealed ZIP codes, run once</td><td>r = 0.54 (95% interval 0.39–0.66)</td></tr>
+    </table>
+    <p>The street finds extra storeys but does not count them. The count per block misses the bar of 0.8, because three
+      in ten houses stand on streets with no recent photograph and an addition set back from the house front stays
+      hidden. Counts of extra storeys therefore remain those of LiDAR. No street-level photograph is shown on this
+      site.</p>
+
+    <h2>9. From the model to the city</h2>
     <ul>
       <li><b>Years between flights</b>: the model scores the 2019 and 2020 photographs against the 2018 LiDAR, and 2023
         and 2024 against 2022, on one fixed set of 261,056 lots so that a change in coverage cannot pass for a trend.</li>
@@ -135,9 +163,11 @@
         buildings had no permit.</li>
     </ul>
 
-    <h2>9. Limitations</h2>
+    <h2>10. Limitations</h2>
     <ul>
       <li>Results hold for blocks and neighbourhoods, not for single buildings.</li>
+      <li>The look from the street reaches only houses photographed both around 2018 and after 2024, and it finds extra
+        storeys without counting them.</li>
       <li>Extra-storey trends rest on two LiDAR periods only.</li>
       <li>The 2018 flight covers 64% of lots, mostly in the centre.</li>
       <li>The relationships with transit and income are associations, not causes.</li>

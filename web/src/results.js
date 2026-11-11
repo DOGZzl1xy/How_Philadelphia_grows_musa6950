@@ -141,14 +141,15 @@ export async function cityMap(div) {
   rk.append("text").attr("class", "c-note").attr("x", 26).text("rail stop");
 }
 
-// who: new construction per 1,000 lots per year by block-group income quintile; the two extremes in orange
+// who: new buildings and added storeys per 1,000 lots per year by block-group income quintile (2015-19). The two kinds
+// of growth peak at opposite ends: the peak of each panel is orange.
 export async function income(div) {
   const d = await get("income.json"), svg = base(div);
-  const panels = [["level", "by income, 2015–19", 0], ["change", "by change in real income to 2019–23", 4]];
+  const panels = [["level", "new buildings", 0], ["popup_level", "added storeys", 4]];
   const y = d3.scaleLinear([0, 2.6], [820, 260]);
   panels.forEach(([k, title, hot], p) => {
     const x0 = 70 + p * 470, x = d3.scaleBand(d3.range(5), [x0, x0 + 400]).padding(0.25);
-    svg.append("text").attr("x", x0).attr("y", 200).attr("class", "c-note").text(title);
+    svg.append("text").attr("x", x0).attr("y", 200).attr("class", "c-label").text(title);
     d[k].forEach((val, q) => {
       svg.append("rect").attr("x", x(q)).attr("width", x.bandwidth()).attr("y", 820).attr("height", 0)
         .attr("fill", q === hot ? SIGNAL : "#a7b0ba").transition().delay(100 * q + 300 * p).duration(700)
@@ -158,10 +159,10 @@ export async function income(div) {
         .transition().delay(100 * q + 300 * p + 700).duration(300).attr("opacity", 1);
     });
     svg.append("line").attr("x1", x0).attr("x2", x0 + 400).attr("y1", 820).attr("y2", 820).attr("stroke", INK2).attr("stroke-width", 2);
-    svg.append("text").attr("x", x0).attr("y", 862).attr("class", "c-note").text(k === "level" ? "lowest" : "fell most");
-    svg.append("text").attr("x", x0 + 400).attr("y", 862).attr("text-anchor", "end").attr("class", "c-note").text(k === "level" ? "highest" : "rose most");
+    svg.append("text").attr("x", x0).attr("y", 862).attr("class", "c-note").text("lowest income");
+    svg.append("text").attr("x", x0 + 400).attr("y", 862).attr("text-anchor", "end").attr("class", "c-note").text("highest");
   });
-  svg.append("text").attr("x", 70).attr("y", 120).attr("class", "c-note").text("new buildings per 1,000 lots per year, block-group quintiles");
+  svg.append("text").attr("x", 70).attr("y", 120).attr("class", "c-note").text("per 1,000 lots per year, neighbourhoods in fifths by income");
 }
 
 // what kind of street: new construction per 1,000 lots per year by area type, the two LiDAR periods side by side
@@ -207,4 +208,63 @@ export function waffle(div, { share = 61, noPermit = 3 } = {}) {
     g.append("path").attr("d", `M14 14L${s - 14} ${s - 14}M${s - 14} 14L14 ${s - 14}`).attr("stroke", "#fff").attr("stroke-width", 7).attr("stroke-linecap", "round");
     g.transition().delay(1500 + 120 * k).duration(400).attr("opacity", 1);
   });
+}
+
+// from the street, drawn rather than photographed (no street-level photograph is published). One row of rowhouses:
+// with `timeline` the same row in three years, the target under a small marker, its added storey in orange.
+export function street(div, timeline) {
+  const svg = base(div), W = 150, G = 8, SH = 56, x0 = (1000 - 5 * W - 4 * G) / 2;
+  const row = (g, storeys, target, grown) => {
+    storeys.forEach((n, i) => {
+      const x = i * (W + G), isT = i === target;
+      for (let k = 0; k < n; k++) {
+        const added = isT && grown && k === n - 1, y = -(k + 1) * SH;
+        const wall = g.append("rect").attr("x", x).attr("width", W).attr("y", y).attr("height", SH)
+          .attr("fill", added ? "#ff7a45" : "#a7b0ba").attr("stroke", added ? "#d9481a" : "#7b8693").attr("stroke-width", 2);
+        const wins = [0.2, 0.62].map((f) => g.append("rect").attr("x", x + f * W).attr("y", y + 14).attr("width", W * 0.18)
+          .attr("height", SH - 26).attr("fill", added ? "#ffe3d6" : "#e3e7eb"));
+        if (k === 0) g.append("rect").attr("x", x + 0.62 * W).attr("y", y + 12).attr("width", W * 0.18).attr("height", SH - 12).attr("fill", INK2);
+        if (added) for (const e of [wall, ...wins]) e.attr("opacity", 0).transition().delay(1500).duration(700).attr("opacity", 1);
+      }
+      g.append("rect").attr("x", x - 3).attr("width", W + 6).attr("y", -n * SH - 8).attr("height", 8)
+        .attr("fill", isT && grown ? "#d9481a" : "#7b8693")
+        .attr("opacity", isT && grown ? 0 : 1).transition().delay(1500).duration(700).attr("opacity", 1);
+    });
+    g.append("rect").attr("x", -60).attr("width", 5 * W + 4 * G + 120).attr("y", 0).attr("height", 10).attr("fill", RULE);
+  };
+  if (!timeline) {
+    // one large row with the street in front of it
+    const k = 1.18, w = 5 * W + 4 * G;
+    const g = svg.append("g").attr("transform", `translate(${(1000 - w * k) / 2},600) scale(${k})`);
+    g.append("rect").attr("x", -60).attr("width", w + 120).attr("y", 10).attr("height", 22).attr("fill", "#e1dcd2");
+    g.append("rect").attr("x", -60).attr("width", w + 120).attr("y", 32).attr("height", 64).attr("fill", "#7b8693");
+    g.append("line").attr("x1", -60).attr("x2", w + 60).attr("y1", 64).attr("y2", 64).attr("stroke", "#fff")
+      .attr("stroke-width", 3).attr("stroke-dasharray", "22 16");
+    row(g, [2, 3, 2, 3, 2], -1, false);
+    return;
+  }
+  const years = ["2017", "2019", "2025"], base0 = [2, 3, 2, 2, 3];
+  years.forEach((yr, k) => {
+    const g = svg.append("g").attr("transform", `translate(${x0},${290 + k * 300})`).attr("opacity", 0);
+    const grown = k === 2;
+    row(g, grown ? [2, 3, 3, 2, 3] : base0, 2, grown);
+    g.append("text").attr("x", -60).attr("y", -3 * SH - 26).attr("class", "c-label").text(yr);
+    g.append("path").attr("d", `M${2 * (W + G) + W / 2 - 12} ${-3 * SH - 44}h24l-12 18z`).attr("fill", SIGNAL);
+    g.transition().delay(350 * k).duration(600).attr("opacity", 1);
+  });
+}
+
+// the houses seen taller from the street, 2018-2025: one dot per house on the city map
+export async function streetMap(div) {
+  const [d, zips] = await Promise.all([get("street.json"), (cache.zips ??= await (await fetch(v(`${DATA}/model/zips.geojson`))).json())]);
+  const svg = base(div);
+  const proj = d3.geoMercator().fitExtent([[30, 30], [970, 970]], zips), path = d3.geoPath(proj);
+  svg.append("g").selectAll("path").data(zips.features).join("path").attr("d", path).attr("fill", "#e7e2d8").attr("stroke", PAPER).attr("stroke-width", 2);
+  svg.append("g").selectAll("circle").data(d.points).join("circle")
+    .attr("cx", (p) => proj(p)[0]).attr("cy", (p) => proj(p)[1]).attr("r", 0).attr("fill", SIGNAL).attr("fill-opacity", 0.8)
+    .attr("stroke", PAPER).attr("stroke-width", 0.6)
+    .transition().delay((p, k) => 200 + (k % 60) * 14).duration(500).attr("r", 3.4);
+  const lg = svg.append("g").attr("transform", "translate(560,900)");
+  lg.append("circle").attr("cx", 8).attr("cy", -8).attr("r", 7).attr("fill", SIGNAL);
+  lg.append("text").attr("class", "c-note").attr("x", 28).text("a house seen taller from the street");
 }

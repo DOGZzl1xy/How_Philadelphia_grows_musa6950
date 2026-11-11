@@ -100,7 +100,7 @@ function growthRows(r) {
 }
 
 function place(r) {
-  return [r.hood, r.zip && `ZIP ${r.zip}`].filter(Boolean).map(esc).join(" · ");
+  return [r.hood, r.zip && `ZIP ${r.zip}`].filter(Boolean).map(esc).join(", ");
 }
 
 export function card(level, id) {
@@ -136,7 +136,7 @@ export function card(level, id) {
     const row = (f, y) => fmt(ACS[f].kind, r[acsColumn(f, y)]);
     const keys = ["inc", "rent", "renter", "vacant", "black", "white", "hispanic", "transit"];
     const rates = Object.values(PERIODS).map((p) => fmt("rate", rate(r[`n${p.short}`], r[`cov${p.short}`], p.years))).join(" → ");
-    return `<h4>Census Tract ${esc(id)}</h4><p class="cm">${place(r)} · 2010 boundaries</p>
+    return `<h4>Census Tract ${esc(id)}</h4><p class="cm">${place(r)}, 2010 boundaries</p>
       <table class="mini"><tr><th></th><th>2018–22</th><th>2022–25</th></tr>
       <tr><td>New buildings</td><td>${Math.round(r.n18)}</td><td>${Math.round(r.n22)}</td></tr>
       <tr><td>Added storeys</td><td>${Math.round(r.p18)}</td><td>${Math.round(r.p22)}</td></tr></table>
@@ -149,7 +149,7 @@ export function card(level, id) {
   }
   if (level === "hoods" || level === "zips") {
     const title = level === "hoods" ? esc(id) : `ZIP ${esc(id)}`;
-    const sub = level === "hoods" ? (r.zips || []).map((z) => `ZIP ${z}`).join(" · ") : r.type ? `Mostly ${r.type} lots` : "";
+    const sub = level === "hoods" ? (r.zips || []).map((z) => `ZIP ${z}`).join(", ") : r.type ? `Mostly ${r.type} lots` : "";
     const rates = Object.values(PERIODS).map((p) => fmt("rate", rate(r[`n${p.short}`], r[`cov${p.short}`], p.years))).join(" → ");
     const np = level === "zips" && r.noperm_new_of ? `<p class="cn">${Math.round(r.noperm_new)} of ${Math.round(r.noperm_new_of)} new buildings (2018–2025) had no matching permit.</p>` : "";
     return `<h4>${title}</h4><p class="cm">${esc(sub)}</p>${growthRows(r)}
