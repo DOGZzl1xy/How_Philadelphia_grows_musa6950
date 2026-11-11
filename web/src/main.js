@@ -23,9 +23,20 @@ async function scene(id) {
 
 
 // ---------- stage ----------
-function showPhoto(id, year) {
-  const src = v(`${DATA}/${id}/photo_${year}.webp`);
-  yearTag.textContent = year;
+// what the frame shows for a stage (or for one frame `f` of its time-lapse): a street view redrawn in two tones,
+// the block in 3D (iso), or the aerial photograph of a year
+function picture(st, f = {}) {
+  const year = f.year ?? st.year, iso = f.iso ?? st.iso, street = f.street ?? st.street;
+  if (street) return { src: v(`/data/street/a_${street}.webp`), label: street, pale: false };
+  if (iso) return { src: v(`${DATA}/${st.scene}/iso_${iso}.webp`), label: year, pale: true };
+  return { src: v(`${DATA}/${st.scene}/photo_${year}.webp`), label: year, pale: false };
+}
+const frameOf = (f) => (typeof f === "object" ? f : { year: f });
+
+let lapseTimer = 0;
+function showPhoto({ src, label, pale }, st) {
+  yearTag.textContent = label;
+  el("frame").classList.toggle("pale", pale || (!!st.height && !st.heightBlend));   // year label in ink on pale pictures
   if (shownPhoto === src) return;
   shownPhoto = src;
   const back = frontIsA ? photoB : photoA, front = frontIsA ? photoA : photoB;
@@ -45,8 +56,13 @@ async function showHeight(id, year, blend) {
   canvas.style.opacity = blend ?? 0.92;
 }
 
-async function showOutlines(id, mode) {
+// `countOnly`: return the number of units of that mode without drawing them (the 3D pictures carry their own tint)
+async function showOutlines(id, mode, countOnly) {
   const s = await scene(id);
+  if (countOnly) {
+    svg.querySelectorAll("polygon.on").forEach((p) => p.classList.remove("on"));
+    return s.units.filter((u) => !!(u.lidar_new["2018_2022"] || u.lidar_new["2022_2025"])).length;
+  }
   if (svg.dataset.scene !== id) {
     svg.dataset.scene = id;
     svg.innerHTML = s.units.map((u, i) => u.rings.map((r) =>
@@ -101,9 +117,21 @@ async function go(i) {
   current = i;
   progress.querySelectorAll("button").forEach((b, k) => b.classList.toggle("on", k === i));
   history.replaceState(null, "", `#${i}`);
-  showPhoto(st.scene, st.year);
+  // a time-lapse plays its frames in a loop and rests on the last one
+  clearTimeout(lapseTimer);
+  showPhoto(picture(st, st.lapse ? frameOf(st.lapse[0]) : {}), st);
+  if (st.lapse) {
+    let k = 0;
+    const every = st.every || 1100, tick = () => {
+      if (current !== i) return;
+      k = (k + 1) % st.lapse.length;
+      showPhoto(picture(st, frameOf(st.lapse[k])), st);
+      lapseTimer = setTimeout(tick, k === st.lapse.length - 1 ? every * 2.6 : every);
+    };
+    for (const f of st.lapse) new Image().src = picture(st, frameOf(f)).src;
+    lapseTimer = setTimeout(tick, every * 1.6);
+  }
   showHeight(st.scene, st.height, st.heightBlend);
-  el("frame").classList.toggle("pale", !!st.height && !st.heightBlend);   // year label in ink on the LiDAR picture
   showModelLayers(st);
   let textDelay = 0;
   const LAYOUT = 1100;   // ms, the frame's size/position transition in style.css
@@ -130,7 +158,7 @@ async function go(i) {
     document.body.classList.remove("hero");
     zoomCanvas.style.opacity = 0;
   }
-  const total = await showOutlines(st.scene, st.outlines);
+  const total = await showOutlines(st.scene, st.outlines, st.count);
   function render() {
     if (current !== i) return;
     text.innerHTML = `<div class="step">${s.html}</div>`;
@@ -141,7 +169,7 @@ async function go(i) {
   // warm the cache for the next screen
   const n = steps[i + 1];
   if (n) {
-    new Image().src = v(`${DATA}/${n.stage.scene}/photo_${n.stage.year}.webp`);
+    new Image().src = picture(n.stage, n.stage.lapse ? frameOf(n.stage.lapse[0]) : {}).src;
     for (const f of PREFETCH[n.stage.chart] || []) fetch(v(`/data/${f}`)).catch(() => {});
   }
 }

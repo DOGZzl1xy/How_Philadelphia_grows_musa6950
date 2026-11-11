@@ -23,7 +23,9 @@ uv run python web/pipeline/export_scenes.py      # from the repository root: the
 uv run python web/pipeline/export_hero.py        # opening shot layers (run after export_scenes)
 uv run python web/pipeline/export_model_assets.py   # training curve, backbone comparison, ZIP roles
 POPUP_DATA=citywide uv run python web/pipeline/export_results.py   # test cells, city cells, yearly series, rail, permits
+uv run python web/pipeline/export_iso.py         # the scenes in 3D: photograph draped over the LiDAR height, new buildings in orange
 uv run python web/pipeline/export_street.py      # houses seen taller from the street (points), added storeys by income
+uv run python web/pipeline/export_streetview.py  # the one street-view example, in two tones
 uv run python web/pipeline/export_explore.py     # Explore: cells, block groups, ZIP codes, neighbourhoods, tables.json
 uv run python web/pipeline/pull_live_data.py     # or: fetch public/data/ back from the live site
 npm --prefix web run dev                         # local preview at http://localhost:5173 (/api is proxied to :8787)
@@ -37,8 +39,9 @@ npm --prefix web run build                       # static build into web/dist
   high-rise cells), fixed in `pipeline/export_scenes.py` before looking at any image.
 - No street names, addresses, parcel ids or coordinates in any exported file; outlines are in local pixel space.
 - Since 2026-11-11 the houses seen taller from the street (stage 8) are exported as points and drawn as dots on one
-  map of the story and of the Method page; no address or id goes with them. Street-level photographs are never
-  exported or shown: the street view in the story is a drawing.
+  map of the story and of the Method page; no address or id goes with them. One row of houses is shown from the
+  street as the example (three photographs of 2016, 2018 and 2019, `pipeline/export_streetview.py`), reduced to the
+  site's two tones with the added storey in orange; no other street-level photograph is exported.
 - Aerial photography is credited to the City of Philadelphia on every screen.
 
 ## Type and sizes

@@ -28,6 +28,8 @@
       photographs Philadelphia takes every spring. Street-level photographs then find the extra storeys that cannot be
       seen from above. This page describes the data, the labels, the model, its training, the single test that decides
       what the model may be used for, and the look from the street.</p>
+    <div class="fig square" data-chart="flow"></div>
+    <p class="cap">The project on one sheet: what goes in, the one test that decides, and what comes out.</p>
 
     <h2>1. Study area and data</h2>
     <p>The study area is the city's residential and low- to mid-density mixed-use zoning: 152.5 km² and 526,928
@@ -126,9 +128,13 @@
       blocks they fall on neighbouring roofs, and flight dates and times differ between years.</p>
 
     <h2>8. From the street</h2>
-    <div class="fig square" data-chart="street"></div>
-    <p class="cap">Drawn, not photographed: the same house front in three years. The model says between which two
-      photographs the house grew.</p>
+    <div class="fig triple">
+      <img data-src="/data/street/a_2016.webp" alt="A row of two-storey houses seen from the street in 2016" />
+      <img data-src="/data/street/a_2018.webp" alt="The same row in 2018, with a scaffold on one house" />
+      <img data-src="/data/street/a_2019.webp" alt="The same row in 2019: the house has a third storey" />
+    </div>
+    <p class="cap">One row of houses in 2016, 2018 and 2019 (Google Street View, redrawn in two tones; the added storey
+      is set in orange). The model says between which two photographs a house grew.</p>
     <p>An extra storey shows from the side, so the project looks at street-level photographs. Houses to check come from
       three hints: the aerial model's own extra-storey score, building permits that describe an upward addition, and
       zoning permits for an addition or new development. They are checked in the 571 blocks of 250 m where the aerial
@@ -149,8 +155,8 @@
     </table>
     <p>The street finds extra storeys but does not count them. The count per block misses the bar of 0.8, because three
       in ten houses stand on streets with no recent photograph and an addition set back from the house front stays
-      hidden. Counts of extra storeys therefore remain those of LiDAR. No street-level photograph is shown on this
-      site.</p>
+      hidden. Counts of extra storeys therefore remain those of LiDAR. The only street views shown on this site are
+      the three above.</p>
 
     <h2>9. From the model to the city</h2>
     <ul>

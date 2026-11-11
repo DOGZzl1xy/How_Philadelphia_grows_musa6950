@@ -22,13 +22,13 @@ export const steps = [
   },
   {
     act: 1,
-    stage: { scene: "s3", year: 2025 },
+    stage: { scene: "s3", year: 2018, lapse: [2018, 2019, 2020, 2022, 2023, 2024, 2025], every: 1000 },
     html: `<h2>Seven springs later</h2>
-           <p>The same quarter-kilometre square in 2025. Scroll back and forth, and the empty lots fill in.</p>`,
+           <p>The same quarter-kilometre square, spring after spring. The empty lots fill in.</p>`,
   },
   {
     act: 1,
-    stage: { scene: "s3", year: 2025, outlines: "lidar_new" },
+    stage: { scene: "s3", year: 2025, iso: "2025_new", count: true },
     html: `<h2>Where it grew</h2>
            <span class="num" data-count="scene:total">0</span>
            <p>buildings rose in this square between 2018 and 2025.</p>`,
@@ -44,7 +44,7 @@ export const steps = [
   },
   {
     act: 1,
-    stage: { scene: "s1", year: 2025, outlines: "lidar_new" },
+    stage: { scene: "s1", year: 2025, iso: "2025_new", count: true },
     html: `<h2>Nobody keeps count</h2>
            <span class="num" data-count="scene:total">0</span>
            <p>buildings rose on this one square of cleared land. The city's records cannot say so, because a permit
@@ -55,7 +55,7 @@ export const steps = [
   // ---------- act 2: three ways of looking ----------
   {
     act: 2,
-    stage: { scene: "s2", year: 2022, height: 2022 },
+    stage: { scene: "s2", year: 2022, iso: "2022_clay" },
     html: `<h2>From above, with a laser</h2>
            <p>A laser scanner flown over the city, LiDAR, measures every roof to within centimetres.</p>
            <div class="track"><span class="on">2018</span><span>2019</span><span>2020</span><span>2021</span><span class="on">2022</span><span>2023</span><span>2024</span><span class="on">2025</span></div>
@@ -71,9 +71,10 @@ export const steps = [
   },
   {
     act: 2,
-    stage: { scene: "s2", year: 2022, chart: "street1" },
+    stage: { scene: "s2", year: 2022, street: "2016" },
     html: `<h2>From the street, with a camera</h2>
-           <p>Cameras on cars photograph every house front, and every floor can be counted.</p>
+           <p>Cameras on cars photograph every house front, and every floor can be counted. This row of two-storey
+           houses was photographed in 2016.</p>
            <p>But they see only the streets a car has driven, and return only every few years.</p>`,
   },
   {
@@ -150,12 +151,12 @@ export const steps = [
   },
   {
     act: 4,
-    stage: { scene: "s2", year: 2025, chart: "street" },
+    stage: { scene: "s2", year: 2019, lapse: [{ street: "2016" }, { street: "2018" }, { street: "2019" }], every: 1500 },
     html: `<h2>Down to the street</h2>
-           <p>For every house that might have grown, the project gathers street photographs of the same house front
-           from different years, drawn here. A vision-language model compares them and says whether the house is
-           taller, and between which two photographs it changed.</p>
-           <p>The houses to check come from the aerial model's hints and from building permits.</p>`,
+           <p>The same row in 2016, 2018, and 2019. A scaffold goes up, and one house gains a third floor.</p>
+           <p>For every house that might have grown, a vision-language model compares street photographs like these
+           and says whether the house is taller, and between which two photographs it changed. The houses to check
+           come from the aerial model's hints and from building permits.</p>`,
   },
   {
     act: 4,
@@ -163,16 +164,9 @@ export const steps = [
     html: `<h2>Found from the street</h2>
            <span class="num">1,538</span>
            <p>houses seen taller between 2018 and 2025. Checked by hand, about four in five are added floors or taller
-           rebuilds, and nearly all the rest are new buildings.</p>`,
-  },
-  {
-    act: 4,
-    stage: { scene: "s2", year: 2025, chart: "streetmap" },
-    html: `<h2>Found, not counted</h2>
-           <p>The street can find added floors, but it cannot count them. About three in ten of the houses to check
-           stand on streets with no recent photograph, and a floor set back from the house front stays hidden.</p>
-           <p>Counted block by block in the locked ZIP codes, the street matches LiDAR at 0.54, against 0.42 from
-           above. The counts of added floors still come from LiDAR.</p>`,
+           rebuilds, and nearly all the rest are new buildings.</p>
+           <p class="small">The street finds houses but cannot count them, since many streets have no recent
+           photograph. Counts of added floors still come from LiDAR.</p>`,
   },
 
   // ---------- act 5: the city, once seen ----------
@@ -219,7 +213,7 @@ export const steps = [
   // ---------- close ----------
   {
     act: 6,
-    stage: { scene: "s3", year: 2025, outlines: "lidar_new" },
+    stage: { scene: "s3", year: 2025, lapse: [{ iso: "2018", year: 2018 }, { iso: "2025_new", year: 2025 }], every: 1800 },
     html: `<h2>Three ways to watch a city grow</h2>
            <p>A laser measures its height every few years. A camera above it, taught by that laser, dates its new
            buildings every spring. A camera in the street finds its added floors, wherever a car has passed.</p>

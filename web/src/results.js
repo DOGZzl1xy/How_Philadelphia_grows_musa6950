@@ -254,17 +254,28 @@ export function street(div, timeline) {
   });
 }
 
-// the houses seen taller from the street, 2018-2025: one dot per house on the city map
+// the houses seen taller from the street, 2018-2025: one dot per house, on the part of the city where they are.
+// The dots arrive in three waves, by the photographs in which the change first shows; a count per wave fills in.
 export async function streetMap(div) {
   const [d, zips] = await Promise.all([get("street.json"), (cache.zips ??= await (await fetch(v(`${DATA}/model/zips.geojson`))).json())]);
   const svg = base(div);
-  const proj = d3.geoMercator().fitExtent([[30, 30], [970, 970]], zips), path = d3.geoPath(proj);
-  svg.append("g").selectAll("path").data(zips.features).join("path").attr("d", path).attr("fill", "#e7e2d8").attr("stroke", PAPER).attr("stroke-width", 2);
+  const pts = { type: "MultiPoint", coordinates: d.points.map((p) => [p[0], p[1]]) };
+  const proj = d3.geoMercator().fitExtent([[60, 150], [940, 940]], pts), path = d3.geoPath(proj);
+  svg.append("g").selectAll("path").data(zips.features).join("path").attr("d", path).attr("fill", "#e7e2d8").attr("stroke", PAPER).attr("stroke-width", 3);
+  const WAVE = 1300;
   svg.append("g").selectAll("circle").data(d.points).join("circle")
-    .attr("cx", (p) => proj(p)[0]).attr("cy", (p) => proj(p)[1]).attr("r", 0).attr("fill", SIGNAL).attr("fill-opacity", 0.8)
-    .attr("stroke", PAPER).attr("stroke-width", 0.6)
-    .transition().delay((p, k) => 200 + (k % 60) * 14).duration(500).attr("r", 3.4);
-  const lg = svg.append("g").attr("transform", "translate(560,900)");
-  lg.append("circle").attr("cx", 8).attr("cy", -8).attr("r", 7).attr("fill", SIGNAL);
-  lg.append("text").attr("class", "c-note").attr("x", 28).text("a house seen taller from the street");
+    .attr("cx", (p) => proj(p)[0]).attr("cy", (p) => proj(p)[1]).attr("r", 0).attr("fill", SIGNAL).attr("fill-opacity", 0.85)
+    .attr("stroke", PAPER).attr("stroke-width", 0.8)
+    .transition().delay((p, k) => 300 + p[2] * WAVE + (k % 40) * 12).duration(450).attr("r", 5);
+  // the three waves, top left: label and count appear as their dots do
+  d.periods.forEach((label, k) => {
+    const g = svg.append("g").attr("transform", `translate(${60 + k * 300},70)`).attr("opacity", 0.25);
+    g.append("text").attr("class", "c-note").text(`first seen in ${label}`);
+    const n = g.append("text").attr("class", "c-label").attr("y", 44).text("0");
+    g.transition().delay(300 + k * WAVE).duration(400).attr("opacity", 1);
+    n.transition().delay(300 + k * WAVE).duration(WAVE - 200).tween("text", () => {
+      const f = d3.interpolateRound(0, d.by_period[k]);
+      return (t) => n.text(f(t).toLocaleString("en-US"));
+    });
+  });
 }

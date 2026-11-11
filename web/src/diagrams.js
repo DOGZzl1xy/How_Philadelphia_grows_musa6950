@@ -143,3 +143,47 @@ export function data(div, zips) {
       .html(`<div class="c-fo">${t}</div>`);
   });
 }
+
+// ---------- the whole project on one sheet: what goes in, what was tested, what came out ----------
+export function flow(div) {
+  const svg = d3.select(div).append("svg").attr("viewBox", "0 0 1000 1000");
+  svg.append("defs").html(`<marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0 1L9 5L0 9z" fill="${INK2}"/></marker>`);
+  const KIND = { data: ["#e7e2d8", RULE], step: ["#fbfaf7", INK2], model: ["#f6dcd0", SIGNAL], out: [INK, INK] };
+  const box = (x, y, w, h, kind, title, sub) => {
+    const [fill, stroke] = KIND[kind];
+    svg.append("rect").attr("x", x).attr("y", y).attr("width", w).attr("height", h).attr("rx", 10)
+      .attr("fill", fill).attr("stroke", stroke).attr("stroke-width", 2.5);
+    svg.append("foreignObject").attr("x", x + 14).attr("y", y + 10).attr("width", w - 28).attr("height", h - 16)
+      .html(`<div class="flow-b${kind === "out" ? " inv" : ""}"><b>${title}</b>${sub ? `<span>${sub}</span>` : ""}</div>`);
+  };
+  const arrow = (d, label, lx, ly) => {
+    svg.append("path").attr("d", d).attr("fill", "none").attr("stroke", INK2).attr("stroke-width", 2.5).attr("marker-end", "url(#fl)");
+    if (label) svg.append("text").attr("x", lx).attr("y", ly).attr("text-anchor", "end").attr("class", "flow-l").text(label);
+  };
+  const W = 290, H = 132, X = [20, 355, 690], Y = [30, 222, 414, 606, 798];
+  // what goes in
+  box(X[0], Y[0], W, H, "data", "LiDAR flights", "2018, 2022, 2025. The height of every roof.");
+  box(X[1], Y[0], W, H, "data", "Aerial photographs", "Every spring, 0.25 m.");
+  box(X[2], Y[0], W, H, "data", "Street views, permits", "House fronts over the years, and what owners applied for.");
+  // labels and model
+  box(X[0], Y[1], W, H, "step", "Change labels per lot", "New building, added storey, demolition.");
+  box(X[1], Y[1], W, H, "model", "Model", "DINOv3 reads two photographs and one height.");
+  arrow(`M${X[0] + W / 2} ${Y[0] + H}V${Y[1] - 6}`);
+  arrow(`M${X[1] + W / 2} ${Y[0] + H}V${Y[1] - 6}`);
+  arrow(`M${X[0] + W} ${Y[1] + H / 2}H${X[1] - 6}`);
+  // the sealed test and its two answers
+  box(X[1], Y[2], W, H, "step", "One sealed test", "8 ZIP codes and 2022–2025, opened once.");
+  arrow(`M${X[1] + W / 2} ${Y[1] + H}V${Y[2] - 6}`);
+  box(X[0], Y[3], W, H, "step", "New buildings: passed", "r = 0.96 per block. The model dates them every year.");
+  box(X[2], Y[3], W, H, "step", "Added storeys: failed", "r = 0.42 from above. Look from the street instead.");
+  arrow(`M${X[1]} ${Y[2] + H / 2}C${X[1] - 60} ${Y[2] + H / 2} ${X[0] + W / 2} ${Y[2] + H} ${X[0] + W / 2} ${Y[3] - 6}`);
+  arrow(`M${X[1] + W} ${Y[2] + H / 2}C${X[1] + W + 60} ${Y[2] + H / 2} ${X[2] + W / 2} ${Y[2] + H} ${X[2] + W / 2} ${Y[3] - 6}`);
+  // street photographs and permits feed the look from the street
+  arrow(`M${X[2] + W - 36} ${Y[0] + H}V${Y[3] - 6}`, "houses to check, photographs", X[2] + W - 48, Y[1] + H + 44);
+  // what comes out
+  box(X[0], Y[4], W, H, "out", "The city, year by year", "When, where, near rail, by income, against permits.");
+  box(X[2], Y[4], W, H, "out", "1,538 houses found", "Four in five right by hand. Counts stay with LiDAR.");
+  arrow(`M${X[0] + W / 2} ${Y[3] + H}V${Y[4] - 6}`);
+  arrow(`M${X[2] + W / 2} ${Y[3] + H}V${Y[4] - 6}`, "a vision-language model compares them", X[2] + W / 2 - 14, Y[3] + H + 36);
+}
