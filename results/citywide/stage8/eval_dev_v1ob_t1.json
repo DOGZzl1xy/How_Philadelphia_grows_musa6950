@@ -1,0 +1,96 @@
+{
+ "area": "dev",
+ "name": "v1ob",
+ "tiers": [
+  1
+ ],
+ "zips": 1,
+ "zips_missing": [],
+ "candidates": 1278,
+ "observable": 871,
+ "observable_share": 0.6815336463223787,
+ "judged": 871,
+ "verdicts": {
+  "no_change": 554,
+  "taller": 250,
+  "new_building": 43,
+  "unclear": 24
+ },
+ "taller_with_interval": 250,
+ "cells": 50,
+ "cells_with_lidar_popups": 43,
+ "lidar_popups": 479,
+ "primary": "imputed",
+ "variants": {
+  "observed_only": {
+   "r_250m": 0.7202486000851626,
+   "ci95": [
+    0.5705308280877012,
+    0.8452993062480716
+   ],
+   "total": 181.00751480301182
+  },
+  "imputed": {
+   "r_250m": 0.8691164031099896,
+   "ci95": [
+    0.7925456764508401,
+    0.9254585836847319
+   ],
+   "total": 266.5523244871406
+  },
+  "baseline": {
+   "r_250m": 0.8384640858837006,
+   "ci95": [
+    0.7581033638859604,
+    0.9020321862047822
+   ],
+   "total": 257.1921082873815
+  },
+  "candidates": {
+   "r_250m": 0.8008328274743378,
+   "ci95": [
+    0.6831016193216504,
+    0.8926666663691138
+   ],
+   "total": 1164.0
+  }
+ },
+ "primary_minus_no_street_view": {
+  "baseline": {
+   "difference": 0.030652317226289028,
+   "ci95": [
+    -0.025638954839658307,
+    0.08714521952666937
+   ]
+  },
+  "candidates": {
+   "difference": 0.0682835756356518,
+   "ci95": [
+    -0.017298282266243876,
+    0.16129920394685726
+   ]
+  }
+ },
+ "credit_per_observed_candidate_by_source": {
+  "both pairs": 0.181,
+  "model 2018-20": 0.158,
+  "model 2022-24": 0.124,
+  "upward": 0.426
+ },
+ "estimate_raw": 266.5523244871406,
+ "calibration": 1.7970205321661286,
+ "estimate": 479.0,
+ "count_ratio": 1.0,
+ "r_250m": 0.8691164031099893,
+ "r_250m_ci95": [
+  0.7925456764508398,
+  0.9254585836847319
+ ],
+ "r_250m_cov90": 0.8691164031099893,
+ "cells_cov90": 50,
+ "lidar_popups_cov90": 479,
+ "r_bg": 0.9002503732421191,
+ "block_groups": 34,
+ "gate_r_250m_0.8": true,
+ "street_view_beats_baseline": false
+}

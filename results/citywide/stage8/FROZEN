@@ -1,0 +1,2 @@
+{"frozen": "2026-11-10", "commit": "01783c7", "tiers": [1], "prompt": "v1", "name": "v1ob", "old_baseline": true,
+ "primary": "imputed", "calibration": 1.797, "model": "gemini-3.8-flash"}

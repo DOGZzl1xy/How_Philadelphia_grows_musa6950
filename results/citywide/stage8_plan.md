@@ -132,3 +132,46 @@ to get around a refusal. Model spending is capped at $40 without a new approval.
 | 5. Figures, report section, website (deploy only on approval) | – | – | 3–4 days |
 
 Scripts go to `scripts/stage8_*.py`, results to `results/citywide/stage8/`.
+
+---
+
+## Amendment 1 (2026-11-10, approved by the author, before any photograph of a sealed ZIP code is downloaded or judged): frozen settings
+
+Development in ZIP 19146 is finished (3,262 candidates of both tiers, 2,151 observable and judged; model calls so far
+$11.97). The settings below are frozen in `results/citywide/stage8/FROZEN` and in the code at commit 01783c7; the
+sealed evaluation and the application to the other ZIP codes use them unchanged.
+
+**Frozen**
+
+| Setting | Value | Evidence from 19146 |
+|---|---|---|
+| Candidates | **Tier 1 only.** | Tier 2 raised the share of LiDAR pop-ups found from 31.9% to 46.4%: +14.5 points, under the 15 set beforehand, so it is not adopted (r per cell 0.72 → 0.74). |
+| Photographs | Slots as planned, plus **an older baseline**: when there is no photograph from 2016-01 to 2018-04, the latest one before 2016 is added in front. | Where the first photograph was from 2019, 12 of 17 LiDAR pop-ups were judged unchanged: they were already built. With the older baseline 126 instead of 106 of the 163 observable tier-1 LiDAR pop-ups are seen taller. |
+| View | 720 px, 95° wide, pitched 22° up, aimed at the side of the lot facing the camera. | Unchanged from the pilot. |
+| Judge | Gemini `gemini-3.8-flash`, low reasoning effort, **prompt v1** (`scripts/stage8_judge.py`). | Prompt v2 (set-back roof structures and deck railings count as taller) found 3 more of 37 missed pop-ups and added 6 false alarms on 150 unchanged units: rejected. |
+| Estimate per cell (primary) | **Imputed:** a candidate without photographs gets the mean credit of the observed candidates of the same source (model 2018→2020, model 2022→2024, both pairs, upward permit) in the same area. It uses street-view verdicts only, no LiDAR label. | The planned estimate counted candidates without photographs as zero. A third of the candidates have none, unevenly by street: r = 0.72 observed only, 0.87 imputed. |
+| Calibration factor | 1.797 (LiDAR total ÷ imputed estimate, tier 1, 19146). | Does not affect r. |
+
+**Reported next to the primary estimate, without a gate:** the observed-only estimate, and a baseline that uses no
+single photograph (every candidate gets the mean credit of its source; in 19146 r = 0.84, plain candidate count 0.80).
+The author's decision: the aim is to identify pop-ups, the candidates and the photographs are one method, so the
+baseline is given for information and no second criterion is added. The gate stays r ≥ 0.8 per 250 m cell for the
+primary estimate.
+
+**Also found in development**
+
+- Of the 392 LiDAR pop-ups of 2018→2022 in 19146, 249 are tier-1 candidates, 163 of these are observable and 126 are
+  seen taller. Candidates on streets without a photograph after 2022 are the largest loss; most of those streets were
+  last driven in 2019.
+- Of the observed tier-1 candidates, 19% are LiDAR pop-ups of 2018→2022; 50% of those judged taller, 6% of those
+  judged otherwise. Most other units judged taller changed between the 2019 and the 2024–25 photographs, which is the
+  second LiDAR period.
+- Validation blocks (units the screening model did not train on): 75 observable LiDAR pop-ups, 61% seen taller;
+  152 observable top-scored units without LiDAR change, 68% no change, 11% taller, 11% new building.
+- Misses looked at: additions set back behind the cornice and hidden from a camera a few metres in front, oblique or
+  mis-aimed views, trees.
+- 19146 lies in the screening model's training area, so its candidates are better there than in the sealed ZIP codes
+  (the model alone reached r = 0.42 there).
+
+**Order from here:** photographs of the sealed ZIP codes (917 tier-1 candidates), judging, the evaluation once
+(`scripts/stage8_eval.py --area sealed`, lock file `stage8/sealed_eval_log.csv`), then the other ZIP codes.

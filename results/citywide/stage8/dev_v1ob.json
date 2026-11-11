@@ -1,0 +1,46 @@
+{
+ "tag": "v1ob",
+ "judged": 2151,
+ "cost_usd": 9.0715155,
+ "funnel": [
+  {
+   "candidates": "tier 1",
+   "LiDAR pop-ups": 392,
+   "are candidates": 249,
+   "observable": 163,
+   "judged": 163,
+   "seen taller": 126,
+   "taller, interval touches 2018-22": 125,
+   "credited to 2018-22": 77.4
+  },
+  {
+   "candidates": "tier 1 + 2",
+   "LiDAR pop-ups": 392,
+   "are candidates": 369,
+   "observable": 251,
+   "judged": 251,
+   "seen taller": 183,
+   "taller, interval touches 2018-22": 182,
+   "credited to 2018-22": 110.0
+  }
+ ],
+ "found_tier1": 0.31887755102040816,
+ "found_tier12": 0.4642857142857143,
+ "cells": {
+  "n": 50,
+  "tier 1": {
+   "r_250m": 0.7202486000851626,
+   "r_250m_period1": 0.6426289212723805,
+   "estimate": 181.00751480301182,
+   "lidar": 479,
+   "calibration": 2.6462989700802733
+  },
+  "tier 1 + 2": {
+   "r_250m": 0.7426756159893337,
+   "r_250m_period1": 0.6891894897382104,
+   "estimate": 300.3182674341554,
+   "lidar": 479,
+   "calibration": 1.5949745717849828
+  }
+ }
+}
