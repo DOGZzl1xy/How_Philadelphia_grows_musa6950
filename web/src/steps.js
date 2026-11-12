@@ -170,7 +170,7 @@ export const steps = [
     act: 4,
     stage: { scene: "s2", year: 2025, chart: "streetmap" },
     html: `<h2>Found from the street</h2>
-           <span class="num">1,538</span>
+           <span class="num">1,950</span>
            <p>houses seen taller between 2018 and 2025. Checked by hand, about four in five are added floors or taller
            rebuilds, and nearly all the rest are new buildings.</p>
            <p class="small">The street finds houses but cannot count them, since many streets have no recent

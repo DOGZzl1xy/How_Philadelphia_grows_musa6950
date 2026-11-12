@@ -142,20 +142,22 @@
     <p>An extra storey shows from the side, so the project looks at street-level photographs. Houses to check come from
       three hints: the aerial model's own extra-storey score, building permits that describe an upward addition, and
       zoning permits for an addition or new development. They are checked in the 571 blocks of 250 m where the aerial
-      model marks at least three buildings as grown, which gives 15,401 houses.</p>
+      model marks at least three buildings as grown, which gives 15,401 houses, and then in the rest of the study area,
+      8,418 more.</p>
     <p>For each house, the capture point nearest its lot supplies one photograph per period (before the 2018 flight,
-      2018–2019, 2020–2023, 2024 on), cut from the panorama towards the lot. 11,139 houses (72%) have photographs on both
-      sides of 2018–2025. A vision-language model (Gemini) reads the two to five dated photographs of a house together
+      2018–2019, 2020–2023, 2024 on), cut from the panorama towards the lot. 16,738 houses (70%) have photographs on both
+      sides of 2018–2025. A vision-language model (Gemini 3.8 Flash; outside the 571 blocks the cheaper Gemini Decision 1) reads the two to five dated photographs of a house together
       and answers whether it became taller, was newly built on an empty lot, did not change, or cannot be judged, and
       between which two photographs it changed. The prompt, the choice of photographs and the list of hints were settled
       in one ZIP code and then frozen.</p>
     <div class="fig square" data-chart="streetmap"></div>
-    <p class="cap">The 1,538 houses seen taller from the street between 2018 and 2025, coloured by the photographs in
+    <p class="cap">The 1,950 houses seen taller from the street between 2018 and 2025, coloured by the photographs in
       which the change first shows.</p>
     <table>
       <tr><th></th><th>Result</th></tr>
-      <tr><td>Houses marked as taller, 2018–2025</td><td class="num">1,538</td></tr>
-      <tr><td>Checked by hand, 58 of them</td><td>47 extra storeys or taller rebuilds (81%), 10 new buildings, 1 wrong</td></tr>
+      <tr><td>Houses marked as taller, 2018–2025</td><td class="num">1,950</td></tr>
+      <tr><td>Read by Gemini 3.8 Flash, by Gemini Decision 1</td><td>1,538 and 412</td></tr>
+      <tr><td>Checked by hand, 58 of the first 1,437</td><td>47 extra storeys or taller rebuilds (81%), 10 new buildings, 1 wrong</td></tr>
       <tr><td>Counted per 250 m block against LiDAR, sealed ZIP codes, run once</td><td>r = 0.54 (95% interval 0.39–0.66)</td></tr>
     </table>
     <p>The street finds extra storeys but does not count them. The count per block misses the bar of 0.8, because three

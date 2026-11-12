@@ -211,7 +211,7 @@ export function flow(div) {
   const mod = card(1, 1, "Change model", "DINOv3, two photographs", model, true, "#s3");
   const exam = card(2, 1, "Sealed test", "r per block, run once", test, false, "#s6");
   const city = card(3, 0, "New buildings by year", "when, where, rail, income", bars, false, "#s9");
-  const found = card(3, 2, "1,538 houses found", "Gemini 3.8 Flash", "/data/street/a_2019.webp", true, "#s8");
+  const found = card(3, 2, "1,950 houses found", "Gemini Flash and Decision", "/data/street/a_2019.webp", true, "#s8");
 
   arrow(`M${lidar.r + 4} ${lidar.cy}H${labels.l - 5}`);
   arrow(`M${labels.cx} ${labels.b + 4}V${mod.t - 5}`);

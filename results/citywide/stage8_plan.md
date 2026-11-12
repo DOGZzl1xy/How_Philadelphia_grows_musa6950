@@ -299,3 +299,17 @@ choice of four, and the first photograph in which the house is taller. Houses it
 map and table with their reader noted. The results of amendment 2 inside the hot cells are not redone, and nothing is
 compared with LiDAR again. Expected cost about $3; all model calls of the stage together stay under $58.50 (the
 author's limit at the provider is $60), and the run stops at the first refusal without trying again.
+
+**Execution record, amendment 3 (2026-11-11 night to 2026-11-12).** The 8,418 candidates outside the hot cells are
+photographed: 5,599 (67%) are observable; 365 had been judged by Gemini 3.8 Flash in earlier steps, 5,234 are read by
+Gemini Decision 1 for $2.76 (3,832 no change, 566 new building, 420 unclear, 416 taller; 412 of the taller ones change
+after the 2018 flight). Taller by source: upward-addition permit 39%, model score alone 5%, zoning permit 7%. The first
+run with six parallel workers ran into the provider's limit of one million input tokens a minute and stopped; with the
+author's agreement the calls were paced to 700,000 a minute and the run finished without another refusal.
+
+**The local map now marks 1,950 buildings as taller between 2018 and 2025**, in 42 ZIP codes: 1,538 read by Gemini 3.8
+Flash and 412 by Gemini Decision 1; 641 first seen taller in the 2018–2019 photographs, 441 in 2020–2023, 868 from
+2024. In all, 23,819 candidates were looked up, 16,738 (70%) had photographs on both sides of 2018–2025 and every one
+of these is judged. Model calls for the whole stage: $57.29. The check by hand covers the buildings marked by Flash
+(47 of 58 taller); the 412 added by Decision 1 were not checked by hand, and on the same hand-judged houses Decision 1
+gives the same mix among its "taller" calls (38 of 47 taller, 8 new buildings, 1 unchanged).

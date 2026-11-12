@@ -100,7 +100,7 @@
     <dl class="kv">
       <dt>Training</dt><dd>Trained on a modified RTX 4080 SUPER with 32 GB of VRAM. One training run of 8,000 steps takes 2 hours 36 minutes.</dd>
       <dt>Processing</dt><dd>About 300 GB of raw LiDAR and imagery, streamed tile by tile and reduced to 0.5 m height grids.</dd>
-      <dt>Street views</dt><dd id="cost-street">About 23,800 houses looked up and 11,139 timelines read by Gemini 3.8 Flash for $54.53, about 0.4 cents a house.</dd>
+      <dt>Street views</dt><dd id="cost-street">23,819 houses looked up and 16,738 timelines read for $57.29: 11,504 by Gemini 3.8 Flash at about 0.4 cents a house, 5,234 by Gemini Decision 1 at about 0.05 cents.</dd>
       <dt>Assistant</dt><dd>DeepSeek flash with Gemini 3.8 Flash as a backup, about $0.0003 an answer, capped at $2 a day.</dd>
       <dt>Software</dt><dd>Python 3.12, PyTorch, GeoPandas and Rasterio for the analysis. Vite, D3 and MapLibre for this site, served by a Cloudflare Worker.</dd>
     </dl>

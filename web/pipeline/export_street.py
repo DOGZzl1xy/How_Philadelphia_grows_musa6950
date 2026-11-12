@@ -30,11 +30,11 @@ for z, g in m.groupby("zip"):
     pts += [[round(p.x, 5), round(p.y, 5), int(k[uid])] for uid, p in zip(u.unit, c)]
 check = json.loads((S8 / "review_marked.json").read_text())
 sealed = json.loads((S8 / "eval_sealed.json").read_text())
-hot = t[t.hot]
 json.dump({"marked": len(m), "by_period": [int((m.cls == c).sum()) for c in ("t1", "t2", "t3")],
            "periods": ["2018–2019", "2020–2023", "2024–2025"],
-           "hot_cells": int(len(pd.read_csv(S8 / "hot_cells.csv"))), "candidates": int(len(hot)),
-           "judged": int((~hot.cls.isin(["nophoto", "pending"])).sum()),
+           "hot_cells": int(len(pd.read_csv(S8 / "hot_cells.csv"))), "candidates": int(len(t)),
+           "judged": int((~t.cls.isin(["nophoto", "pending"])).sum()),
+           "by_reader": {k: int(v) for k, v in m.reader.value_counts().items()},
            "check": {"of": check["of"], "taller": check["taller_confirmed"]},
            "sealed_r": round(sealed["r_250m"], 2), "points": pts}, open(OUT / "street.json", "w"), separators=(",", ":"))
 print("street.json:", len(pts), "points")
