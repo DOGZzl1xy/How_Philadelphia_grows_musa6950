@@ -273,3 +273,29 @@ zoning-permit candidates. Records of 2016 (building description) and 2017 (footp
 
 Two weaknesses seen in the check: the target mark sometimes falls between two narrow rowhouses, and "taller" and
 "new building" are confused when an old house was torn down before the first photograph.
+
+---
+
+## Amendment 3 (2026-11-11, asked for by the author): the candidates outside the hot cells, read by Gemini Decision 1
+
+Google released Gemini Decision 1 on 2026-11-11: a model that writes no text and answers closed questions with
+probabilities, at $0.10 per million input tokens (about $0.0005 per house, an eighth of Gemini 3.8 Flash). It was
+tried on the photographs already judged, before deciding anything:
+
+| Sample | Gemini 3.8 Flash | Gemini Decision 1 |
+|---|---|---|
+| 70 pilot pairs, same call as the reference | 63 | 60 |
+| 80 houses judged by the author (drawn by Flash's verdicts, so in its favour): changed or not | 95% | 87% |
+| same, exact class | 82% | 73% |
+| first photograph that shows the change, on 50 houses both call changed | reference | the same on 47 |
+
+Decision 1 is a little more cautious (9 of 50 houses the author calls taller are "no change" for it) and never answers
+"unclear". Of the 47 houses it calls taller in that sample, the author calls 38 taller, 8 new buildings and 1 unchanged,
+the same mix as for Flash.
+
+**What is done.** The 8,418 candidates of both tiers outside the hot cells are photographed with the frozen rule, and
+the observable ones that Flash has not judged are read by Decision 1 (`scripts/stage8_decision.py`): the verdict as a
+choice of four, and the first photograph in which the house is taller. Houses it calls taller are added to the local
+map and table with their reader noted. The results of amendment 2 inside the hot cells are not redone, and nothing is
+compared with LiDAR again. Expected cost about $3; all model calls of the stage together stay under $58.50 (the
+author's limit at the provider is $60), and the run stops at the first refusal without trying again.

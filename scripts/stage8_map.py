@@ -1,6 +1,7 @@
 """Stage 8, amendment 2: the local map of buildings seen taller from the street (results/citywide/stage8_plan.md).
 
-Reads every ZIP code that has photographs and verdicts, classifies each judged candidate, and writes, under
+Reads every ZIP code that has photographs and verdicts (Gemini 3.8 Flash, and Gemini Decision 1 for candidates outside
+the hot cells), classifies each judged candidate, and writes, under
 data/interim/stage8/map/ (never committed or published: the files hold addresses and single buildings):
   buildings.csv   one row per candidate: address, verdict, the two photographs between which it changed, source
   data.js         the same as GeoJSON for the page (lot outlines), plus the hot cells
@@ -56,11 +57,15 @@ def main():
     for fp in sorted(glob.glob(str(D / "photos" / "1*.jsonl"))):
         z = Path(fp).stem
         ph = pd.DataFrame([json.loads(line) for line in open(fp)])[["unit", "status", "photos"]]
-        fj = D / "judge" / f"{z}_{NAME}.jsonl"
-        jd = pd.DataFrame([json.loads(line) for line in open(fj)]) if fj.exists() and fj.stat().st_size else pd.DataFrame(
-            columns=["unit", "dates", "slots", "verdict", "last_before", "first_after", "reason"])
-        x = cand[cand.zip == z].merge(ph, on="unit").merge(
-            jd[["unit", "dates", "slots", "verdict", "last_before", "first_after", "reason"]], on="unit", how="left")
+        # verdicts: Gemini 3.8 Flash where it read the house, else Gemini Decision 1 (amendment 3, outside the hot cells)
+        cols = ["unit", "dates", "slots", "verdict", "last_before", "first_after", "reason", "reader"]
+        parts = []
+        for name, reader in ((NAME, "flash"), ("dec1", "decision")):
+            fj = D / "judge" / f"{z}_{name}.jsonl"
+            if fj.exists() and fj.stat().st_size:
+                parts.append(pd.DataFrame([json.loads(line) for line in open(fj)]).assign(reader=reader)[cols])
+        jd = pd.concat(parts).drop_duplicates("unit", keep="first") if parts else pd.DataFrame(columns=cols)
+        x = cand[cand.zip == z].merge(ph, on="unit").merge(jd, on="unit", how="left")
         if not len(x):
             continue
         u = gpd.read_parquet(ROOT / f"data/interim/citywide_units/{z}.parquet")[["unit", "address", "geometry"]]
@@ -75,10 +80,10 @@ def main():
             photos = [{"d": p["date"], "f": f"{z}/{p['file']}"} for p in (r.photos or []) if used is None or p["slot"] in used]
             geo.append({"type": "Feature", "geometry": json.loads(gpd.GeoSeries([r.geometry.simplify(0.000003)]).to_json())["features"][0]["geometry"],
                         "properties": {"id": f"{z}_{r.unit}", "zip": z, "addr": r.address, "cls": r.cls, "t0": r.t0, "t1": r.t1,
-                                       "mb": bool(r.maybe_before), "src": r.src, "hot": bool(r.hot),
+                                       "mb": bool(r.maybe_before), "src": r.src, "hot": bool(r.hot), "rd": r.reader if isinstance(r.reader, str) else "",
                                        "why": r.reason if isinstance(r.reason, str) else "", "ph": photos}})
     t = pd.concat(rows, ignore_index=True)
-    t[["zip", "unit", "address", "cls", "t0", "t1", "maybe_before", "src", "tier", "hot", "verdict", "reason"]].to_csv(OUT / "buildings.csv", index=False)
+    t[["zip", "unit", "address", "cls", "t0", "t1", "maybe_before", "src", "tier", "hot", "reader", "verdict", "reason"]].to_csv(OUT / "buildings.csv", index=False)
 
     hot = pd.read_csv(ROOT / "results/citywide/stage8/hot_cells.csv")
     s = 250 / FT
@@ -91,6 +96,7 @@ def main():
     (OUT / "index.html").write_text(HTML)
     marked = t[t.cls.isin(["t1", "t2", "t3"])]
     print(f"ZIP codes {t.zip.nunique()}; candidates {len(t)}; classes {t.cls.value_counts().to_dict()}")
+    print("marked by reader:", marked.reader.value_counts().to_dict(), "| inside hot cells:", int(marked.hot.sum()))
     print(f"marked taller 2018-2025: {len(marked)} (may predate the 2018 flight: {int(marked.maybe_before.sum())}); "
           f"in hot cells {int(marked.hot.sum())}; by source {marked.src.value_counts().to_dict()}")
     print(f"written: {OUT}/index.html, data.js ({(OUT / 'data.js').stat().st_size / 1e6:.1f} MB), buildings.csv")
@@ -193,7 +199,7 @@ function show(p) {
   map.setFilter("b-sel", ["==", ["get","id"], p.id]);
   const when = p.t1 && p.t1 !== "null" ? `<div class="meta">变化出现在 <b>${p.t0}</b> 和 <b>${p.t1}</b> 两张照片之间${p.mb === true || p.mb === "true" ? "（前一张早于 2018 年 4 月的 LiDAR 飞行，可能发生在那之前）" : ""}</div>` : "";
   document.getElementById("body").innerHTML = `<h2>${p.addr || "(无地址)"}</h2>
-    <div class="meta"><span class="tag">${p.zip}</span><span class="tag">${NAME[p.cls]}</span><span class="tag">候选来源：${SRC[p.src] || p.src}</span></div>${when}
+    <div class="meta"><span class="tag">${p.zip}</span><span class="tag">${NAME[p.cls]}</span><span class="tag">候选来源：${SRC[p.src] || p.src}</span>${p.rd ? `<span class="tag">${p.rd === "decision" ? "Gemini Decision 1" : "Gemini 3.8 Flash"}</span>` : ""}</div>${when}
     ${p.why ? `<div class="why">Gemini：${p.why}</div>` : ""}
     <div class="ph">${ph.map(x => `<figure><img loading="lazy" src="../views/${x.f}" alt="街景 ${x.d}"><figcaption class="${p.t1 === x.d ? "mark" : ""}">${x.d}${p.t1 === x.d ? " ← 第一张看到变高" : p.t0 === x.d ? " ← 最后一张还没变" : ""}</figcaption></figure>`).join("")}</div>${ph.length ? "" : "<p>这栋没有可用的照片。</p>"}`;
   document.getElementById("info").style.display = "block";
