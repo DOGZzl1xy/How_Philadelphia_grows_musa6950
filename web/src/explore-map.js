@@ -4,7 +4,7 @@
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { v } from "./data.js";
-import { ACS, BLUE, CHANGE, GROWTH, GROWTH_BREAKS, ORANGE, PERIODS, PHOTO_YEARS, YEARS, YEAR_ORDER, acsBreaks, acsColumn, fmt,
+import { ACS, BLUE, CHANGE, GROWTH, GROWTH_BREAKS, ORANGE, PERIODS, PHOTO_YEARS, STREET, YEARS, YEAR_ORDER, acsBreaks, acsColumn, fmt,
   photoTiles, stepColor } from "./layers.js";
 
 const D = "/data/explore";
@@ -13,7 +13,7 @@ const PAPER = "#f1eee8", INK = "#1b2a3a", SIGNAL = "#ff5a1f";
 const MIN_LOTS = 10;                     // cells with fewer covered lots are not coloured (rates would be noise)
 
 export const tables = {};                // id -> record, per level (cells, bgs, zips, hoods) + city
-let map, bounds = {}, state = { fill: null, zips: false, hoods: false, tracts: false, rail: false, photo: null }, onChange = () => {};
+let map, bounds = {}, state = { fill: null, zips: false, hoods: false, tracts: false, rail: false, street: false, photo: null }, onChange = () => {};
 
 const rows = (t) => Object.fromEntries(t.rows.map((r) => [r[0], Object.fromEntries(t.cols.map((c, i) => [c, r[i]]))]));
 const json = async (u) => (await fetch(v(u))).json();
@@ -66,9 +66,9 @@ const union = (bs) => bs.reduce((a, b) => [Math.min(a[0], b[0]), Math.min(a[1], 
 
 export async function initMap(container, changed) {
   onChange = changed || onChange;
-  const [style, cells, t, bgs, zips, hoods, rail, city, tracts] = await Promise.all([basemap(), json(`${D}/cells.json`), json(`${D}/tables.json`),
+  const [style, cells, t, bgs, zips, hoods, rail, city, tracts, street] = await Promise.all([basemap(), json(`${D}/cells.json`), json(`${D}/tables.json`),
     json(`${D}/bgs.json`), json(`${D}/zips.json`), json(`${D}/hoods.json`), json("/data/results/rail.json"), json(`${D}/city.json`),
-    json(`${D}/tracts.json`)]);
+    json(`${D}/tracts.json`), json("/data/results/street.json").catch(() => ({ points: [] }))]);
   tables.city = t.city;
   tables.by = t.by;
   for (const k of ["zips", "hoods", "bgs", "cells", "tracts"]) tables[k] = rows(t[k]);
@@ -91,6 +91,8 @@ export async function initMap(container, changed) {
   map.addSource("tracts", { type: "geojson", data: tracts });
   map.addSource("rail", { type: "geojson", data: { type: "FeatureCollection",
     features: rail.map((c) => ({ type: "Feature", properties: {}, geometry: { type: "Point", coordinates: c } })) } });
+  map.addSource("street", { type: "geojson", data: { type: "FeatureCollection",
+    features: street.points.map((c) => ({ type: "Feature", properties: { p: c[2] }, geometry: { type: "Point", coordinates: [c[0], c[1]] } })) } });
   const labelPoints = (fc) => ({ type: "FeatureCollection", features: fc.features.map((f) => {
     const b = bboxOf(f.geometry);
     return { type: "Feature", properties: { id: f.properties.id }, geometry: { type: "Point", coordinates: [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2] } };
@@ -118,6 +120,10 @@ export async function initMap(container, changed) {
   map.addLayer({ id: "zip-line", type: "line", source: "zips", layout: none, paint: { "line-color": INK, "line-width": 1.2 } });
   map.addLayer({ id: "rail", type: "circle", source: "rail", layout: none,
     paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2, 15, 5], "circle-color": "#3f4650", "circle-stroke-color": PAPER, "circle-stroke-width": 1 } });
+  map.addLayer({ id: "street", type: "circle", source: "street", layout: none,
+    paint: { "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2.2, 14, 4.5, 17, 9],
+      "circle-color": ["match", ["get", "p"], 0, STREET.colors[0], 1, STREET.colors[1], STREET.colors[2]],
+      "circle-stroke-color": PAPER, "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 10, 0.5, 15, 1.4] } });
   for (const [k, src] of [["cells", "cells"], ["bgs", "bgs"], ["zips", "zips"], ["hoods", "hoods"], ["tracts", "tracts"]]) {
     map.addLayer({ id: `hl-${k}`, type: "line", source: src, filter: ["in", ["get", "id"], ["literal", []]],
       paint: { "line-color": SIGNAL, "line-width": k === "cells" ? 2.4 : 3 } });
@@ -133,7 +139,17 @@ export async function initMap(container, changed) {
   map.setLayoutProperty("hood-label", "text-font", ["Noto Sans Italic"]);
   map.setLayerZoomRange("hood-label", 12, 24);
 
+  // a dot of the street layer says when the change first shows (no address, no photograph)
+  const tip = new maplibregl.Popup({ closeButton: false, offset: 10, className: "street-tip" });
+  map.on("click", "street", (e) => {
+    const f = e.features[0];
+    tip.setLngLat(f.geometry.coordinates).setHTML(`<b>Seen taller from the street</b><br>first in the ${STREET.periods[f.properties.p]} photographs`).addTo(map);
+    e.originalEvent.streetDot = true;
+  });
+  map.on("mouseenter", "street", () => (map.getCanvas().style.cursor = "pointer"));
+  map.on("mouseleave", "street", () => (map.getCanvas().style.cursor = ""));
   map.on("click", (e) => {
+    if (e.originalEvent.streetDot) return;
     let f;
     for (const l of ["cell-fill", "bg-fill", "tract-hit", "hood-hit"]) {
       if (!visible(l)) continue;
@@ -179,6 +195,7 @@ export function setState(next) {
   show("hood-line", state.hoods); show("hood-label", state.hoods);
   show("tract-line", state.tracts); show("tract-label", state.tracts); show("tract-hit", state.tracts);
   show("rail", state.rail);
+  show("street", state.street);
   if (state.photo) {
     const src = map.getSource("photo");
     src.setTiles([photoTiles(state.photo)]);

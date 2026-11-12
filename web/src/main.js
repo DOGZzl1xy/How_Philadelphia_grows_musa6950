@@ -108,6 +108,7 @@ const PREFETCH = {
   area: ["results/area_type.json"],
   map: ["results/cells.geojson", "results/rail.json", "model/zips.geojson"],
   streetmap: ["results/street.json", "model/zips.geojson"],
+  wall: ["street/wall_before.webp", "street/wall_after.webp"],
 };
 let busyUntil = 0;
 async function go(i) {

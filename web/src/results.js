@@ -292,3 +292,14 @@ export async function streetMap(div) {
     });
   });
 }
+
+// the wall: 25 houses confirmed as taller, each tile turning from its last unchanged street view (ink) to its latest
+// one (orange). The turn sweeps across the wall, rests, and sweeps back.
+export function wall(div) {
+  const N = 5, before = v(`${DATA}/street/wall_before.webp`), after = v(`${DATA}/street/wall_after.webp`);
+  const pos = (k) => `${(k % N) * 100 / (N - 1)}% ${Math.floor(k / N) * 100 / (N - 1)}%`;
+  div.innerHTML = `<div class="wall">${d3.range(N * N).map((k) => `<div class="wt">
+    <i style="background-image:url(${before});background-position:${pos(k)}"></i>
+    <i class="after" style="background-image:url(${after});background-position:${pos(k)};animation-delay:${(((k % N) + Math.floor(k / N)) * 0.22).toFixed(2)}s"></i>
+  </div>`).join("")}</div>`;
+}

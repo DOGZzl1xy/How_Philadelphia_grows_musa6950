@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 import "d3-transition";   // registers selection.transition(); d3 is marked side-effect free, so the bundler would drop it
 import { arch, data, flow } from "./diagrams.js";
-import { areaType, cityMap, income, iso, scatter, street, streetMap, waffle, yearly } from "./results.js";
+import { areaType, cityMap, income, iso, scatter, street, streetMap, waffle, wall, yearly } from "./results.js";
 import { v } from "./data.js";
 
 const DATA = "/data";
@@ -58,6 +58,7 @@ export async function drawChart(div, name, opts = {}) {
   if (name === "street1") return street(div, false);
   if (name === "street") return street(div, true);
   if (name === "streetmap") return streetMap(div);
+  if (name === "wall") return wall(div);
 }
 
 function frame(div, m = { t: 70, r: 40, b: 70, l: 70 }) {

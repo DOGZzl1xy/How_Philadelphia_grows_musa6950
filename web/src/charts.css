@@ -39,3 +39,11 @@
 .flow-s { font-family: var(--text); font-size: 15.5px; fill: var(--ink-2); }
 .flow-c { font-family: var(--text); font-size: 15px; }
 .flow-l { font-family: var(--text); font-size: 15px; fill: var(--ink-2); font-style: italic; }
+
+/* the wall of street views: 5 x 5 tiles, each with a "before" and an "after" layer cut from two sheets */
+.wall { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; background: var(--paper); }
+.wt { position: relative; overflow: hidden; }
+.wt i { position: absolute; inset: 0; background-size: 500% 500%; }
+.wt i.after { opacity: 0; animation: wall-turn 9s ease-in-out infinite; }
+@keyframes wall-turn { 0%, 12% { opacity: 0; } 24%, 68% { opacity: 1; } 80%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .wt i.after { animation: none; opacity: 1; } }

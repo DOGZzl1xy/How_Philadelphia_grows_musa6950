@@ -41,7 +41,9 @@ npm --prefix web run build                       # static build into web/dist
 - Since 2026-11-11 the houses seen taller from the street (stage 8) are exported as points and drawn as dots on one
   map of the story and of the Method page; no address or id goes with them. One row of houses is shown from the
   street as the example (three photographs of 2016, 2018 and 2019, `pipeline/export_streetview.py`), reduced to the
-  site's two tones with the added storey in orange; no other street-level photograph is exported.
+  site's two tones with the added storey in orange. A wall of 25 houses the author confirmed as taller shows each one before
+  and after in the same two-tone treatment (chosen by hand: no shop signs, no house numbers). The Explore map has a
+  layer with the same dots, which the assistant can switch on (`show_street_houses`).
 - Aerial photography is credited to the City of Philadelphia on every screen.
 
 ## Type and sizes

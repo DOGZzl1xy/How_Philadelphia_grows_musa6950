@@ -17,6 +17,10 @@ const PHOTO_SERVICE = { 2018: "CityImagery_2018_3in", 2019: "CityImagery_2019_3i
 export const photoTiles = (y) =>
   `https://tiles.arcgis.com/tiles/fLeGjb7u4uXqeF9q/arcgis/rest/services/${PHOTO_SERVICE[y]}/MapServer/tile/{z}/{y}/{x}`;
 
+// houses seen taller from the street (stage 8): one colour per period in which the change first shows
+export const STREET = { label: "Houses seen taller from the street", periods: ["2018–2019", "2020–2023", "2024–2025"],
+  colors: ["#2a78d6", "#1baf7a", "#eb6834"], note: "Found in street-level photographs read by a model, 2018–2025. About four in five are added storeys or taller rebuilds. Streets without recent photographs are missing, so this layer finds houses and does not count them." };
+
 export const ORANGE = ["#f9e0d3", "#f6c9b4", "#f0a27f", "#e2714a", "#c94a1d", "#9e3208"];
 export const BLUE = ["#e6eaee", "#c6d0da", "#9fb0c1", "#7489a0", "#4d6580", "#2c4561"];
 // change layers: decline in warm grey, rise in ink blue (orange stays reserved for growth)

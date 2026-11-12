@@ -50,7 +50,7 @@ function apply(a) {
   const next = {};
   if (a.layer === "off") next.fill = null;
   else if (a.layer) { const l = validLayer(a.layer); if (l) next.fill = l; }
-  for (const k of ["zips", "hoods", "tracts", "rail"]) {
+  for (const k of ["zips", "hoods", "tracts", "rail", "street"]) {
     if (typeof a[k] === "boolean") { next[k] = a[k]; stale.delete(k); if (a[k]) byAssistant.add(k); else byAssistant.delete(k); }
     else if (stale.has(k)) { next[k] = false; stale.delete(k); byAssistant.delete(k); }
   }

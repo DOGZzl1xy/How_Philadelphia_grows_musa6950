@@ -160,6 +160,14 @@ export const steps = [
   },
   {
     act: 4,
+    stage: { scene: "s2", year: 2025, chart: "wall" },
+    html: `<h2>House after house</h2>
+           <p>Twenty-five of the houses found this way. Each one turns from the last photograph before the change to
+           the latest one.</p>
+           <p>Some gained a single floor on the old walls. Others were torn down and came back taller.</p>`,
+  },
+  {
+    act: 4,
     stage: { scene: "s2", year: 2025, chart: "streetmap" },
     html: `<h2>Found from the street</h2>
            <span class="num">1,538</span>

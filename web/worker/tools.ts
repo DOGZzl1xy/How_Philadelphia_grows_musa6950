@@ -338,6 +338,7 @@ export const TOOL_DEFS = [
         ...Object.keys(MODEL_YEARS).map((y) => `model_${y}`), ...Object.keys(ACS_FIELDS).map((f) => `acs_${f}`)] },
       acs_period: { type: "string", enum: ["2015_19", "2019_23"] },
       show_zips: { type: "boolean" }, show_neighbourhoods: { type: "boolean" }, show_tracts: { type: "boolean" }, show_rail: { type: "boolean" },
+      show_street_houses: { type: "boolean", description: "the houses seen taller from the street 2018-2025, one dot per house (found, not counted)" },
       photo_year: { type: "integer", description: "aerial photograph year (2018, 2019, 2020, 2022, 2023, 2024, 2025) or 0 to hide" },
       focus: { type: "array", items: { type: "object", properties: { level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group", "city"] }, id: { type: "string" } } } },
       highlight: { type: "object", properties: { level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group"] }, ids: { type: "array", items: { type: "string" } } } },
@@ -357,6 +358,7 @@ export function mapAction(t: Tables, a: Row) {
   if (typeof a.show_neighbourhoods === "boolean") out.hoods = a.show_neighbourhoods;
   if (typeof a.show_rail === "boolean") out.rail = a.show_rail;
   if (typeof a.show_tracts === "boolean") out.tracts = a.show_tracts;
+  if (typeof a.show_street_houses === "boolean") out.street = a.show_street_houses;
   if (a.photo_year === 0) out.photo = false; else if (a.photo_year) out.photo = a.photo_year;
   const fix = (x: Row) => {
     if (!x || !LEVEL[x.level]) return null;

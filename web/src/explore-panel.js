@@ -1,5 +1,5 @@
 // Explore panel: layer switches and legend (left), and the card for a clicked or named area (on the map).
-import { ACS, BLUE, CHANGE, GROWTH, GROWTH_BREAKS, ORANGE, PERIODS, PHOTO_YEARS, YEARS, YEAR_ORDER, acsBreaks, acsColumn, fmt } from "./layers.js";
+import { ACS, BLUE, CHANGE, GROWTH, GROWTH_BREAKS, ORANGE, PERIODS, PHOTO_YEARS, STREET, YEARS, YEAR_ORDER, acsBreaks, acsColumn, fmt } from "./layers.js";
 import { getState, setState, tables } from "./explore-map.js";
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -9,12 +9,17 @@ const rate = (n, cov, years) => (cov >= 10 ? (n / cov) * 1000 / years : null);
 let collapsed = false;
 export function setCollapsed(c, el) { collapsed = c; if (el) renderLayers(el); }
 
+// key of the street layer: three dots, and what the layer is (short when the panel is folded)
+const streetLegend = (compact) => `<div class="legend"><p class="lt">${STREET.label}</p>
+    <div class="ramp">${STREET.periods.map((p, i) => `<span><i class="dot" style="background:${STREET.colors[i]}"></i>first seen ${p}</span>`).join("")}</div>
+    ${compact ? "" : `<p class="ln">${STREET.note}</p>`}</div>`;
+
 export function renderLayers(el) {
   const s = getState(), f = s.fill || {};
   el.classList.toggle("collapsed", collapsed);
   if (collapsed) {
     // the colour scale of the active layer stays visible while the switches are folded away
-    el.innerHTML = `<button type="button" class="lbar" aria-expanded="false">Map layers<span class="chev"></span></button>${f.type ? legend(f, true) : ""}${s.rail ? `<div class="legend"><div class="ramp"><span><i class="dot"></i>Rail stops</span></div></div>` : ""}`;
+    el.innerHTML = `<button type="button" class="lbar" aria-expanded="false">Map layers<span class="chev"></span></button>${f.type ? legend(f, true) : ""}${s.street ? streetLegend(true) : ""}${s.rail ? `<div class="legend"><div class="ramp"><span><i class="dot"></i>Rail stops</span></div></div>` : ""}`;
     el.querySelector(".lbar").addEventListener("click", () => setCollapsed(false, el));
     return;
   }
@@ -32,6 +37,10 @@ export function renderLayers(el) {
       <h3>New buildings by year <span class="est">estimated from aerial photos</span></h3>
       ${seg("year", YEAR_ORDER.map((y) => [y, YEARS[y]]).map(([k, y]) => [k, y.label]), modelOn ? f.year : "")}
     </section>
+    <section class="lg${s.street ? " open" : ""}">
+      <h3>Seen from the street <span class="est">street photographs read by a model</span></h3>
+      <label><input type="checkbox" data-ctx="street"${s.street ? " checked" : ""}/> Houses seen taller, 2018–2025</label>
+    </section>
     <section class="lg${acsOn ? " open" : ""}">
       <h3>Census, by block group <span class="est">ACS 5-year</span></h3>
       <select data-acs><option value="">Off</option>${Object.entries(ACS).map(([k, a]) =>
@@ -47,7 +56,7 @@ export function renderLayers(el) {
       <label><input type="checkbox" data-ctx="photo"${s.photo ? " checked" : ""}/> Aerial photo</label>
       ${s.photo ? seg("photo", PHOTO_YEARS.map((y) => [y, y]), s.photo) : ""}
     </section>
-    ${legend(f)}`;
+    ${s.street ? streetLegend(false) : ""}${f.type || !s.street ? legend(f) : ""}`;
 
   el.querySelector(".lbar").addEventListener("click", () => setCollapsed(true, el));
   el.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {

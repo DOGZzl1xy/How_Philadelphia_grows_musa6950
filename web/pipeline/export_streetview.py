@@ -54,5 +54,42 @@ def main():
     print("written", [f"a_{y}.webp" for y, _, _ in FRAMES])
 
 
+# ---------- the wall: 25 houses the author confirmed as taller, before and after ----------
+# Chosen by hand from the blind check (review codes below): clear views without shop signs or house numbers.
+# Two sheets of 5 x 5 tiles: wall_before.webp in ink, wall_after.webp in the site's orange.
+WALL = [496, 468, 531, 911, 451, 395, 982, 685, 591, 242, 231, 620, 501, 622, 419, 463, 336, 637, 578, 422, 932, 244,
+        307, 226, 674]
+TILE = 256
+
+
+def duo(img, dark, light=PAPER):
+    g = np.asarray(img.convert("L").filter(ImageFilter.GaussianBlur(0.6)), float) / 255
+    lo, hi = np.percentile(g, [2, 98])
+    t = np.clip((g - lo) / (hi - lo), 0, 1)
+    t = np.round(t * t * (3 - 2 * t) * 7) / 7
+    return Image.fromarray(np.clip(dark + (light - dark) * t[..., None], 0, 255).astype(np.uint8))
+
+
+def wall():
+    import pandas as pd
+    S8 = ROOT / "data/interim/stage8"
+    key = pd.read_csv(S8 / "map/review_key.csv", dtype={"zip": str}).set_index("code")
+    sheets = [Image.new("RGB", (5 * TILE, 5 * TILE), tuple(PAPER.astype(int))) for _ in range(2)]
+    for n, code in enumerate(WALL):
+        z, unit = key.loc[code, "zip"], int(key.loc[code, "unit"])
+        j = next(r for r in map(json.loads, open(S8 / f"judge/{z}_v1ob.jsonl")) if r["unit"] == unit)
+        p = next(r for r in map(json.loads, open(S8 / f"photos/{z}.jsonl")) if r["unit"] == unit)
+        ph = [x for x in p["photos"] if x["slot"] in j["slots"]]
+        b = int(j["first_after"])
+        a = int(j["last_before"]) if j.get("last_before") else b - 1
+        for k, (x, dark) in enumerate(((ph[a - 1], INK), (ph[-1], O_DARK))):     # last unchanged photograph, latest photograph
+            im = Image.open(S8 / f"views/{z}/{x['file']}").convert("RGB").crop((110, 70, 610, 570))
+            sheets[k].paste(duo(im, dark).resize((TILE, TILE), Image.LANCZOS), ((n % 5) * TILE, (n // 5) * TILE))
+    sheets[0].save(OUT / "wall_before.webp", quality=84, method=6)
+    sheets[1].save(OUT / "wall_after.webp", quality=84, method=6)
+    print("wall:", len(WALL), "houses")
+
+
 if __name__ == "__main__":
     main()
+    wall()
