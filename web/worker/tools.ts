@@ -340,6 +340,7 @@ export const TOOL_DEFS = [
       show_zips: { type: "boolean" }, show_neighbourhoods: { type: "boolean" }, show_tracts: { type: "boolean" }, show_rail: { type: "boolean" },
       show_street_houses: { type: "boolean", description: "the houses seen taller from the street 2018-2025, one dot per house (found, not counted)" },
       play_years: { type: "array", items: { type: "string", enum: Object.keys(MODEL_YEARS) }, description: "play the new-buildings-by-year layers one after another on the map, in time order (at least two years); use it whenever the reader asks to see change over several years or from one year to another" },
+      columns_3d: { type: "boolean", description: "true: tilt the map and draw every 250 m block of the growth or model-year layer as a column, as tall as its rate (what the reader calls 3D); false: back to the flat map. Works with a growth layer, a model-year layer or play_years; census layers stay flat" },
       photo_year: { type: "integer", description: "aerial photograph year (2018, 2019, 2020, 2022, 2023, 2024, 2025) or 0 to hide" },
       focus: { type: "array", items: { type: "object", properties: { level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group", "city"] }, id: { type: "string" } } } },
       highlight: { type: "object", properties: { level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group"] }, ids: { type: "array", items: { type: "string" } } } },
@@ -360,6 +361,7 @@ export function mapAction(t: Tables, a: Row) {
   if (typeof a.show_rail === "boolean") out.rail = a.show_rail;
   if (typeof a.show_tracts === "boolean") out.tracts = a.show_tracts;
   if (typeof a.show_street_houses === "boolean") out.street = a.show_street_houses;
+  if (typeof a.columns_3d === "boolean") out.tall = a.columns_3d;
   if (a.photo_year === 0) out.photo = false; else if (a.photo_year) out.photo = a.photo_year;
   if (Array.isArray(a.play_years)) {
     const ys = Object.keys(MODEL_YEARS).filter((y) => a.play_years.map(String).includes(y));

@@ -147,6 +147,7 @@ async function answerWith(env: Env, P: Provider, t: Tables, question: string, hi
       if (args.within?.id) memo.add(`${args.within.level} ${args.within.id}`);
       if (name === "rank_areas") memo.add(`ranked ${args.level} by ${args.metric}${args.period ? ` ${args.period}` : args.year ? ` ${args.year}` : ""}`);
       if (name === "update_map" && args.layer && args.layer !== "keep") memo.add(`map layer ${args.layer}`);
+      if (name === "update_map" && typeof args.columns_3d === "boolean") memo.add(args.columns_3d ? "map in 3D columns" : "map flat again");
       if (name === "update_map" && Array.isArray(args.play_years) && args.play_years.length > 1) memo.add(`map playing years ${args.play_years.join(", ")}`);
       await emit({ t: "status", text: (STATUS[name] || (() => "Working…"))(args) });
       if (name === "update_map") await emit({ t: "map", action: mapAction(t, forStations(args)) });

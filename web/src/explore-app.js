@@ -1,7 +1,7 @@
 // Explore after the first question: map + panel + the conversation with the assistant (/api/ask, same Worker).
 // The assistant's map actions come back as events and are applied here; it never sends coordinates, only layer ids
 // and area names or ids, which this page looks up in its own outlines.
-import { focus, getMap, highlight, initMap, known, setState, whole } from "./explore-map.js";
+import { focus, getMap, getState, highlight, initMap, known, setState, whole } from "./explore-map.js";
 import { card, play, renderLayers, setCollapsed, stopPlay } from "./explore-panel.js";
 import { ACS, GROWTH, PERIODS, PHOTO_YEARS, YEARS } from "./layers.js";
 
@@ -56,6 +56,13 @@ function apply(a) {
   }
   if (a.photo === false) next.photo = null;
   else if (PHOTO_YEARS.includes(+a.photo)) next.photo = +a.photo;
+  const plays = Array.isArray(a.play) && a.play.length >= 2;
+  if (typeof a.tall === "boolean") {
+    next.tall = a.tall;
+    // columns stand on a block layer: when none is on (and no play follows), show the latest LiDAR period
+    const f = "fill" in next ? next.fill : getState().fill;
+    if (a.tall && !plays && !(f && (f.type === "growth" || f.type === "model"))) next.fill = { type: "growth", kind: "new", period: "2022_2025" };
+  }
   setState(next);
   const areas = Array.isArray(a.focus) ? a.focus.filter((x) => x && known(x.level, x.id)) : [];
   if (a.focus === "city" || (Array.isArray(a.focus) && a.focus.length && !areas.length)) whole();
@@ -63,7 +70,7 @@ function apply(a) {
   if (a.highlight && Array.isArray(a.highlight.ids)) highlight(a.highlight.level, a.highlight.ids.filter((id) => known(a.highlight.level, id)));
   else if (a.focus) highlight(null, []);                 // a new place without its own outline: drop the old one
   if (a.card && known(a.card.level, a.card.id)) showCard(a.card.level, a.card.id);
-  if (Array.isArray(a.play) && a.play.length >= 2) play(a.play);        // the years asked for, one after another
+  if (plays) play(a.play);        // the years asked for, one after another
 }
 
 // ---------- conversation ----------

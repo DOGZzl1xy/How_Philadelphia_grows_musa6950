@@ -54,12 +54,14 @@ Click **Explore** on the last screen.
 1. "Everything in the story can be asked. The assistant reads only this project's tables, and it moves the map."
 2. Type: **Show the number of new buildings from 2020 to 2024**. The map plays the years. "These are the model's
    years. You can see the 2020 peak fade."
-3. Type: **Where were added floors found from the street?** The dots appear. "Each dot is one house, coloured by the
+3. Optional: type **try 3D**. The map tilts and the play goes on as columns. "Each column is one block, as tall as its
+   rate of new buildings." Type **back to the flat map** before the next question.
+4. Type: **Where were added floors found from the street?** The dots appear. "Each dot is one house, coloured by the
    photographs in which the change first shows. The assistant says what it cannot do: the dots are houses found, not a
    count."
-4. Optional: open the layer panel and tick **Blocks as columns (3D)**.
 
-If the assistant is slow or fails, open the layer panel and use **Play** and **Houses seen taller** by hand.
+If the assistant is slow or fails, open the layer panel and use **Play**, **Blocks as columns (3D)** and
+**Houses seen taller** by hand.
 
 ## Likely questions
 

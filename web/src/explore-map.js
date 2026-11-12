@@ -174,6 +174,8 @@ const visible = (l) => map.getLayoutProperty(l, "visibility") !== "none";
 const show = (l, on) => map.setLayoutProperty(l, "visibility", on ? "visible" : "none");
 
 // fill: {type: "growth", kind: new|popup|demo, period} | {type: "model", year} | {type: "acs", field, year: "2019"|"2023"} | null
+const PITCH = 55;
+let tilted = false;                      // the camera is (or is on its way to being) tilted for the columns
 export function setState(next) {
   state = { ...state, ...next };
   const f = state.fill;
@@ -203,7 +205,7 @@ export function setState(next) {
     show("cell-fill", false);
   }
   show("cell-3d", tall);
-  if ((map.getPitch() > 1) !== tall) map.easeTo({ pitch: tall ? 55 : 0, zoom: map.getZoom() + (tall ? 0.8 : -0.8), duration: 900 });
+  if (tilted !== tall) { tilted = tall; map.easeTo({ pitch: tall ? PITCH : 0, zoom: map.getZoom() + (tall ? 0.8 : -0.8), duration: 900 }); }
   show("zip-line", state.zips); show("zip-label", state.zips);
   show("hood-line", state.hoods); show("hood-label", state.hoods);
   show("tract-line", state.tracts); show("tract-label", state.tracts); show("tract-hit", state.tracts);
@@ -232,12 +234,14 @@ export function focus(areas, opts = {}) {
   if (!bs.length) return false;
   const cam = map.cameraForBounds(union(bs), { padding: 60 });
   if (!cam) return false;
-  map.flyTo({ center: cam.center, zoom: Math.min(cam.zoom, opts.maxZoom || 13.5), duration: 1600, essential: true });
+  map.flyTo({ center: cam.center, zoom: Math.min(cam.zoom, opts.maxZoom || 13.5), pitch: tilted ? PITCH : 0, duration: 1600, essential: true });
   return true;
 }
 
 export function whole() {
-  map.fitBounds(union(Object.values(bounds.zips)), { padding: 30, duration: 1400 });
+  // tilted, the city lies back and looks smaller: come closer, as the switch itself does
+  const cam = map.cameraForBounds(union(Object.values(bounds.zips)), { padding: 30 });
+  map.flyTo({ center: cam.center, zoom: cam.zoom + (tilted ? 0.8 : 0), pitch: tilted ? PITCH : 0, bearing: 0, duration: 1400 });
 }
 
 export const known = (level, id) => !!(bounds[level] && bounds[level][id]);
