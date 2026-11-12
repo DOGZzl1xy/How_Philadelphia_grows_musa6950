@@ -27,7 +27,7 @@
     <p class="lede">Everything this project used is public. The report describes the full method; the code reproduces it
       from the raw data.</p>
 
-    <h2>Report and code</h2>
+    <h2 id="report">Report and code</h2>
     <p>The final report for MUSA 6950 AI for Urban Sustainability, University of Pennsylvania, and the code repository:
       data processing, LiDAR change labels, model training and evaluation, and the analysis behind every number on this
       site.</p>
@@ -38,7 +38,7 @@
       which marks each house with a dot. One row of houses is shown from the street as an example, redrawn in two
       tones.</p>
 
-    <h2>Data sources</h2>
+    <h2 id="sources">Data sources</h2>
     <div class="cards">
       <article class="dcard"><img data-src="/data/scenes/s2/photo_2022.webp" alt="" />
         <h3>Aerial photographs</h3>
@@ -96,7 +96,7 @@
       </article>
     </div>
 
-    <h2>Cost and environment</h2>
+    <h2 id="cost">Cost and environment</h2>
     <dl class="kv">
       <dt>Training</dt><dd>Trained on a modified RTX 4080 SUPER with 32 GB of VRAM. One training run of 8,000 steps takes 2 hours 36 minutes.</dd>
       <dt>Processing</dt><dd>About 300 GB of raw LiDAR and imagery, streamed tile by tile and reduced to 0.5 m height grids.</dd>
@@ -105,7 +105,7 @@
       <dt>Software</dt><dd>Python 3.12, PyTorch, GeoPandas and Rasterio for the analysis. Vite, D3 and MapLibre for this site, served by a Cloudflare Worker.</dd>
     </dl>
 
-    <h2>References</h2>
+    <h2 id="references">References</h2>
     <ol class="refs">
       <li>Meta AI and World Resources Institute (2026). <i>Canopy Height Maps v2.</i></li>
       <li>Siméoni, O., et al. (2025). <i>DINOv3.</i> <a href="https://arxiv.org/abs/2508.10104" target="_blank" rel="noopener">arXiv:2508.10104</a>.</li>

@@ -1,5 +1,5 @@
 import "./pages.css";
-import { topbar } from "./nav.js";
+import { contents, topbar } from "./nav.js";
 import { drawChart } from "./model.js";
 import { heightURL } from "./height.js";
 import { v } from "./data.js";
@@ -25,17 +25,4 @@ const io = new IntersectionObserver((entries) => {
 }, { rootMargin: "0px 0px -15% 0px" });
 document.querySelectorAll(".fig[data-chart]").forEach((f) => io.observe(f));
 
-// contents beside the text: one line per section, the one being read marked
-const heads = [...document.querySelectorAll(".doc h2[id]")];
-const toc = document.createElement("nav");
-toc.className = "toc";
-toc.setAttribute("aria-label", "Sections");
-toc.innerHTML = heads.map((h) => `<a href="#${h.id}">${h.textContent.replace(/^\d+\.\s*/, "")}</a>`).join("");
-document.body.append(toc);
-const mark = () => {
-  let cur = heads[0];
-  for (const h of heads) if (h.getBoundingClientRect().top < 140) cur = h;
-  toc.querySelectorAll("a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === `#${cur.id}`));
-};
-addEventListener("scroll", mark, { passive: true });
-mark();
+contents();

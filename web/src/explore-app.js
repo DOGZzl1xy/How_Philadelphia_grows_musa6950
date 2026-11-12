@@ -93,7 +93,9 @@ async function ask(q) {
     const res = await fetch("/api/ask", { method: "POST", headers: { "content-type": "application/json" },
       body: JSON.stringify({ question: q, history: history.slice(-20) }) });
     if (!res.ok || !res.body) {
-      const msg = res.status === 404 ? "The assistant is not connected yet." : (await res.json().catch(() => ({}))).error || `Error ${res.status}.`;
+      const msg = res.status === 404 ? "The assistant is not connected yet."
+        : [502, 503, 504].includes(res.status) ? "The assistant cannot be reached right now. Please try again in a moment."
+        : (await res.json().catch(() => ({}))).error || `Error ${res.status}.`;
       throw new Error(msg);
     }
     const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
