@@ -37,5 +37,7 @@ form.addEventListener("submit", async (e) => {
   if (!q) { err.textContent = "Type a question first."; return; }
   (await openApp()).ask(q);
 });
-$("open-map").addEventListener("click", (e) => { e.preventDefault(); history.replaceState(null, "", "#map"); openApp(); });
-if (location.hash === "#map") openApp();
+// opened without a question: once the panel has slid in, show the whole city in the space that is left
+const openMap = () => openApp().then((a) => setTimeout(() => a.fit(), 750));
+$("open-map").addEventListener("click", (e) => { e.preventDefault(); history.replaceState(null, "", "#map"); openMap(); });
+if (location.hash === "#map") openMap();

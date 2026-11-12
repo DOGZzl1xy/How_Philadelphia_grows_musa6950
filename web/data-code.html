@@ -58,37 +58,37 @@
         <p>Finding added storeys house by house</p>
         <a href="https://www.google.com/streetview/" target="_blank" rel="noopener">Google Street View</a>
       </article>
-      <article class="dcard"><div class="big">257,160</div>
+      <article class="dcard"><div class="logo"><img src="/logos/philadelphia.png" alt="Seal of the City of Philadelphia" /></div>
         <h3>Building permits</h3>
-        <p class="stat">issued 2014 to 2025</p>
+        <p class="stat">257,160 permits, 2014 to 2025</p>
         <p>Permits against buildings, and hints for where to look</p>
         <a href="https://opendataphilly.org/" target="_blank" rel="noopener">Philadelphia L&amp;I, OpenDataPhilly</a>
       </article>
-      <article class="dcard"><div class="big">526,928</div>
+      <article class="dcard"><img data-src="/data/scenes/s3/lots.webp" alt="" />
         <h3>Parcels, footprints, zoning</h3>
-        <p class="stat">building lots in 46 ZIP codes</p>
+        <p class="stat">526,928 building lots in 46 ZIP codes</p>
         <p>The lots that are counted, and the study area</p>
         <a href="https://opendataphilly.org/" target="_blank" rel="noopener">City of Philadelphia, OpenDataPhilly</a>
       </article>
-      <article class="dcard"><div class="big">16</div>
+      <article class="dcard"><div class="logo"><img src="/logos/census.svg" alt="United States Census Bureau" /></div>
         <h3>American Community Survey</h3>
-        <p class="stat">measures by block group, 2015–19 and 2019–23</p>
+        <p class="stat">16 measures by block group, 2015–19 and 2019–23</p>
         <p>Income, housing and commuting by block group</p>
         <a href="https://www.census.gov/programs-surveys/acs" target="_blank" rel="noopener">U.S. Census Bureau</a>
       </article>
-      <article class="dcard"><div class="big">572</div>
+      <article class="dcard"><div class="logo"><img src="/logos/septa.svg" alt="SEPTA" /></div>
         <h3>Transit network</h3>
-        <p class="stat">rail stops from the GTFS feed</p>
+        <p class="stat">572 rail stops from the GTFS feed</p>
         <p>Distance to subway, trolley and regional rail</p>
         <a href="https://www3.septa.org/developer/" target="_blank" rel="noopener">SEPTA</a>
       </article>
-      <article class="dcard"><div class="big">300 M</div>
+      <article class="dcard"><div class="logo"><img src="/logos/meta.svg" alt="Meta" /></div>
         <h3>DINOv3</h3>
-        <p class="stat">parameters, pretrained on 493 million satellite images</p>
+        <p class="stat">ViT-L, 300 million parameters, pretrained on 493 million satellite images</p>
         <p>The image encoder of the change model</p>
         <a href="https://github.com/facebookresearch/dinov3" target="_blank" rel="noopener">Meta AI</a>
       </article>
-      <article class="dcard"><img data-src="/data/street/a_2019.webp" alt="" />
+      <article class="dcard"><div class="logo"><img src="/logos/gemini.svg" alt="Gemini" /></div>
         <h3>Gemini</h3>
         <p class="stat">3.8 Flash and Decision 1</p>
         <p>Reading the street views</p>
@@ -98,8 +98,8 @@
 
     <h2>Cost and environment</h2>
     <dl class="kv">
-      <dt>Training</dt><dd>One run of the change model takes about two and a half hours on a single GPU. Development ran on an RTX 5060 Ti with 16 GB, the final model on a rented RTX 4080 Super with 32 GB.</dd>
-      <dt>Processing</dt><dd>About 300 GB of raw LiDAR and imagery, streamed tile by tile and reduced to 0.5 m height grids on one workstation.</dd>
+      <dt>Training</dt><dd>Trained on a modified RTX 4080 SUPER with 32 GB of VRAM. One training run of 8,000 steps takes 2 hours 36 minutes.</dd>
+      <dt>Processing</dt><dd>About 300 GB of raw LiDAR and imagery, streamed tile by tile and reduced to 0.5 m height grids.</dd>
       <dt>Street views</dt><dd id="cost-street">About 23,800 houses looked up and 11,139 timelines read by Gemini 3.8 Flash for $54.53, about 0.4 cents a house.</dd>
       <dt>Assistant</dt><dd>DeepSeek flash with Gemini 3.8 Flash as a backup, about $0.0003 an answer, capped at $2 a day.</dd>
       <dt>Software</dt><dd>Python 3.12, PyTorch, GeoPandas and Rasterio for the analysis. Vite, D3 and MapLibre for this site, served by a Cloudflare Worker.</dd>

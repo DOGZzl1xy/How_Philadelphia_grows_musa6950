@@ -133,5 +133,5 @@ export async function start() {
   if (import.meta.env.DEV) window.__explore = { apply, ask, map: () => getMap() };     // local testing of the assistant's map actions
   const f = $("ask-form-2"), i = $("ask-input-2");
   f.addEventListener("submit", (e) => { e.preventDefault(); const q = i.value.trim(); i.value = ""; ask(q); });
-  return { ask };
+  return { ask, fit: whole };
 }

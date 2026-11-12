@@ -1,12 +1,23 @@
 /* explore: a search page first (centred), a map with answers after the first question (phase two) */
 body.explore { min-height: 100vh; }
-/* the search page is a veil over the map that is already loaded behind it; asking a question lifts it */
-.ask { position: fixed; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; padding: 90px 24px 20px;
-  background: rgba(241, 238, 232, .46); transition: opacity .6s var(--ease); }
+/* the search page lies over the map that is already loaded: the map is drained of colour and dimmed, and the
+   search sits on a pane of frosted glass, so the text never competes with the streets behind it */
+.ask { position: fixed; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 70px 24px 30px; background: rgba(241, 238, 232, .30); transition: opacity .6s var(--ease); }
 .ask.gone { opacity: 0; pointer-events: none; }
-body.explore:not(.opened) .panel > * { visibility: hidden; }
-body.explore:not(.opened) .panel { border-right-color: transparent; background: transparent; }   /* the panel waits behind the veil, empty */
-.ask-inner { width: min(680px, 100%); text-align: center; margin: auto 0; padding-bottom: 6vh; }
+body.explore:not(.opened) .panel > * { visibility: hidden; }   /* the panel waits behind, empty */
+body.explore:not(.opened) .panel { border-right-color: transparent; background: transparent; }
+/* until the first question the map has the whole window; the panel then slides in from the left */
+.app { transition: grid-template-columns .6s var(--ease); }
+body.explore:not(.opened) .app { grid-template-columns: 0 1fr; }
+.panel { overflow: hidden; }
+body.explore .map-wrap { transition: filter .8s var(--ease); }
+body.explore:not(.opened) .map-wrap { filter: grayscale(1) contrast(1.25) brightness(.94); }
+body.explore:not(.opened) .maplibregl-control-container { visibility: hidden; }
+.ask-inner { width: min(720px, 100%); text-align: center; padding: 46px 52px 26px; border-radius: 30px;
+  background: rgba(255, 255, 255, .50); -webkit-backdrop-filter: blur(22px) saturate(1.5); backdrop-filter: blur(22px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, .75);
+  box-shadow: 0 24px 70px rgba(27, 42, 58, .16), 0 2px 8px rgba(27, 42, 58, .06), inset 0 1px 0 rgba(255, 255, 255, .9); }
 .wordmark { font-family: var(--display); font-weight: 600; font-size: clamp(40px, 5.6vw, 72px); letter-spacing: -.03em;
   line-height: 1; margin: 0 0 .2em; }
 .ask-sub { color: var(--ink-2); font-size: 19px; margin: 0 0 1.6em; }
@@ -21,10 +32,10 @@ body.explore:not(.opened) .panel { border-right-color: transparent; background: 
 .ask-go:hover { background: #2a3d52; }
 .ask-error { min-height: 1.5em; margin: .6em 0 0; font-size: 14.5px; color: #b8360a; }
 .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: .6em 0 1.6em; }
-.chip { font: inherit; font-size: 14.5px; color: var(--ink-2); background: transparent; border: 1px solid var(--rule);
+.chip { font: inherit; font-size: 14.5px; color: var(--ink-2); background: rgba(255, 255, 255, .6); border: 1px solid var(--rule);
   border-radius: 999px; padding: 7px 14px; cursor: pointer; transition: all .2s; }
 .chip:hover { color: var(--ink); border-color: var(--ink-2); background: #fff; }
-.ask-note { font-size: 13.5px; color: var(--ink-2); max-width: 560px; margin: 0; text-align: center; }
+.ask-note { font-size: 13.5px; color: var(--ink-2); max-width: 560px; margin: 0 auto; text-align: center; }
 
 /* after the first question: panel on the left, map filling the rest */
 body.explore.mapped { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
