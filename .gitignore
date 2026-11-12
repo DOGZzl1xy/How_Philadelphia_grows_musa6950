@@ -25,3 +25,6 @@ tmp/
 /results/popup_feasibility/figs/missed_cases.png
 /results/popup_feasibility/figs/popup_case_*.png
 flagged_parcels.parquet
+
+# Presentation backup (screens of the live story as a PDF): regenerated when needed, kept local.
+/presentation/*.pdf

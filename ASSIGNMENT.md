@@ -69,7 +69,7 @@ MUSA 6950 — AI for Urban Sustainability
 
 ## 5. 本项目对应情况
 
-- 题目：**Teaching Annual Aerial Imagery to See Growth: Tracking Philadelphia's Gentle Densification with LiDAR-Supervised Foundation Models**（个人项目，Xuanyu Zhou）
+- 题目：**How Philadelphia Grows: Tracking Gentle Densification with LiDAR, Aerial Imagery and Street Views**（个人项目，Xuanyu Zhou）
 - Proposal：已提交，归档在 `_archive/proposal/`，之后不再修改
 - 报告：`report/report.md`，故事主线如下，报告、展示和 README 都按这条线组织
 

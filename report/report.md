@@ -1,4 +1,4 @@
-# Teaching Annual Aerial Imagery to See Growth: Tracking Philadelphia's Gentle Densification with LiDAR-Supervised Foundation Models
+# How Philadelphia Grows: Tracking Gentle Densification with LiDAR, Aerial Imagery and Street Views
 
 **Xuanyu Zhou**  
 MUSA 6950 AI for Urban Sustainability, final report, November 2026
