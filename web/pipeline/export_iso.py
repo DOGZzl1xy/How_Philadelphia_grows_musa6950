@@ -10,6 +10,7 @@ can be tinted in the site's orange. Only the assets already exported for the sce
   iso_{year}.webp        the block in that LiDAR year (2018, 2022, 2025)
   iso_{year}_new.webp    the same with the new buildings tinted
   iso_{year}_clay.webp   height only, without the photograph (what LiDAR sees)
+  s3/lots.webp           lot outlines over the faded photograph (Data & Code)
 """
 import json
 from pathlib import Path
@@ -89,6 +90,15 @@ def main():
             if year != 2018:
                 # only where there is a building now: the tint follows the measured height, not the lot outline
                 render(photo, h, new & (h > 2.0)).save(d / f"iso_{year}_new.webp", quality=84, method=6)
+        if sid == "s3":      # the picture of the lots card on Data & Code: lot outlines over the faded photograph
+            im = Image.open(d / "photo_2025.webp").convert("L").convert("RGB").resize((2048, 2048))
+            im = Image.blend(im, Image.new("RGB", im.size, tuple(PAPER.astype(int))), 0.62)
+            dr = ImageDraw.Draw(im)
+            for u in scene["units"]:
+                for ring in u["rings"]:
+                    pts = [(x * 2, y * 2) for x, y in ring]
+                    dr.line(pts + [pts[0]], fill=tuple(INK.astype(int)), width=3)
+            im.resize((1024, 1024), Image.LANCZOS).save(d / "lots.webp", quality=84, method=6)
         print(sid, "done")
 
 
