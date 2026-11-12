@@ -6,7 +6,9 @@ photograph in which the house is taller. Only observable candidates that Flash h
 
 Output (never committed): data/interim/stage8/judge/{zip}_dec1.jsonl, resumable, in the layout of the Flash files
 (verdict, dates, slots, last_before, first_after) plus the probabilities. Spending goes into the same spend.json; the
-run stops at the combined cap and at the first refusal by the provider, without trying again.
+run stops at the combined cap and at the first refusal by the provider, without trying again. Calls are paced to
+700,000 input tokens a minute; if the provider still answers with its per-minute rate limit, the run waits 70 seconds
+and goes on, and stops at the third such answer.
 Key: GEMINI_API_KEY from web/.dev.vars, read locally.
 
 Run: uv run python scripts/stage8_decision.py [--zips 19104,19121] [--limit N]
@@ -40,8 +42,19 @@ VERDICT = {"type": "choice", "instructions": "What happened to the target buildi
     "no_change": "The same number of storeys and the same roof line throughout. A new facade, cladding, paint or windows alone is not a change in height. A change on a neighbouring building does not count.",
     "unclear": "The target is hidden by trees or vehicles, the view is too oblique, or the photographs do not show the same building."}}
 
+TPM = 700_000                         # pace: input tokens per minute, under the provider's 1,000,000 for this tier
 lock = threading.Lock()
 stop = threading.Event()
+pace = {"next": 0.0, "limited": 0}
+
+
+def wait_turn(tokens):
+    """Space the calls so that the input stays under TPM (one shared clock for all workers)."""
+    with lock:
+        now = time.time()
+        start = max(now, pace["next"])
+        pace["next"] = start + tokens * 60 / TPM
+    time.sleep(max(0.0, start - now))
 
 
 def key():
@@ -78,6 +91,7 @@ def ask(rec, k):
     out = {"zip": z, "unit": rec["unit"], "tier": rec["tier"], "dates": [p["date"] for p in photos],
            "slots": [p["slot"] for p in photos], "reader": MODEL}
     for attempt in range(2):
+        wait_turn(1200 * len(photos) + 500)
         try:
             r = requests.post(URL, json={"model": MODEL, "input": inp, "questions": {"verdict": VERDICT, "first_taller": first}},
                               headers={"x-goog-api-key": k, "content-type": "application/json"}, timeout=120)
@@ -85,7 +99,18 @@ def ask(rec, k):
             out["error"] = f"{type(e).__name__}: {str(e)[:100]}"
             time.sleep(5)
             continue
-        if r.status_code != 200:                         # refused or limited: stop everything, do not try again
+        if r.status_code == 429 and "per minute" in r.text and "spending cap" not in r.text:
+            # the per-minute rate limit, not a refusal (the author agreed on 2026-11-12 to go on at a lower pace):
+            # wait 70 seconds, then go on; a third such answer ends the run
+            pace["limited"] += 1
+            out["error"] = f"HTTP 429 rate limit: {r.text[:120]}"
+            if pace["limited"] >= 3:
+                stop.set()
+                return out
+            with lock:
+                pace["next"] = time.time() + 70
+            continue
+        if r.status_code != 200:                         # refused: stop everything, do not try again
             out["error"] = f"HTTP {r.status_code}: {r.text[:200]}"
             stop.set()
             STOP.write_text(f"{time.strftime('%Y-%m-%d %H:%M')} {MODEL} {out['error']}\n")
@@ -109,7 +134,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--zips", default="all")
     ap.add_argument("--limit", type=int, default=0)
-    ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--workers", type=int, default=3)
     a = ap.parse_args()
     if STOP.exists():
         raise SystemExit(f"not calling the provider: {STOP.read_text().strip()} (delete {STOP} once the author says so)")
