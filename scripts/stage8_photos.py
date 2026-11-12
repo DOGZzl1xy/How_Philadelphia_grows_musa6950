@@ -100,7 +100,7 @@ def timeline(poly, cache):
     time.sleep(0.1)
     if pano is None:
         return None
-    cand = [p for p in [pano] + list(pano.neighbors or []) if official(p)]
+    cand = [p for p in [pano] + list(pano.neighbors or []) if official(p) and p.lat is not None and p.lon is not None]
     spots = sorted(((dist_m(poly, p.lon, p.lat), i, p) for i, p in enumerate(cand)), key=lambda t: t[0])
     best, tried = None, 0
     for d0, _, sp in spots:
@@ -112,7 +112,7 @@ def timeline(poly, cache):
             time.sleep(0.1)
             cache[sp.id] = None if full is None else [
                 {"id": p.id, "lat": p.lat, "lon": p.lon, "date": ym(p)}
-                for p in [full] + list(full.historical or []) if official(p) and p.date]
+                for p in [full] + list(full.historical or []) if official(p) and p.date and p.lat is not None and p.lon is not None]
         caps = cache[sp.id]
         if caps is None:
             continue
@@ -214,7 +214,12 @@ def main():
                 poly = units.loc[r.unit].geometry
                 rec = {"zip": z, "unit": int(r.unit), "tier": int(r.tier), "status": "no_coverage", "spot_m": None,
                        "dates": [], "captures": [], "photos": []}
-                best = timeline(poly, cache)
+                try:
+                    best = timeline(poly, cache)
+                except Exception as e:  # noqa: BLE001  one odd reply must not end a long run
+                    print("  skipped", z, r.unit, type(e).__name__, str(e)[:80], flush=True)
+                    rec["status"] = "error"
+                    best = None
                 if best is not None:
                     _, d0, tl, sl_ = best
                     rec.update(spot_m=d0, dates=[p["date"] for p in tl], captures=tl,
