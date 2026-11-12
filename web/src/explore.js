@@ -6,10 +6,10 @@ import { ICONS } from "./links.js";
 topbar("explore");
 
 const EXAMPLES = [
-  "Where did new construction concentrate in 2023–2025?",
-  "How far from rail does building stop?",
-  "Which ZIP codes grew fastest?",
-  "How many permits became buildings?",
+  "Where did new buildings concentrate after 2022?",
+  "In which year did the city build the most?",
+  "Where were added floors found from the street?",
+  "Do permits match what was built?",
 ];
 
 const $ = (id) => document.getElementById(id);
@@ -19,14 +19,14 @@ $("chips").innerHTML = EXAMPLES.map((q) => `<button type="button" class="chip">$
 document.querySelectorAll(".chip").forEach((c) => c.addEventListener("click", () => { input.value = c.textContent; input.focus(); }));
 input.addEventListener("input", () => { err.textContent = ""; });
 
-// the map (MapLibre is large) loads only when the reader asks a first question or opens the map
-let app = null;
-async function openApp() {
-  if (!app) {
-    $("ask").hidden = true;
-    $("app").hidden = false;
-    document.body.classList.add("mapped");
-    app = import("./explore-app.js").then((m) => m.start());
+// the map loads behind the search page, which is a veil over it: asking a question lifts the veil
+const app = import("./explore-app.js").then((m) => m.start());
+function openApp() {
+  const ask = $("ask");
+  if (!ask.classList.contains("gone")) {
+    ask.classList.add("gone");
+    document.body.classList.add("opened");
+    setTimeout(() => { ask.hidden = true; }, 700);
   }
   return app;
 }

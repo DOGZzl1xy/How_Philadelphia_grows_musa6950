@@ -21,11 +21,11 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/archivo/files/archivo-latin-wght-normal.woff2" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" />
 </head>
-<body class="explore">
+<body class="explore mapped">
   <main id="ask" class="ask">
     <div class="ask-inner">
-      <h1 class="wordmark">See Growth</h1>
-      <p class="ask-sub">Ask where and when Philadelphia grew, 2018–2025.</p>
+      <h1 class="wordmark">How Philadelphia Grows</h1>
+      <p class="ask-sub">Ask where and when the city grew, 2018–2025.</p>
       <form id="ask-form" class="ask-box" autocomplete="off">
         <span class="ask-icon" id="ask-icon"></span>
         <input id="ask-input" type="text" name="q" maxlength="300"
@@ -35,10 +35,10 @@
       <p class="ask-error" id="ask-error" role="alert"></p>
       <div class="chips" id="chips"></div>
     </div>
-    <p class="ask-note">Answers use only this project's aggregated results: blocks, block groups and ZIP codes, never
-      single buildings. <a href="#map" id="open-map">Or open the map.</a></p>
+    <p class="ask-note">Answers draw on this project's results by block, neighbourhood and ZIP code.
+      <a href="#map" id="open-map">Or open the map.</a></p>
   </main>
-  <section id="app" class="app" hidden>
+  <section id="app" class="app">
     <aside class="panel">
       <form id="ask-form-2" class="ask-box small" autocomplete="off">
         <input id="ask-input-2" type="text" name="q" maxlength="300" placeholder="Ask another question" aria-label="Your question" />
@@ -49,6 +49,7 @@
     </aside>
     <div class="map-wrap">
       <div id="map" class="map"></div>
+      <div id="play-year" class="play-year" hidden></div>
       <div id="card" class="card" hidden><button type="button" class="card-x" aria-label="Close">×</button><div id="card-body"></div></div>
     </div>
   </section>

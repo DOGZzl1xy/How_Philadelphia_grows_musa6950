@@ -5,6 +5,29 @@ import { getState, setState, tables } from "./explore-map.js";
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const rate = (n, cov, years) => (cov >= 10 ? (n / cov) * 1000 / years : null);
 
+// play through the years: the model layers one after another, with the year written large on the map
+let playing = 0;
+const yearTag = () => document.getElementById("play-year");
+function stopPlay() {
+  clearInterval(playing);
+  playing = 0;
+  const t = yearTag();
+  if (t) t.hidden = true;
+}
+function play() {
+  if (playing) { stopPlay(); setState({}); return; }
+  let k = 0;
+  const step = () => {
+    const y = YEAR_ORDER[k % YEAR_ORDER.length];
+    const t = yearTag();
+    if (t) { t.hidden = false; t.textContent = YEARS[y].label; }
+    setState({ fill: { type: "model", year: y } });
+    k += 1;
+  };
+  playing = setInterval(step, 1500);
+  step();
+}
+
 // collapsed: one line (the active layer) while answers are shown; the reader opens it when needed
 let collapsed = false;
 export function setCollapsed(c, el) { collapsed = c; if (el) renderLayers(el); }
@@ -34,7 +57,8 @@ export function renderLayers(el) {
       ${growthOn ? seg("period", Object.entries(PERIODS).map(([k, p]) => [k, p.label]), f.period) : ""}
     </section>
     <section class="lg${modelOn ? " open" : ""}">
-      <h3>New buildings by year <span class="est">estimated from aerial photos</span></h3>
+      <h3>New buildings by year <span class="est">estimated from aerial photos</span>
+        <button type="button" class="play${playing ? " on" : ""}" data-play aria-pressed="${playing ? "true" : "false"}">${playing ? "Stop" : "Play"}</button></h3>
       ${seg("year", YEAR_ORDER.map((y) => [y, YEARS[y]]).map(([k, y]) => [k, y.label]), modelOn ? f.year : "")}
     </section>
     <section class="lg${s.street ? " open" : ""}">
@@ -54,13 +78,16 @@ export function renderLayers(el) {
       <label><input type="checkbox" data-ctx="tracts"${s.tracts ? " checked" : ""}/> Census tracts</label>
       <label><input type="checkbox" data-ctx="rail"${s.rail ? " checked" : ""}/> Rail stops</label>
       <label><input type="checkbox" data-ctx="photo"${s.photo ? " checked" : ""}/> Aerial photo</label>
+      <label><input type="checkbox" data-ctx="tall"${s.tall ? " checked" : ""}/> Blocks as columns (3D)</label>
       ${s.photo ? seg("photo", PHOTO_YEARS.map((y) => [y, y]), s.photo) : ""}
     </section>
     ${s.street ? streetLegend(false) : ""}${f.type || !s.street ? legend(f) : ""}`;
 
   el.querySelector(".lbar").addEventListener("click", () => setCollapsed(true, el));
+  el.querySelector("[data-play]").addEventListener("click", play);
   el.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
     const k = b.parentElement.dataset.seg, val = b.dataset.v, cur = getState().fill || {};
+    if (k !== "photo") stopPlay();
     if (k === "growth") setState({ fill: cur.type === "growth" && cur.kind === val ? null : { type: "growth", kind: val, period: cur.period || "2022_2025" } });
     if (k === "period") setState({ fill: { ...cur, period: val } });
     if (k === "year") setState({ fill: cur.type === "model" && String(cur.year) === val ? null : { type: "model", year: val } });
@@ -69,6 +96,7 @@ export function renderLayers(el) {
   }));
   el.querySelector("[data-acs]").addEventListener("change", (e) => {
     const val = e.target.value;
+    stopPlay();
     setState({ fill: val ? { type: "acs", field: val, year: "2023" } : null });
   });
   el.querySelectorAll("[data-ctx]").forEach((c) => c.addEventListener("change", () => {

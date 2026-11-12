@@ -157,8 +157,11 @@ export function flow(div) {
     svg.append("text").attr("x", PX[k] + 48).attr("y", 43).attr("class", "flow-h").text(t);
   });
   // a card: picture (an image, or a drawing made by `draw`) over a title and one line
-  const card = (col, row, title, sub, pic, hot) => {
+  // every card is a link to the section of the page that describes it
+  let svgRoot = svg;
+  const card = (col, row, title, sub, pic, hot, href) => {
     const x = PX[col] + 12, y = R[row], id = `fc${col}${row}`;
+    const svg = href ? svgRoot.append("a").attr("href", href).attr("class", "flow-a") : svgRoot;
     svg.append("clipPath").attr("id", id).append("path")
       .attr("d", `M${x} ${y + TH}V${y + 8}a8 8 0 0 1 8 -8H${x + CW - 8}a8 8 0 0 1 8 8V${y + TH}Z`);
     svg.append("rect").attr("x", x).attr("y", y).attr("width", CW).attr("height", CH).attr("rx", 8).attr("fill", "#fffdf9");
@@ -201,14 +204,14 @@ export function flow(div) {
       .attr("y", y + 82 - val * 28).attr("height", val * 28).attr("fill", [2, 5].includes(k) ? INK : SIGNAL));
   };
 
-  const lidar = card(0, 0, "LiDAR", "2018, 2022, 2025", "/data/scenes/s2/iso_2022_clay.webp");
-  const aerial = card(0, 1, "Aerial photographs", "every spring", "/data/scenes/s2/photo_2022.webp");
-  const street = card(0, 2, "Street views, permits", "2007 to 2026", "/data/street/a_2016.webp");
-  const labels = card(1, 0, "Change labels", "per lot, from LiDAR", "/data/scenes/s3/iso_2025_new.webp");
-  const mod = card(1, 1, "Change model", "DINOv3, two photographs", model, true);
-  const exam = card(2, 1, "Sealed test", "r per block, run once", test);
-  const city = card(3, 0, "New buildings by year", "when, where, rail, income", bars);
-  const found = card(3, 2, "1,538 houses found", "Gemini 3.8 Flash", "/data/street/a_2019.webp", true);
+  const lidar = card(0, 0, "LiDAR", "2018, 2022, 2025", "/data/scenes/s2/iso_2022_clay.webp", false, "#s1");
+  const aerial = card(0, 1, "Aerial photographs", "every spring", "/data/scenes/s2/photo_2022.webp", false, "#s1");
+  const street = card(0, 2, "Street views, permits", "2007 to 2026", "/data/street/a_2016.webp", false, "#s8");
+  const labels = card(1, 0, "Change labels", "per lot, from LiDAR", "/data/scenes/s3/iso_2025_new.webp", false, "#s2");
+  const mod = card(1, 1, "Change model", "DINOv3, two photographs", model, true, "#s3");
+  const exam = card(2, 1, "Sealed test", "r per block, run once", test, false, "#s6");
+  const city = card(3, 0, "New buildings by year", "when, where, rail, income", bars, false, "#s9");
+  const found = card(3, 2, "1,538 houses found", "Gemini 3.8 Flash", "/data/street/a_2019.webp", true, "#s8");
 
   arrow(`M${lidar.r + 4} ${lidar.cy}H${labels.l - 5}`);
   arrow(`M${labels.cx} ${labels.b + 4}V${mod.t - 5}`);
@@ -219,4 +222,42 @@ export function flow(div) {
   arrow(`M${street.r + 4} ${street.cy + 26}H${found.l - 5}`);
   note(exam.cx + 10, city.cy + 26, "passed", "start");
   note(exam.cx + 10, found.cy - 30, "failed", "start");
+}
+
+// ---------- the path to the final model: what each attempt did, and its score where it has one ----------
+export function attempts(div) {
+  const svg = d3.select(div).append("svg").attr("viewBox", "0 0 1000 610");
+  const rows = [
+    { t: "One photograph, height", note: "finds 44% of added storeys" },
+    { t: "Two photographs, height change", note: "answers no change everywhere" },
+    { t: "Two photographs and measured height", note: "copies the measured height" },
+    { t: "A score for every lot, 7 ZIP codes", g: 0.78, p: 0.31 },
+    { t: "Whole city, first recipe", g: 0.72, p: 0.12, note: "4 of 6 runs died" },
+    { t: "Whole city, final recipe", g: 0.80, p: 0.43, hot: true },
+    { t: "Sealed test, unseen places and years", g: 0.68, p: 0.15, test: true },
+  ];
+  const X0 = 430, W = 380, x = d3.scaleLinear([0, 1], [0, W]), H = 74, Y0 = 70;
+  svg.append("rect").attr("x", X0 - 8).attr("y", 26).attr("width", 18).attr("height", 18).attr("fill", INK);
+  svg.append("text").attr("x", X0 + 18).attr("y", 41).attr("class", "flow-s").text("any growth");
+  svg.append("rect").attr("x", X0 + 130).attr("y", 26).attr("width", 18).attr("height", 18).attr("fill", SIGNAL);
+  svg.append("text").attr("x", X0 + 156).attr("y", 41).attr("class", "flow-s").text("added storeys");
+  rows.forEach((r, k) => {
+    const y = Y0 + k * H + (r.test ? 18 : 0);
+    if (r.test) svg.append("line").attr("x1", 20).attr("x2", 980).attr("y1", y - 14).attr("y2", y - 14).attr("stroke", RULE).attr("stroke-width", 2);
+    svg.append("circle").attr("cx", 36).attr("cy", y + 26).attr("r", 15).attr("fill", r.hot ? SIGNAL : r.test ? INK : "#fffdf9")
+      .attr("stroke", r.hot ? SIGNAL : INK).attr("stroke-width", 2);
+    svg.append("text").attr("x", 36).attr("y", y + 32).attr("text-anchor", "middle").attr("class", "flow-n")
+      .style("fill", r.hot || r.test ? "#fff" : INK).text(r.test ? "T" : k + 1);
+    svg.append("text").attr("x", 64).attr("y", y + 32).attr("class", "flow-t").text(r.t);
+    if (r.g != null) {
+      [[r.g, INK, 8], [r.p, SIGNAL, 32]].forEach(([val, col, dy]) => {
+        svg.append("rect").attr("x", X0).attr("y", y + dy).attr("height", 18).attr("width", 0).attr("fill", col)
+          .transition().delay(150 * k).duration(700).attr("width", x(val));
+        svg.append("text").attr("x", X0 + x(val) + 8).attr("y", y + dy + 15).attr("class", "flow-s").style("fill", INK).text(val.toFixed(2));
+      });
+      if (r.note) svg.append("text").attr("x", 980).attr("y", y + 32).attr("text-anchor", "end").attr("class", "flow-l").text(r.note);
+    } else {
+      svg.append("text").attr("x", X0).attr("y", y + 32).attr("class", "flow-l").text(r.note);
+    }
+  });
 }

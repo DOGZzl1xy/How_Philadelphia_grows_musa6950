@@ -31,7 +31,7 @@
     <div class="fig square" data-chart="flow"></div>
     <p class="cap">Research workflow</p>
 
-    <h2>1. Study area and data</h2>
+    <h2 id="s1">1. Study area and data</h2>
     <p>The study area is the city's residential and low- to mid-density mixed-use zoning: 152.5 km² and 526,928
       building lots in 46 ZIP codes. The high-density centre, industrial and special-purpose districts are excluded, and
       250 m cells dominated by high-rises are reported separately, leaving 520,903 lots. A lot is a 2016 parcel linked to
@@ -50,7 +50,7 @@
       leaves out) also uses the point classes. The 2018 flight is sparse outside the centre, so periods are compared on
       the lots covered in both.</p>
 
-    <h2>2. LiDAR as the teacher</h2>
+    <h2 id="s2">2. LiDAR as the teacher</h2>
     <p>For each lot and each pair of flights, a building cell is higher than 2.5 m and not vegetation.</p>
     <ul>
       <li><b>New construction</b>: building cover rose from under 20% to over 50%.</li>
@@ -60,7 +60,7 @@
     <p>The labels are reliable: in the pilot ZIP code they recover 96.6% of completed new-construction permits and 87.1%
       of upward-addition permits, and in two blind reviews 95.5% and 95.7% of the flagged changes were real.</p>
 
-    <h2>3. The model</h2>
+    <h2 id="s3">3. The model</h2>
     <div class="fig square" data-chart="arch"></div>
     <p class="cap">One DINOv3 encoder, shared by both photographs; a decoder that also takes the measured height; one
       answer per building.</p>
@@ -77,7 +77,7 @@
         A height-change map is learned alongside as a helper.</li>
     </ul>
 
-    <h2>4. Training</h2>
+    <h2 id="s4">4. Training</h2>
     <div class="fig square" data-chart="data"></div>
     <p class="cap">Six before-and-after pairs of LiDAR flights are the lessons; eight ZIP codes and 2022–2025 are kept for
       the test.</p>
@@ -94,7 +94,7 @@
     <p class="cap">Validation average precision for "grew" every 500 steps. Both runs end at 0.80; subtracting the two
       photographs on the same lots reaches 0.06.</p>
 
-    <h2>5. Why a foundation model</h2>
+    <h2 id="s5">5. Why a foundation model</h2>
     <div class="fig square" data-chart="backbones"></div>
     <p class="cap">Building height from a single photograph in ZIP codes and years the models never saw: a U-Net
       pretrained on ImageNet, DINOv3 frozen with a linear head, and DINOv3 fine-tuned with a DPT decoder.</p>
@@ -104,7 +104,11 @@
       a baseline for that final task, simply subtracting the two photographs (after matching their brightness) reaches
       an average precision of 0.06 against the model's 0.80.</p>
 
-    <h2>6. One sealed test</h2>
+    <div class="fig" data-chart="attempts"></div>
+    <p class="cap">The path to the final model. Bars are average precision on lots held out from training, 2018 to 2022,
+      and on the sealed test.</p>
+
+    <h2 id="s6">6. One sealed test</h2>
     <p>Eight ZIP codes (15% of the study area) were drawn at random and sealed, and the period 2022→2025 never entered
       training. Everything applied to the test was fixed on validation first: each head's threshold maximises F1, and
       counts are calibrated by validation precision ÷ recall (0.90 for new construction). The test was run once.</p>
@@ -119,7 +123,7 @@
       flights. Single buildings are less reliable (about 70% precision and recall), so results are reported for blocks
       and neighbourhoods.</p>
 
-    <h2>7. What it cannot see</h2>
+    <h2 id="s7">7. What it cannot see</h2>
     <div class="fig square side" data-chart="iso"></div>
     <p class="cap">An extra storey keeps the same roof from above; only its height changes.</p>
     <p>Extra storeys fail the bar (r = 0.42). An added storey is nearly invisible in a photograph taken straight down,
@@ -127,7 +131,7 @@
       Extra storeys are therefore counted from LiDAR alone. Shadows could in principle reveal height, but in rowhouse
       blocks they fall on neighbouring roofs, and flight dates and times differ between years.</p>
 
-    <h2>8. From the street</h2>
+    <h2 id="s8">8. From the street</h2>
     <div class="fig triple">
       <img data-src="/data/street/a_2016.webp" alt="A row of two-storey houses seen from the street in 2016" />
       <img data-src="/data/street/a_2018.webp" alt="The same row in 2018, with a scaffold on one house" />
@@ -159,7 +163,7 @@
       hidden. Counts of extra storeys therefore remain those of LiDAR. The only street views shown on this site are
       the three above.</p>
 
-    <h2>9. From the model to the city</h2>
+    <h2 id="s9">9. From the model to the city</h2>
     <ul>
       <li><b>Years between flights</b>: the model scores the 2019 and 2020 photographs against the 2018 LiDAR, and 2023
         and 2024 against 2022, on one fixed set of 261,056 lots so that a change in coverage cannot pass for a trend.</li>
@@ -170,7 +174,7 @@
         buildings had no permit.</li>
     </ul>
 
-    <h2>10. Limitations</h2>
+    <h2 id="s10">10. Limitations</h2>
     <ul>
       <li>Results hold for blocks and neighbourhoods, not for single buildings.</li>
       <li>The look from the street reaches only houses photographed both around 2018 and after 2024, and it finds extra

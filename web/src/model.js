@@ -1,7 +1,7 @@
 // Visuals for the model act: ViT patch grid, the three-input stack, and the two charts.
 import * as d3 from "d3";
 import "d3-transition";   // registers selection.transition(); d3 is marked side-effect free, so the bundler would drop it
-import { arch, data, flow } from "./diagrams.js";
+import { arch, attempts, data, flow } from "./diagrams.js";
 import { areaType, cityMap, income, iso, scatter, street, streetMap, waffle, wall, yearly } from "./results.js";
 import { v } from "./data.js";
 
@@ -55,6 +55,7 @@ export async function drawChart(div, name, opts = {}) {
   if (name === "income") return income(div);
   if (name === "area") return areaType(div);
   if (name === "flow") return flow(div);
+  if (name === "attempts") return attempts(div);
   if (name === "street1") return street(div, false);
   if (name === "street") return street(div, true);
   if (name === "streetmap") return streetMap(div);

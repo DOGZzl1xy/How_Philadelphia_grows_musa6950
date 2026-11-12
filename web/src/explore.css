@@ -1,8 +1,13 @@
 /* explore: a search page first (centred), a map with answers after the first question (phase two) */
 body.explore { min-height: 100vh; }
-.ask { min-height: calc(100vh - 70px); display: flex; flex-direction: column; align-items: center; padding: 24px 24px 20px; }
+/* the search page is a veil over the map that is already loaded behind it; asking a question lifts it */
+.ask { position: fixed; inset: 0; z-index: 6; display: flex; flex-direction: column; align-items: center; padding: 90px 24px 20px;
+  background: rgba(241, 238, 232, .46); transition: opacity .6s var(--ease); }
+.ask.gone { opacity: 0; pointer-events: none; }
+body.explore:not(.opened) .panel > * { visibility: hidden; }
+body.explore:not(.opened) .panel { border-right-color: transparent; background: transparent; }   /* the panel waits behind the veil, empty */
 .ask-inner { width: min(680px, 100%); text-align: center; margin: auto 0; padding-bottom: 6vh; }
-.wordmark { font-family: var(--display); font-weight: 600; font-size: clamp(54px, 8vw, 96px); letter-spacing: -.035em;
+.wordmark { font-family: var(--display); font-weight: 600; font-size: clamp(40px, 5.6vw, 72px); letter-spacing: -.03em;
   line-height: 1; margin: 0 0 .2em; }
 .ask-sub { color: var(--ink-2); font-size: 19px; margin: 0 0 1.6em; }
 .ask-box { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--rule); border-radius: 999px;
@@ -113,3 +118,11 @@ body.explore.mapped { height: 100vh; overflow: hidden; display: flex; flex-direc
 .street-tip .maplibregl-popup-content { font: 13px/1.4 var(--text); color: var(--ink); background: var(--paper); padding: 8px 11px; border-radius: 6px; box-shadow: 0 2px 10px rgba(27, 42, 58, .18); }
 .street-tip .maplibregl-popup-content b { font-family: var(--display); font-weight: 600; }
 .street-tip .maplibregl-popup-tip { border-top-color: var(--paper); border-bottom-color: var(--paper); }
+
+/* play through the years: the button in the panel, and the year written large on the map */
+.lg h3 .play { float: right; font: inherit; font-family: var(--display); font-weight: 500; font-size: 12.5px; color: var(--ink);
+  background: #fff; border: 1px solid var(--rule); border-radius: 999px; padding: 2px 11px; cursor: pointer; }
+.lg h3 .play.on { background: var(--signal); border-color: var(--signal); color: #fff; }
+.play-year { position: absolute; right: 22px; bottom: 34px; z-index: 2; font-family: var(--display); font-weight: 600;
+  font-size: 64px; letter-spacing: -.03em; color: var(--ink); text-shadow: 0 0 12px var(--paper), 0 0 4px var(--paper); pointer-events: none; }
+.play-year[hidden] { display: none; }

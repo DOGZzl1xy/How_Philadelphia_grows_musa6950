@@ -13,7 +13,7 @@ const PAPER = "#f1eee8", INK = "#1b2a3a", SIGNAL = "#ff5a1f";
 const MIN_LOTS = 10;                     // cells with fewer covered lots are not coloured (rates would be noise)
 
 export const tables = {};                // id -> record, per level (cells, bgs, zips, hoods) + city
-let map, bounds = {}, state = { fill: null, zips: false, hoods: false, tracts: false, rail: false, street: false, photo: null }, onChange = () => {};
+let map, bounds = {}, state = { fill: null, zips: false, hoods: false, tracts: false, rail: false, street: false, tall: false, photo: null }, onChange = () => {};
 
 const rows = (t) => Object.fromEntries(t.rows.map((r) => [r[0], Object.fromEntries(t.cols.map((c, i) => [c, r[i]]))]));
 const json = async (u) => (await fetch(v(u))).json();
@@ -113,6 +113,8 @@ export async function initMap(container, changed) {
   map.addLayer({ id: "bg-fill", type: "fill", source: "bgs", layout: none, paint: { "fill-opacity": 0.78 } });
   map.addLayer({ id: "bg-line", type: "line", source: "bgs", layout: none, paint: { "line-color": PAPER, "line-width": 0.6 } });
   map.addLayer({ id: "cell-fill", type: "fill", source: "cells", layout: none, paint: { "fill-opacity": 0.85 } });
+  // the same cells as columns (the reader's "3D" switch): height follows the rate, the map tilts
+  map.addLayer({ id: "cell-3d", type: "fill-extrusion", source: "cells", layout: none, paint: { "fill-extrusion-opacity": 0.92 } });
   map.addLayer({ id: "hood-hit", type: "fill", source: "hoods", paint: { "fill-opacity": 0 } });
   map.addLayer({ id: "hood-line", type: "line", source: "hoods", layout: none, paint: { "line-color": "#6b7480", "line-width": 1, "line-dasharray": [3, 2] } });
   map.addLayer({ id: "tract-hit", type: "fill", source: "tracts", layout: none, paint: { "fill-opacity": 0 } });
@@ -151,17 +153,17 @@ export async function initMap(container, changed) {
   map.on("click", (e) => {
     if (e.originalEvent.streetDot) return;
     let f;
-    for (const l of ["cell-fill", "bg-fill", "tract-hit", "hood-hit"]) {
+    for (const l of ["cell-3d", "cell-fill", "bg-fill", "tract-hit", "hood-hit"]) {
       if (!visible(l)) continue;
       f = map.queryRenderedFeatures(e.point, { layers: [l] })[0];
       if (f) break;
     }
     if (!f) return;
-    const kind = f.layer.id === "cell-fill" ? "cells" : f.layer.id === "bg-fill" ? "bgs" : f.layer.id === "tract-hit" ? "tracts" : "hoods";
+    const kind = f.layer.id === "cell-fill" || f.layer.id === "cell-3d" ? "cells" : f.layer.id === "bg-fill" ? "bgs" : f.layer.id === "tract-hit" ? "tracts" : "hoods";
     onChange({ type: "select", level: kind, id: f.properties.id });
     highlight(kind, [f.properties.id]);
   });
-  for (const l of ["cell-fill", "bg-fill"]) {
+  for (const l of ["cell-fill", "cell-3d", "bg-fill"]) {
     map.on("mouseenter", l, () => (map.getCanvas().style.cursor = "pointer"));
     map.on("mouseleave", l, () => (map.getCanvas().style.cursor = ""));
   }
@@ -191,6 +193,17 @@ export function setState(next) {
     map.setPaintProperty("bg-fill", "fill-color", ["case", ["==", ["typeof", ["get", col]], "number"],
       stepColor(["get", col], acsBreaks(f.field), A.kind === "change" ? CHANGE : BLUE), "rgba(0,0,0,0)"]);
   }
+  // columns instead of flat cells: only for the cell layers, and the camera tilts with it
+  const col3 = f && f.type === "growth" ? `r_${GROWTH[f.kind].key}${PERIODS[f.period].short}` : f && f.type === "model" ? `ry${f.year}` : null;
+  const tall = !!(state.tall && col3);
+  if (tall) {
+    map.setFilter("cell-3d", [">", ["coalesce", ["get", col3], 0], 0.05]);
+    map.setPaintProperty("cell-3d", "fill-extrusion-color", stepColor(["get", col3], GROWTH_BREAKS, ORANGE));
+    map.setPaintProperty("cell-3d", "fill-extrusion-height", ["*", ["min", ["get", col3], 40], 55]);
+    show("cell-fill", false);
+  }
+  show("cell-3d", tall);
+  if ((map.getPitch() > 1) !== tall) map.easeTo({ pitch: tall ? 55 : 0, zoom: map.getZoom() + (tall ? 0.8 : -0.8), duration: 900 });
   show("zip-line", state.zips); show("zip-label", state.zips);
   show("hood-line", state.hoods); show("hood-label", state.hoods);
   show("tract-line", state.tracts); show("tract-label", state.tracts); show("tract-hit", state.tracts);
