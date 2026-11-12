@@ -43,7 +43,8 @@ npm --prefix web run build                       # static build into web/dist
   street as the example (three photographs of 2016, 2018 and 2019, `pipeline/export_streetview.py`), reduced to the
   site's two tones with the added storey in orange. A wall of 25 houses the author confirmed as taller shows each one before
   and after in the same two-tone treatment (chosen by hand: no shop signs, no house numbers). The Explore map has a
-  layer with the same dots, which the assistant can switch on (`show_street_houses`).
+  layer with the same dots, which the assistant can switch on (`show_street_houses`). The assistant can also play the
+  model years on the map (`play_years`) when the reader asks for a change over several years.
 - Aerial photography is credited to the City of Philadelphia on every screen.
 
 ## Type and sizes

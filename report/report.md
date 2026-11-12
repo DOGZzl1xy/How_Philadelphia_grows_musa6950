@@ -17,7 +17,7 @@ With these labels, a LiDAR-anchored, bi-temporal DINOv3 model learns to read cha
 sealed test of 8 ZIP codes and the unseen period 2022→2025, its new-construction counts match LiDAR at **r = 0.96**
 (95% interval 0.67–0.98) per 250 m cell, so annual imagery can fill the years between flights. Pop-ups fail
 (r = 0.42): an added storey is nearly invisible from directly above. Street-level photographs, read by a
-vision-language model, find them one building at a time: 1,538 buildings are marked as taller, and about four in five
+vision-language model, find them one building at a time: 1,950 buildings are marked as taller, and about four in five
 of a sample checked by hand are added storeys or taller rebuilds. Counted per cell they reach r = 0.54, so pop-up
 counts remain those of LiDAR.
 
@@ -178,7 +178,8 @@ An added storey shows from the side, so pop-ups were also looked for in street-l
 units with a model pop-up score above its threshold or with a permit for an upward addition; the search for buildings
 (Section 4.4) adds units with a zoning permit for an addition or new development. For each candidate, the capture
 point nearest the lot supplies one photograph per period (before the 2018 flight, 2018–2019, 2020–2023, from 2024),
-cut from the panorama towards the lot. A vision-language model (Gemini 3.8 Flash [15]) reads the two to five dated
+cut from the panorama towards the lot. A vision-language model (Gemini 3.8 Flash [15]; for candidates outside the densest cells the cheaper Gemini
+Decision 1 [16]) reads the two to five dated
 photographs together and answers whether the building became taller, was newly built, did not change or cannot be
 judged, and between which two photographs it changed. Prompt, photographs and candidate rule were settled in one ZIP
 code and frozen. Counts per 250 m cell were then compared with LiDAR once, in the 8 sealed ZIP codes, under the same
@@ -309,16 +310,19 @@ camera a few metres in front of it, and outside its training area the aerial mod
 its candidates are seen taller, against 24% of those with an upward-addition permit. Pop-up counts therefore remain
 those of LiDAR.
 
-**Finding.** Street view does find pop-ups one building at a time. In the 571 cells where the aerial model flags at
-least three buildings as grown, 15,401 candidates were photographed and 11,139 judged. 1,538 buildings are marked as
-taller between 2018 and 2025 (Figure 9): 523 first seen taller in the 2018–2019 photographs, 348 in 2020–2023 and 667
-from 2024. In a blind check by hand of 58 marked buildings, 47 (81%, 95% interval 69–89%) are added storeys or taller
-rebuilds, 10 are new buildings on lots that were empty in the earlier photograph, and 1 is wrong. Of the candidates
-with an upward-addition permit, 47% are seen taller; of those picked by the model score alone, 12%.
+**Finding.** Street view does find pop-ups one building at a time. Of 23,819 candidates, 16,738 (70%) had
+photographs on both sides of 2018–2025 and were judged. In the 571 cells where the aerial model flags at least three
+buildings as grown, Gemini 3.8 Flash marks 1,538 buildings as taller; in the rest of the study area Gemini Decision 1,
+at an eighth of the cost, adds 412. Of the 1,950 buildings (Figure 9), 641 are first seen taller in the 2018–2019
+photographs, 441 in 2020–2023 and 868 from 2024. In a blind check by hand of 58 buildings marked by Gemini 3.8 Flash,
+47 (81%, 95% interval 69–89%) are added storeys or taller rebuilds, 10 are new buildings on lots that were empty in
+the earlier photograph, and 1 is wrong; on the same houses Gemini Decision 1 agrees with the hand call on whether a
+house changed in 87% of cases, against 95%. Of the candidates with an upward-addition permit, 45% are seen taller; of
+those picked by the model score alone, 10%.
 
 ![Buildings seen taller from the street](figs/street_map.png)
 
-*Figure 9. The 1,538 buildings seen taller from the street between 2018 and 2025 (dots), in the 250 m cells where the aerial model flags at least three buildings as grown (grey).*
+*Figure 9. The 1,950 buildings seen taller from the street between 2018 and 2025 (dots); grey: the 250 m cells where the aerial model flags at least three buildings as grown.*
 
 ---
 
@@ -362,7 +366,7 @@ describes: https://musa6950-philly-growth.xuanyuzhou.org
 Philadelphia grows one lot at a time, and until now nobody could say exactly where and when. Letting LiDAR teach
 aerial imagery works for new construction: tested once on unseen places and an unseen year, the model matches LiDAR at
 r = 0.96 on 250 m cells and fills the years between flights. It fails for added storeys, because from directly above
-the information is not there; street-level photographs find them one house at a time, 1,538 so far, without counting
+the information is not there; street-level photographs find them one house at a time, 1,950 so far, without counting
 them. With the model, the city's recent growth comes into view: a 2020 peak, a slowdown since,
 growth concentrated near rail and in a tenth of the city, and a permit record that mostly matches what was built.
 
@@ -397,3 +401,4 @@ Repository: https://github.com/DOGZzl1xy/How_Philadelphia_grows_musa6950
 13. Axios Philadelphia (7 January 2022). *Philly construction permits soar ahead of tax abatement changes.* https://www.axios.com/local/philadelphia/2022/01/07/philadelphia-tax-abatement-permit-applications
 14. Google, Street View imagery of Philadelphia, 2007–2026.
 15. Google (2026). Gemini 3.8 Flash, vision-language model.
+16. Google (2026). Gemini Decision 1, Gemini Decisions API. https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api/

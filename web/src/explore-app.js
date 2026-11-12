@@ -2,7 +2,7 @@
 // The assistant's map actions come back as events and are applied here; it never sends coordinates, only layer ids
 // and area names or ids, which this page looks up in its own outlines.
 import { focus, getMap, highlight, initMap, known, setState, whole } from "./explore-map.js";
-import { card, renderLayers, setCollapsed } from "./explore-panel.js";
+import { card, play, renderLayers, setCollapsed, stopPlay } from "./explore-panel.js";
 import { ACS, GROWTH, PERIODS, PHOTO_YEARS, YEARS } from "./layers.js";
 
 const $ = (id) => document.getElementById(id);
@@ -63,6 +63,7 @@ function apply(a) {
   if (a.highlight && Array.isArray(a.highlight.ids)) highlight(a.highlight.level, a.highlight.ids.filter((id) => known(a.highlight.level, id)));
   else if (a.focus) highlight(null, []);                 // a new place without its own outline: drop the old one
   if (a.card && known(a.card.level, a.card.id)) showCard(a.card.level, a.card.id);
+  if (Array.isArray(a.play) && a.play.length >= 2) play(a.play);        // the years asked for, one after another
 }
 
 // ---------- conversation ----------
@@ -86,6 +87,7 @@ function turn(q) {
 async function ask(q) {
   if (busy || !q) return;
   busy = true;
+  stopPlay();
   stale = new Set(byAssistant);
   const el = turn(q), a = el.querySelector(".a"), meta = el.querySelector(".meta");
   let answer = "", memo = "";

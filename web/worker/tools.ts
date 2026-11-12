@@ -339,6 +339,7 @@ export const TOOL_DEFS = [
       acs_period: { type: "string", enum: ["2015_19", "2019_23"] },
       show_zips: { type: "boolean" }, show_neighbourhoods: { type: "boolean" }, show_tracts: { type: "boolean" }, show_rail: { type: "boolean" },
       show_street_houses: { type: "boolean", description: "the houses seen taller from the street 2018-2025, one dot per house (found, not counted)" },
+      play_years: { type: "array", items: { type: "string", enum: Object.keys(MODEL_YEARS) }, description: "play the new-buildings-by-year layers one after another on the map, in time order (at least two years); use it whenever the reader asks to see change over several years or from one year to another" },
       photo_year: { type: "integer", description: "aerial photograph year (2018, 2019, 2020, 2022, 2023, 2024, 2025) or 0 to hide" },
       focus: { type: "array", items: { type: "object", properties: { level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group", "city"] }, id: { type: "string" } } } },
       highlight: { type: "object", properties: { level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group"] }, ids: { type: "array", items: { type: "string" } } } },
@@ -360,6 +361,10 @@ export function mapAction(t: Tables, a: Row) {
   if (typeof a.show_tracts === "boolean") out.tracts = a.show_tracts;
   if (typeof a.show_street_houses === "boolean") out.street = a.show_street_houses;
   if (a.photo_year === 0) out.photo = false; else if (a.photo_year) out.photo = a.photo_year;
+  if (Array.isArray(a.play_years)) {
+    const ys = Object.keys(MODEL_YEARS).filter((y) => a.play_years.map(String).includes(y));
+    if (ys.length >= 2) { out.play = ys; delete out.layer; }       // the play sets the layer itself
+  }
   const fix = (x: Row) => {
     if (!x || !LEVEL[x.level]) return null;
     let id = String(x.id);

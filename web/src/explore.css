@@ -20,6 +20,7 @@ body.explore:not(.opened) .maplibregl-control-container { visibility: hidden; }
   box-shadow: 0 24px 70px rgba(27, 42, 58, .16), 0 2px 8px rgba(27, 42, 58, .06), inset 0 1px 0 rgba(255, 255, 255, .9); }
 .wordmark { font-family: var(--display); font-weight: 600; font-size: clamp(40px, 5.6vw, 72px); letter-spacing: -.03em;
   line-height: 1; margin: 0 0 .2em; }
+.byline { font-size: 14px; letter-spacing: .02em; color: #8a8f96; margin: -.2em 0 1.3em; }
 .ask-sub { color: var(--ink-2); font-size: 19px; margin: 0 0 1.6em; }
 .ask-box { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--rule); border-radius: 999px;
   padding: 6px 6px 6px 18px; box-shadow: 0 2px 12px rgba(27, 42, 58, .06); transition: box-shadow .2s, border-color .2s; }

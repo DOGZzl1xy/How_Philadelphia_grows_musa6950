@@ -8,17 +8,20 @@ const rate = (n, cov, years) => (cov >= 10 ? (n / cov) * 1000 / years : null);
 // play through the years: the model layers one after another, with the year written large on the map
 let playing = 0;
 const yearTag = () => document.getElementById("play-year");
-function stopPlay() {
+export function stopPlay() {
   clearInterval(playing);
   playing = 0;
   const t = yearTag();
   if (t) t.hidden = true;
 }
-function play() {
-  if (playing) { stopPlay(); setState({}); return; }
+// years: the model years to run through, in order (all of them from the button; a part when the assistant asks)
+export function play(years) {
+  const run = Array.isArray(years) ? YEAR_ORDER.filter((y) => years.map(String).includes(y)) : YEAR_ORDER;
+  if (playing) { stopPlay(); if (!Array.isArray(years)) { setState({}); return; } }
+  if (run.length < 2) return;
   let k = 0;
   const step = () => {
-    const y = YEAR_ORDER[k % YEAR_ORDER.length];
+    const y = run[k % run.length];
     const t = yearTag();
     if (t) { t.hidden = false; t.textContent = YEARS[y].label; }
     setState({ fill: { type: "model", year: y } });
@@ -84,7 +87,7 @@ export function renderLayers(el) {
     ${s.street ? streetLegend(false) : ""}${f.type || !s.street ? legend(f) : ""}`;
 
   el.querySelector(".lbar").addEventListener("click", () => setCollapsed(true, el));
-  el.querySelector("[data-play]").addEventListener("click", play);
+  el.querySelector("[data-play]").addEventListener("click", () => play());
   el.querySelectorAll(".seg button").forEach((b) => b.addEventListener("click", () => {
     const k = b.parentElement.dataset.seg, val = b.dataset.v, cur = getState().fill || {};
     if (k !== "photo") stopPlay();
