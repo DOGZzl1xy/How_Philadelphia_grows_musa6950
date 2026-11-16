@@ -40,7 +40,6 @@ a { color: inherit; }
 .fig[data-chart="training"] { aspect-ratio: 1000 / 900; }
 .fig[data-chart="iso"] { aspect-ratio: 620 / 520; }
 .fig[data-chart="flow"] { aspect-ratio: 1000 / 640; background: none; }
-.fig[data-chart="attempts"] { aspect-ratio: 1000 / 610; }
 .flow-a { cursor: pointer; }
 .flow-a:hover rect:last-of-type { stroke: var(--ink); }
 /* contents beside the text on wide windows: the sections, the current one in ink */

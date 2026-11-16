@@ -72,11 +72,8 @@
     <p>The satellite-pretrained, fine-tuned model was the most accurate and the most stable on the new 2025
       photographs. Change is harder than height: published detectors reach an F1 of 92–95% on benchmarks where change
       is dense<sup class="ref"><a href="#ref-5">5</a></sup>, about 81% where it is sparse<sup class="ref"><a href="#ref-6">6</a></sup> and 69% in unseen cities<sup class="ref"><a href="#ref-7">7</a></sup>. Asked for the change in height,
-      the model failed twice. A score for every lot is what worked.</p>
-    <div class="fig" data-chart="attempts"></div>
-    <p class="cap">The attempts in the order they were made, and the sealed test of the last one. The first three asked
-      for heights and failed as noted. From the fourth on, the model gives every lot a score; the bars are average
-      precision on lots held out from training (2018 to 2022) and, in the last row, on the sealed test.</p>
+      two photographs alone answered "no change" everywhere, and with the measured height added the model copied it.
+      A score for every lot is what worked.</p>
 
     <h2 id="s4">4. The model</h2>
     <div class="fig square" data-chart="arch"></div>
