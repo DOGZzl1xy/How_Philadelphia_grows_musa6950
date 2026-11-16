@@ -36,7 +36,8 @@ a { color: inherit; }
 .fig.square { aspect-ratio: 1; }
 /* figures whose drawing does not fill the square are cropped to it (the SVG view box is set in method.js) */
 .fig[data-chart="arch"] { aspect-ratio: 1000 / 790; }
-.fig[data-chart="backbones"] { aspect-ratio: 1000 / 945; }
+.fig[data-chart="backbones"] { aspect-ratio: 1000 / 560; }
+.fig[data-chart="training"] { aspect-ratio: 1000 / 900; }
 .fig[data-chart="iso"] { aspect-ratio: 620 / 520; }
 .fig[data-chart="flow"] { aspect-ratio: 1000 / 640; background: none; }
 .fig[data-chart="attempts"] { aspect-ratio: 1000 / 610; }
@@ -79,3 +80,18 @@ dl.kv dd { margin: 0; }
 .dcard p.stat { color: var(--ink-2); }
 .dcard a { font-size: 13px; margin: auto 14px 0; color: var(--ink-2); }
 dl.kv { margin: 1em 0 2em; row-gap: .7em; }
+
+/* a small figure beside the text (the page is read on a wide window) */
+figure.aside { float: right; width: 40%; margin: .4em 0 1em 1.6em; }
+figure.aside .fig { margin: 0 0 .5em; }
+figure.aside .cap { margin: 0; }
+figure.aside * { transition: none !important; animation: none !important; }
+.doc h2 { clear: both; }
+/* citations: a small number that jumps to the reference, which is marked on arrival */
+sup.ref { font-size: .68em; line-height: 0; margin-left: 1px; }
+sup.ref a { color: var(--ink-2); text-decoration: none; padding: 0 1px; }
+sup.ref a:hover { color: var(--signal); }
+.refs li { scroll-margin-top: 90px; }
+.refs li:target { color: var(--ink); background: #fffdf9; outline: 6px solid #fffdf9; }
+.dcard .src { font-size: 13px; margin: auto 14px 0; color: var(--ink-2); }
+.dcard .src a { font-size: inherit; margin: 0; }

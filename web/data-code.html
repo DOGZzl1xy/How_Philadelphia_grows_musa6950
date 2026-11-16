@@ -24,57 +24,53 @@
 <body>
   <main class="doc">
     <h1>Data &amp; Code</h1>
-    <p class="lede">Everything this project used is public. The report describes the full method; the code reproduces it
-      from the raw data.</p>
+    <p class="lede">The report describes the full method, and the code reproduces it from the raw data. The city's data
+      are open; the street views and the Gemini models are Google's.</p>
 
     <h2 id="report">Report and code</h2>
     <p>The final report for MUSA 6950 AI for Urban Sustainability, University of Pennsylvania, and the code repository:
       data processing, LiDAR change labels, model training and evaluation, and the analysis behind every number on this
-      site.</p>
+      site. Raw data and model checkpoints are not in the repository; the scripts download the public inputs listed
+      below.</p>
     <div class="cta" id="dc-cta"></div>
-    <p>Raw data (about 300 GB) and model checkpoints are not in the repository; the scripts download the public inputs
-      listed below. No address is shown on this site. Scenes are shown without coordinates, and city-wide figures are
-      aggregated to 250 m cells or block groups; the one exception is the map of houses seen taller from the street,
-      which marks each house with a dot. One row of houses is shown from the street as an example, redrawn in two
-      tones.</p>
 
-    <h2 id="sources">Data sources</h2>
+    <h2 id="sources">Data and models</h2>
     <div class="cards">
       <article class="dcard"><img data-src="/data/scenes/s2/photo_2022.webp" alt="" />
         <h3>Aerial photographs</h3>
-        <p class="stat">9 springs, 2010 to 2025, at 0.25 m</p>
+        <p class="stat">9 springs, 2010 to 2025, about 0.23 m</p>
         <p>What the model reads, and every photograph on this site</p>
-        <a href="https://opendataphilly.org/" target="_blank" rel="noopener">City of Philadelphia</a>
+        <a href="https://opendataphilly.org/datasets/aerial-photography/" target="_blank" rel="noopener">City of Philadelphia, OpenDataPhilly</a>
       </article>
       <article class="dcard"><img data-src="/data/scenes/s2/iso_2022_clay.webp" alt="" />
         <h3>LiDAR point clouds</h3>
         <p class="stat">5 flights, 2,661 tiles</p>
         <p>Building height and the change labels that teach the model</p>
-        <a href="https://www.pasda.psu.edu/" target="_blank" rel="noopener">PASDA, City of Philadelphia</a>
+        <a href="https://www.pasda.psu.edu/uci/SearchResults.aspx?Keyword=philadelphia+lidar" target="_blank" rel="noopener">PASDA, City of Philadelphia</a>
       </article>
       <article class="dcard"><img data-src="/data/street/a_2016.webp" alt="" />
         <h3>Street views</h3>
-        <p class="stat">2007 to 2026, as the cars drove</p>
-        <p>Finding added storeys house by house</p>
+        <p class="stat">2007 to 2026, along the streets driven</p>
+        <p>Finding added floors house by house</p>
         <a href="https://www.google.com/streetview/" target="_blank" rel="noopener">Google Street View</a>
       </article>
       <article class="dcard"><div class="logo"><img src="/logos/philadelphia.png" alt="Seal of the City of Philadelphia" /></div>
         <h3>Building permits</h3>
         <p class="stat">257,160 permits, 2014 to 2025</p>
         <p>Permits against buildings, and hints for where to look</p>
-        <a href="https://opendataphilly.org/" target="_blank" rel="noopener">Philadelphia L&amp;I, OpenDataPhilly</a>
+        <a href="https://opendataphilly.org/datasets/licenses-and-inspections-building-and-zoning-permits/" target="_blank" rel="noopener">Philadelphia L&amp;I, OpenDataPhilly</a>
       </article>
       <article class="dcard"><img data-src="/data/scenes/s3/lots.webp" alt="" />
         <h3>Parcels, footprints, zoning</h3>
         <p class="stat">526,928 building lots in 46 ZIP codes</p>
         <p>The lots that are counted, and the study area</p>
-        <a href="https://opendataphilly.org/" target="_blank" rel="noopener">City of Philadelphia, OpenDataPhilly</a>
+        <p class="src"><a href="https://opendataphilly.org/datasets/department-of-records-property-parcels/" target="_blank" rel="noopener">Parcels</a>, <a href="https://opendataphilly.org/datasets/building-footprints/" target="_blank" rel="noopener">footprints</a> and <a href="https://opendataphilly.org/datasets/zoning-base-districts/" target="_blank" rel="noopener">zoning</a>, OpenDataPhilly</p>
       </article>
       <article class="dcard"><div class="logo"><img src="/logos/census.svg" alt="United States Census Bureau" /></div>
         <h3>American Community Survey</h3>
-        <p class="stat">16 measures by block group, 2015–19 and 2019–23</p>
+        <p class="stat">16 measures, 2015–19 and 2019–23</p>
         <p>Income, housing and commuting by block group</p>
-        <a href="https://www.census.gov/programs-surveys/acs" target="_blank" rel="noopener">U.S. Census Bureau</a>
+        <a href="https://www.census.gov/programs-surveys/acs/data/summary-file.html" target="_blank" rel="noopener">U.S. Census Bureau</a>
       </article>
       <article class="dcard"><div class="logo"><img src="/logos/septa.svg" alt="SEPTA" /></div>
         <h3>Transit network</h3>
@@ -92,7 +88,7 @@
         <h3>Gemini</h3>
         <p class="stat">3.8 Flash and Decision 1</p>
         <p>Reading the street views</p>
-        <a href="https://ai.google.dev/" target="_blank" rel="noopener">Google</a>
+        <a href="https://ai.google.dev/gemini-api/docs/models" target="_blank" rel="noopener">Google</a>
       </article>
     </div>
 
@@ -104,18 +100,6 @@
       <dt>Assistant</dt><dd>DeepSeek flash with Gemini 3.8 Flash as a backup, about $0.0003 an answer, capped at $2 a day.</dd>
       <dt>Software</dt><dd>Python 3.12, PyTorch, GeoPandas and Rasterio for the analysis. Vite, D3 and MapLibre for this site, served by a Cloudflare Worker.</dd>
     </dl>
-
-    <h2 id="references">References</h2>
-    <ol class="refs">
-      <li>Meta AI and World Resources Institute (2026). <i>Canopy Height Maps v2.</i></li>
-      <li>Siméoni, O., et al. (2025). <i>DINOv3.</i> <a href="https://arxiv.org/abs/2508.10104" target="_blank" rel="noopener">arXiv:2508.10104</a>.</li>
-      <li>Ranftl, R., Bochkovskiy, A., Koltun, V. (2021). <i>Vision Transformers for Dense Prediction.</i> ICCV.</li>
-      <li>Lin, T.-Y., et al. (2017). <i>Focal Loss for Dense Object Detection.</i> ICCV.</li>
-      <li>Zhu, D., et al. (2024). <i>ChangeViT: Unleashing plain vision transformers for change detection.</i> <a href="https://arxiv.org/abs/2406.12847" target="_blank" rel="noopener">arXiv:2406.12847</a>.</li>
-      <li>Wang, Y., et al. (2026). <i>Multi-modal building change detection for large-scale small changes.</i> <a href="https://arxiv.org/abs/2603.19077" target="_blank" rel="noopener">arXiv:2603.19077</a>.</li>
-      <li>Pang, C., et al. (2023). <i>Detecting building changes with off-nadir aerial images.</i> <a href="https://arxiv.org/abs/2301.10922" target="_blank" rel="noopener">arXiv:2301.10922</a>.</li>
-      <li>City of Philadelphia, Bill No. 230574 (2023), Brewerytown–Sharswood overlay.</li>
-    </ol>
   </main>
   <script type="module" src="/src/datacode.js"></script>
 </body>

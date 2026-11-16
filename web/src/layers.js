@@ -19,7 +19,7 @@ export const photoTiles = (y) =>
 
 // houses seen taller from the street (stage 8): one colour per period in which the change first shows
 export const STREET = { label: "Houses seen taller from the street", periods: ["2018–2019", "2020–2023", "2024–2025"],
-  colors: ["#2a78d6", "#1baf7a", "#eb6834"], note: "Found in street-level photographs read by a model, 2018–2025. About four in five are added storeys or taller rebuilds. Streets without recent photographs are missing, so this layer finds houses and does not count them." };
+  colors: ["#2a78d6", "#1baf7a", "#eb6834"], note: "Found in street-level photographs read by a model, 2018–2025. In a sample checked by hand, about four in five are added floors or taller rebuilds. Houses without photographs from before 2020 and from 2024 on are missing, so this layer finds houses and does not count them." };
 
 export const ORANGE = ["#f9e0d3", "#f6c9b4", "#f0a27f", "#e2714a", "#c94a1d", "#9e3208"];
 export const BLUE = ["#e6eaee", "#c6d0da", "#9fb0c1", "#7489a0", "#4d6580", "#2c4561"];
@@ -29,7 +29,7 @@ export const CHANGE = ["#8c6d4f", "#c9b29a", "#e9e6df", "#c6d0da", "#7489a0", "#
 // cell layers: value per 1,000 lots per year
 export const GROWTH = {
   new: { label: "New buildings", note: "Measured by LiDAR", key: "n" },
-  popup: { label: "Added storeys", note: "Measured by LiDAR; the model cannot see these", key: "p" },
+  popup: { label: "Added floors", note: "Measured by LiDAR; the model cannot see these", key: "p" },
   demo: { label: "Demolitions", note: "Measured by LiDAR", key: "d" },
 };
 export const GROWTH_BREAKS = [0.5, 2, 5, 10, 20];                // per 1,000 lots per year

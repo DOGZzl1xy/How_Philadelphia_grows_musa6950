@@ -64,7 +64,7 @@ function growth(r: Row) {
   const out: Row = {};
   for (const [p, P] of Object.entries(PERIODS)) {
     const cov = r[`cov${P.s}`] || 0;
-    out[P.label] = { lots_measured: Math.round(cov), ...Object.fromEntries(Object.entries(KINDS).map(([k, s]) => [k === "new" ? "new_buildings" : k === "popup" ? "added_storeys" : "demolitions",
+    out[P.label] = { lots_measured: Math.round(cov), ...Object.fromEntries(Object.entries(KINDS).map(([k, s]) => [k === "new" ? "new_buildings" : k === "popup" ? "added_floors" : "demolitions",
       { count: Math.round(r[`${s}${P.s}`] || 0), per_1000_lots_per_year: rate(r[`${s}${P.s}`] || 0, cov, P.years) }])) };
   }
   return out;
@@ -140,7 +140,7 @@ export function areaStats(t: Tables, a: { level: Level; id: string }) {
     if (!r) return { error: "unknown ZIP code" };
     return { zip: a.id, lots: r.units, lots_in_high_rise_blocks_left_out: r.hr_units || undefined, mostly: r.type, lidar: growth(r), model_new_buildings_by_year: modelYears(r),
       new_buildings_without_matching_permit_2018_2025: r.noperm_new_of ? { count: r.noperm_new, of: r.noperm_new_of } : undefined,
-      added_storeys_without_matching_permit_2018_2025: r.noperm_popup_of ? { count: r.noperm_popup, of: r.noperm_popup_of } : undefined,
+      added_floors_without_matching_permit_2018_2025: r.noperm_popup_of ? { count: r.noperm_popup, of: r.noperm_popup_of } : undefined,
       census: census(t, (b) => b.zip === a.id) };
   }
   if (a.level === "neighbourhood") {
@@ -190,7 +190,7 @@ export function rankStations(t: Tables, a: { metric: string; period?: string; ye
   const rows = Object.values(t.stations).filter((st) => st.cell && !seen.has(st.name) && seen.add(st.name))
     .map((st) => ({ station: st.name, mode: st.mode, neighbourhood: st.neighbourhood, zip: st.zip, value: Math.round(stationArea(t, st.cell)[key] || 0) }))
     .sort((x, y) => (a.order === "asc" ? x.value - y.value : y.value - x.value)).slice(0, Math.min(a.limit || 10, 15));
-  return { unit: `${a.metric === "model_new" ? `estimated new buildings in ${a.year}` : `${a.metric === "popup" ? "added storeys" : a.metric === "demo" ? "demolitions" : "new buildings"}, LiDAR ${P.label}`} within the 5 x 5 block of 250 m cells around each station (about 600 m each way), counts`,
+  return { unit: `${a.metric === "model_new" ? `estimated new buildings in ${a.year}` : `${a.metric === "popup" ? "added floors" : a.metric === "demo" ? "demolitions" : "new buildings"}, LiDAR ${P.label}`} within the 5 x 5 block of 250 m cells around each station (about 600 m each way), counts`,
     note: "high-rise blocks left out; neighbouring stations share cells; trolley stops are not included", results: rows };
 }
 
@@ -218,14 +218,14 @@ export function rankAreas(t: Tables, a: { level: Level; metric: string; period?:
     const byRate = a.by === "rate" && a.level !== "cell";
     const minLots = a.level === "block_group" ? 100 : a.level === "tract" ? 300 : 500;
     value = (r) => (r.hr ? null : byRate ? (r[`cov${P.s}`] >= minLots ? rate(r[`${s}${P.s}`] || 0, r[`cov${P.s}`], P.years) : null) : r[`${s}${P.s}`] ?? 0);
-    unit = `${byRate ? "per 1,000 measured lots per year" : "count"}, ${a.metric === "new" ? "new buildings" : a.metric === "popup" ? "added storeys" : "demolitions"}, LiDAR ${P.label}`;
+    unit = `${byRate ? "per 1,000 measured lots per year" : "count"}, ${a.metric === "new" ? "new buildings" : a.metric === "popup" ? "added floors" : "demolitions"}, LiDAR ${P.label}`;
     if (byRate) note = `areas with fewer than ${minLots} measured lots left out`;
   } else if (a.metric === "no_permit_new" || a.metric === "no_permit_popup") {
     if (a.level !== "zip") return { error: "changes without a matching permit are available per ZIP code only" };
     const ev = a.metric === "no_permit_new" ? "new" : "popup";
     const byShare = a.by === "rate";
     value = (r) => (r[`noperm_${ev}_of`] ? (byShare ? (r[`noperm_${ev}_of`] >= 20 ? r2(r[`noperm_${ev}`] / r[`noperm_${ev}_of`], 3) : null) : r[`noperm_${ev}`]) : null);
-    unit = `${byShare ? "share" : "number"} of LiDAR-detected ${ev === "new" ? "new buildings" : "added storeys"} 2018-2025 with no related permit on the lot`;
+    unit = `${byShare ? "share" : "number"} of LiDAR-detected ${ev === "new" ? "new buildings" : "added floors"} 2018-2025 with no related permit on the lot`;
     note = byShare ? "ZIP codes with fewer than 20 detected changes left out; part of the residual is parcel-matching error" : "part of the residual is parcel-matching error";
   } else if (a.metric === "model_new") {
     const Y = MODEL_YEARS[String(a.year || "")];
@@ -276,7 +276,7 @@ export function rankAreas(t: Tables, a: { level: Level; metric: string; period?:
     if (unit.startsWith("per 1,000")) return `${v} per 1,000 measured lots per year`;
     if (a.metric === "model_new") return `about ${Math.round(v)} new buildings (estimate)`;
     if (a.metric.startsWith("no_permit")) return a.by === "rate" ? `${(v * 100).toFixed(1)}%` : `${v} buildings`;
-    return `${v} ${a.metric === "new" ? "new buildings" : a.metric === "popup" ? "added storeys" : "demolitions"}`;
+    return `${v} ${a.metric === "new" ? "new buildings" : a.metric === "popup" ? "added floors" : "demolitions"}`;
   };
   return { level: a.level, unit, note, counts, results: ranked.map((x) => ({ ...label(x.id, x.row), value: a.metric === "model_new" ? Math.round(x.v as number) : x.v, display: show(x.v as number) })),
     results_shown: `${ranked.length} of ${counts.areas_with_a_value} (top ${limit} at most)` };
@@ -292,9 +292,9 @@ export function citywide(t: Tables, a: { topic: string }) {
     case "yearly": return { note: "new buildings per 1,000 lots per year on one fixed set of lots; model years are estimates, 2021-22 and 2025 are LiDAR minus model", ...c.yearly_new_per_1000_fixed_units };
     case "permits": return { permit_to_construction: c.permits.permit_to_construction, without_matching_permit: c.permits.unpermitted,
       time_to_detection_new_construction_permits: c.permit_time_to_detection,
-      note: "permits are matched to LiDAR measurements (not to the model). Share of permits issued 2018-2020 whose lot shows the change in LiDAR. 'addition (any)' permits are mostly rear or interior work that leaves roof height unchanged, so few show an added storey; upward-addition permits are the comparable group. Not visible by 2025 does not mean never built (lag). 'without matching permit' = LiDAR change with no related permit on the lot from 3 years before the period to its end; part of it is parcel-matching error" };
+      note: "permits are matched to LiDAR measurements (not to the model). Share of permits issued 2018-2020 whose lot shows the change in LiDAR. 'addition (any)' permits are mostly rear or interior work that leaves roof height unchanged, so few show an added floor; upward-addition permits are the comparable group. Not visible by 2025 does not mean never built (lag). 'without matching permit' = LiDAR change with no related permit on the lot from 3 years before the period to its end; part of it is parcel-matching error" };
     case "homes": return { floor_area_and_homes: c.floor_area_and_homes, note: "rough: floor area = footprint x storeys; homes = floor area / 122.7 m2 per home from permits; pop-up homes are an upper bound" };
-    case "model_test": return { sealed_test_2022_2025: c.sealed_test_2022_2025, note: "run once on 8 ZIP codes never used in training; r = correlation between model estimate and LiDAR per cell; the bar for filling years was r >= 0.8 at 250 m: new buildings pass (0.96), added storeys fail (0.42)" };
+    case "model_test": return { sealed_test_2022_2025: c.sealed_test_2022_2025, note: "run once on 8 ZIP codes never used in training; r = correlation between model estimate and LiDAR per block; the bar for filling years was r >= 0.8 at 250 m: new buildings pass (0.96), added floors fail (0.42). For counts quote the totals over all test lots: new buildings 85 by the model against 97 by LiDAR (the model finds 12% fewer), added floors 212 against 46 (the model finds far too many); the sums per scale differ by one or two because a few blocks on the edge are left out" };
     default: return { error: "topic must be rates, yearly, permits, homes or model_test" };
   }
 }
@@ -317,12 +317,12 @@ export const TOOL_DEFS = [
   { type: "function", function: { name: "rank_stations", description: "Rank subway, elevated and regional rail stations by growth around them (counts in about 600 m each way): which station areas built the most.",
     parameters: { type: "object", properties: { metric: { type: "string", enum: ["new", "popup", "demo", "model_new"] }, period: { type: "string", enum: ["2018_2022", "2022_2025"] },
       year: { type: "string", enum: Object.keys(MODEL_YEARS) }, order: { type: "string", enum: ["desc", "asc"] }, limit: { type: "integer" } }, required: ["metric"] } } },
-  { type: "function", function: { name: "area_stats", description: "All numbers for one area: LiDAR-measured new buildings, added storeys and demolitions per period (counts and per 1,000 lots per year), model-estimated new buildings per year, permits (ZIP only), census summary.",
+  { type: "function", function: { name: "area_stats", description: "All numbers for one area: LiDAR-measured new buildings, added floors and demolitions per period (counts and per 1,000 lots per year), model-estimated new buildings per year, permits (ZIP only), census summary.",
     parameters: { type: "object", properties: { level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group", "city"] }, id: { type: "string" } }, required: ["level", "id"] } } },
   { type: "function", function: { name: "rank_areas", description: "Rank ZIP codes, neighbourhoods, census tracts, 250 m cells or block groups by a metric, optionally within one ZIP code or neighbourhood. Also returns counts (areas with a value, with zero, above zero), so 'how many areas had none' needs one call. Returns ids to highlight on the map.",
     parameters: { type: "object", properties: {
       level: { type: "string", enum: ["zip", "neighbourhood", "tract", "cell", "block_group"] },
-      metric: { type: "string", enum: ["new", "popup", "demo", "model_new", "no_permit_new", "no_permit_popup", ...Object.keys(ACS_FIELDS)], description: "new / popup (added storeys) / demo: LiDAR, needs period. model_new: model estimate, needs year. no_permit_new / no_permit_popup: LiDAR changes 2018-2025 without a matching permit, ZIP level only (by=rate gives the share). Census fields: block groups, neighbourhoods or ZIP codes (population-weighted)." },
+      metric: { type: "string", enum: ["new", "popup", "demo", "model_new", "no_permit_new", "no_permit_popup", ...Object.keys(ACS_FIELDS)], description: "new / popup (added floors) / demo: LiDAR, needs period. model_new: model estimate, needs year. no_permit_new / no_permit_popup: LiDAR changes 2018-2025 without a matching permit, ZIP level only (by=rate gives the share). Census fields: block groups, neighbourhoods or ZIP codes (population-weighted)." },
       period: { type: "string", enum: ["2018_2022", "2022_2025"] }, year: { type: "string", enum: Object.keys(MODEL_YEARS) },
       by: { type: "string", enum: ["count", "rate"], description: "LiDAR metrics: rank by count or by rate per 1,000 measured lots per year" },
       order: { type: "string", enum: ["desc", "asc"] }, limit: { type: "integer" }, acs_period: { type: "string", enum: ["2015_19", "2019_23"] },
@@ -330,7 +330,7 @@ export const TOOL_DEFS = [
       required: ["level", "metric"] } } },
   { type: "function", function: { name: "citywide", description: "City-wide results: rates (how much, both periods, concentration), yearly (when), permits (permits that became buildings, changes without permits, time from permit to building), homes (floor area and rough number of homes), model_test (how accurate the model is).",
     parameters: { type: "object", properties: { topic: { type: "string", enum: ["rates", "yearly", "permits", "homes", "model_test"] } }, required: ["topic"] } } },
-  { type: "function", function: { name: "compare_groups", description: "LiDAR rates of new buildings and added storeys by distance to rail, by area type (rowhouse, mixed use, detached), by block-group income level or income change.",
+  { type: "function", function: { name: "compare_groups", description: "LiDAR rates of new buildings and added floors by distance to rail, by area type (rowhouse, mixed use, detached), by block-group income level or income change.",
     parameters: { type: "object", properties: { by: { type: "string", enum: ["rail_distance", "area_type", "income_level", "income_change"] } }, required: ["by"] } } },
   { type: "function", function: { name: "update_map", description: "Change the map next to the answer: switch one data layer on (or off), show outlines, zoom to areas and highlight them. Growth layers are drawn per 250 m cell, census (acs_*) layers per block group, whatever level you ranked. Call it once per answer that concerns places or a pattern.",
     parameters: { type: "object", properties: {

@@ -138,7 +138,7 @@ export const steps = [
     act: 4,
     stage: { scene: "s2", year: 2025, chart: "iso" },
     html: `<h2>The floor it cannot see</h2>
-           <p>A photograph looks straight down. A new building changes the picture at once. An extra storey on an
+           <p>A photograph looks straight down. A new building changes the picture at once. An added floor on an
            existing roof does not, because the roof looks just as it did before.</p>
            <p>On the same exam, added floors reached only <span class="hl">0.42</span>.</p>`,
   },
@@ -146,7 +146,7 @@ export const steps = [
     act: 4,
     stage: { scene: "s2", year: 2025, chart: "iso", view: "side" },
     html: `<h2>Seen from the side</h2>
-           <p>From the side, the extra storey is plain to see. LiDAR sees it by measuring height. A camera sees it too,
+           <p>From the side, the added floor is plain to see. LiDAR sees it by measuring height. A camera sees it too,
            if it stands in the street.</p>`,
   },
   {
@@ -171,10 +171,8 @@ export const steps = [
     stage: { scene: "s2", year: 2025, chart: "streetmap" },
     html: `<h2>Found from the street</h2>
            <span class="num">1,950</span>
-           <p>houses seen taller between 2018 and 2025. Checked by hand, about four in five are added floors or taller
-           rebuilds, and nearly all the rest are new buildings.</p>
-           <p class="small">The street finds houses but cannot count them, since many streets have no recent
-           photograph. Counts of added floors still come from LiDAR.</p>`,
+           <p>houses seen taller between 2018 and 2025. In a sample checked by hand, about four in five are added
+           floors or taller rebuilds, and nearly all the rest are new buildings.</p>`,
   },
 
   // ---------- act 5: the city, once seen ----------
@@ -191,15 +189,14 @@ export const steps = [
     stage: { scene: "s1", year: 2025, chart: "map" },
     html: `<h2>Where the city built</h2>
            <span class="num">94%</span>
-           <p>of new construction from 2018 to 2025 sits in one tenth of the city's blocks. Added floors are almost as
+           <p>of the new buildings from 2018 to 2025 stand in one tenth of the city's blocks. Added floors are almost as
            concentrated, at 90%.</p>`,
   },
   {
     act: 5,
     stage: { scene: "s1", year: 2025, chart: "map", rail: true },
     html: `<h2>Close to the train</h2>
-           <p>Nearly all of it lies within a mile of a subway, trolley, or regional rail stop. Beyond that, new
-           construction almost stops.</p>`,
+           <p>Nearly all of it lies within a mile of a subway, trolley, or regional rail stop. Beyond that, almost nothing new is built.</p>`,
   },
   {
     act: 5,

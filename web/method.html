@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Method – How Philadelphia Grows</title>
-  <meta name="description" content="How LiDAR teaches a DINOv3 foundation model to read new construction from yearly aerial photographs of Philadelphia." />
+  <meta name="description" content="How LiDAR teaches a DINOv3 foundation model to find new buildings in yearly aerial photographs of Philadelphia, and how street views find the added floors." />
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="How Philadelphia Grows" />
   <meta property="og:title" content="Method – How Philadelphia Grows" />
-  <meta property="og:description" content="How LiDAR teaches a DINOv3 foundation model to read new construction from yearly aerial photographs of Philadelphia." />
+  <meta property="og:description" content="How LiDAR teaches a DINOv3 foundation model to find new buildings in yearly aerial photographs of Philadelphia, and how street views find the added floors." />
   <meta property="og:url" content="https://musa6950-philly-growth.xuanyuzhou.org/method" />
   <meta property="og:image" content="https://musa6950-philly-growth.xuanyuzhou.org/og.jpg" />
   <meta property="og:image:width" content="1200" />
@@ -24,23 +24,24 @@
 <body>
   <main class="doc">
     <h1>Method</h1>
-    <p class="lede">A few LiDAR flights teach a satellite foundation model to read new construction from the aerial
-      photographs Philadelphia takes every spring. Street-level photographs then find the extra storeys that cannot be
-      seen from above. This page describes the data, the labels, the model, its training, the single test that decides
-      what the model may be used for, and the look from the street.</p>
+    <p class="lede">A few LiDAR flights teach a satellite foundation model to find new buildings in the aerial
+      photographs Philadelphia takes every spring. Street-level photographs then find the added floors that cannot be
+      seen from above. This page describes the data, the labels, the first attempts, the model and its training, the
+      single test that decides what the model is used for, and the look from the street.</p>
     <div class="fig square" data-chart="flow"></div>
     <p class="cap">Research workflow</p>
 
     <h2 id="s1">1. Study area and data</h2>
     <p>The study area is the city's residential and low- to mid-density mixed-use zoning: 152.5 km² and 526,928
       building lots in 46 ZIP codes. The high-density centre, industrial and special-purpose districts are excluded, and
-      250 m cells dominated by high-rises are reported separately, leaving 520,903 lots. A lot is a 2016 parcel linked to
+      250 m blocks dominated by high-rises are reported separately, leaving 520,903 lots. A lot is a 2016 parcel linked to
       the 2025 parcels; parcels that overlap are merged so that a lot split does not look like construction.</p>
     <table>
       <tr><th>Data</th><th>Coverage</th><th>Role</th></tr>
-      <tr><td>LiDAR point clouds (PASDA)</td><td>2018, 2022, 2025 (15–50 points/m²); 2010, 2015 (sparse)</td><td>teacher: height, change labels, anchor</td></tr>
+      <tr><td>LiDAR point clouds (PASDA)</td><td>2018, 2022, 2025 (15–50 points/m²); 2010, 2015 (sparse)</td><td>height, change labels, the measured height the model starts from</td></tr>
       <tr><td>Aerial photographs, City of Philadelphia (≈ 0.23 m, spring)</td><td>2018–2020, 2022–2025; 2010, 2015</td><td>model input</td></tr>
-      <tr><td>Building permits (L&amp;I)</td><td>2014–2025, 257,160 records</td><td>permits vs. buildings</td></tr>
+      <tr><td>Street-level photographs (Google Street View)</td><td>2007–2026, streets as driven</td><td>finding added floors</td></tr>
+      <tr><td>Building permits (L&amp;I)</td><td>2014–2025, 257,160 records</td><td>permits against buildings, hints for the street</td></tr>
       <tr><td>Parcels, footprints, zoning</td><td>citywide</td><td>lots, study area</td></tr>
       <tr><td>ACS 5-year estimates, block groups</td><td>2015–19, 2019–23</td><td>income level and change</td></tr>
       <tr><td>SEPTA GTFS</td><td>current network</td><td>distance to rail stops</td></tr>
@@ -51,105 +52,114 @@
       the lots covered in both.</p>
 
     <h2 id="s2">2. LiDAR as the teacher</h2>
-    <p>For each lot and each pair of flights, a building cell is higher than 2.5 m and not vegetation.</p>
+    <p>A building cell is a 0.5 m cell higher than 2.5 m that is not vegetation. For each lot, the building cells of
+      two flights are compared.</p>
     <ul>
-      <li><b>New construction</b>: building cover rose from under 20% to over 50%.</li>
-      <li><b>Extra storey (pop-up)</b>: at least 30% of the earlier roof rose by 2.5 m or more.</li>
-      <li><b>Demolition</b>: the reverse of new construction.</li>
+      <li><b>New building</b>: building cover rose from under 20% to over 50%.</li>
+      <li><b>Added floor (pop-up)</b>: at least 30% of the earlier roof rose by 2.5 m or more.</li>
+      <li><b>Demolition</b>: the reverse of a new building.</li>
     </ul>
-    <p>The labels are reliable: in the pilot ZIP code they recover 96.6% of completed new-construction permits and 87.1%
-      of upward-addition permits, and in two blind reviews 95.5% and 95.7% of the flagged changes were real.</p>
+    <p>In ZIP code 19146, where the rules were developed, the labels recover 96.6% of completed new-construction
+      permits and 87.1% of upward-addition permits. In two blind reviews, 95.5% and 95.7% of the flagged changes were
+      real.</p>
 
-    <h2 id="s3">3. The model</h2>
+    <h2 id="s3">3. First attempts</h2>
+    <p>A DINOv3 model supervised by LiDAR already maps tree height from satellite images<sup class="ref"><a href="#ref-1">1</a></sup>, so the first attempt
+      asked for building height from a single photograph.</p>
+    <div class="fig" data-chart="backbones"></div>
+    <p class="cap">Building height from a single photograph in ZIP codes and years the models never saw: a U-Net
+      pretrained on ImageNet, DINOv3 frozen with a linear head, and DINOv3 fine-tuned with a DPT decoder.</p>
+    <p>The satellite-pretrained, fine-tuned model was the most accurate and the most stable on the new 2025
+      photographs. Change is harder than height: published detectors reach an F1 of 92–95% on benchmarks where change
+      is dense<sup class="ref"><a href="#ref-5">5</a></sup>, about 81% where it is sparse<sup class="ref"><a href="#ref-6">6</a></sup> and 69% in unseen cities<sup class="ref"><a href="#ref-7">7</a></sup>. Asked for the change in height,
+      the model failed twice. A score for every lot is what worked.</p>
+    <div class="fig" data-chart="attempts"></div>
+    <p class="cap">The attempts in the order they were made, and the sealed test of the last one. The first three asked
+      for heights and failed as noted. From the fourth on, the model gives every lot a score; the bars are average
+      precision on lots held out from training (2018 to 2022) and, in the last row, on the sealed test.</p>
+
+    <h2 id="s4">4. The model</h2>
     <div class="fig square" data-chart="arch"></div>
     <p class="cap">One DINOv3 encoder, shared by both photographs; a decoder that also takes the measured height; one
       answer per building.</p>
     <ul>
-      <li><b>Encoder</b>: DINOv3 ViT-L/16 (about 300 million parameters), pretrained by Meta without labels on 493
-        million satellite images (SAT-493M). It reads each 128 m window (512 × 512 pixels at 0.25 m) as 16 × 16-pixel
-        patches.</li>
+      <li><b>Encoder</b>: DINOv3 ViT-L/16<sup class="ref"><a href="#ref-2">2</a></sup> (about 300 million parameters), pretrained by Meta without labels on
+        493 million satellite images (SAT-493M). It reads each 128 m window (512 × 512 pixels, the photographs
+        resampled to 0.25 m) as 16 × 16-pixel patches.</li>
       <li><b>Inputs</b>: the photograph from a LiDAR year, the LiDAR height of that year (and its vegetation mask), and a
         photograph from a later spring.</li>
-      <li><b>Decoder</b>: a DPT-style decoder fuses the two feature maps, their difference and the measured height.</li>
+      <li><b>Decoder</b>: a DPT-style decoder<sup class="ref"><a href="#ref-3">3</a></sup> fuses the two feature maps, their difference and the measured
+        height.</li>
       <li><b>Per building</b>: features are pooled over each lot (mean and maximum, plus the share of the lot predicted to
         rise by 2.5 m or more). Two heads score whether the lot <i>grew</i> and whether the growth is an
-        <i>extra storey</i>; a lot that grew but not by an extra storey is <span class="hl">new construction</span>.
+        <i>added floor</i>; a lot that grew but not by an added floor is a <span class="hl">new building</span>.
         A height-change map is learned alongside as a helper.</li>
     </ul>
 
-    <h2 id="s4">4. Training</h2>
+    <h2 id="s5">5. Training</h2>
     <div class="fig square" data-chart="data"></div>
     <p class="cap">Six before-and-after pairs of LiDAR flights are the lessons; eight ZIP codes and 2022–2025 are kept for
       the test.</p>
     <dl class="kv">
-      <dt>Examples</dt><dd>10,559 photo–LiDAR pairs from six periods (2010–2022) in 37 ZIP codes</dd>
-      <dt>Validation</dt><dd>1 km blocks held out from training (29,353 lots, 2018→2022)</dd>
+      <dt>Examples</dt><dd>10,559 photo–LiDAR pairs from six periods (2010–2022) in 37 ZIP codes. Of the 38 outside the
+        test, one (19102) holds too little of the study area for a training window.</dd>
+      <dt>Validation</dt><dd>1 km squares held out from training (29,353 lots, 2018→2022)</dd>
       <dt>Schedule</dt><dd>8,000 steps, batch 16; DINOv3 frozen for the first 4,000, then its last 4 blocks fine-tuned</dd>
-      <dt>Optimiser</dt><dd>AdamW, one-cycle learning rate (2 × 10⁻⁵ for DINOv3), focal loss with a prior bias,
+      <dt>Optimiser</dt><dd>AdamW, one-cycle learning rate (2 × 10⁻⁵ for DINOv3), focal loss<sup class="ref"><a href="#ref-4">4</a></sup> with a prior bias,
         oversampled positive examples, weight averaging (EMA 0.999)</dd>
       <dt>Augmentation</dt><dd>flips and colour jitter</dd>
-      <dt>Hardware</dt><dd>one RTX 4080 SUPER (32 GB), about 2.5 hours per run, two runs</dd>
+      <dt>Hardware</dt><dd>a modified RTX 4080 SUPER with 32 GB of VRAM; one run of 8,000 steps takes 2 hours 36
+        minutes; two runs</dd>
     </dl>
-    <div class="fig square" data-chart="training"></div>
-    <p class="cap">Validation average precision for "grew" every 500 steps. Both runs end at 0.80; subtracting the two
+    <div class="fig" data-chart="training"></div>
+    <p class="cap">Validation average precision for "grew", every 500 steps. Both runs end at 0.80; subtracting the two
       photographs on the same lots reaches 0.06.</p>
-
-    <h2 id="s5">5. Why a foundation model</h2>
-    <div class="fig square" data-chart="backbones"></div>
-    <p class="cap">Building height from a single photograph in ZIP codes and years the models never saw: a U-Net
-      pretrained on ImageNet, DINOv3 frozen with a linear head, and DINOv3 fine-tuned with a DPT decoder.</p>
-    <p>The satellite-pretrained, fine-tuned model was the most accurate and the most stable on the new 2025
-      photographs. Two simpler routes to change also failed: two photographs alone, asked for height change, collapsed
-      to "no change"; adding the LiDAR height made the model copy it. Scoring each building directly is what worked. As
-      a baseline for that final task, simply subtracting the two photographs (after matching their brightness) reaches
-      an average precision of 0.06 against the model's 0.80.</p>
-
-    <div class="fig" data-chart="attempts"></div>
-    <p class="cap">The path to the final model. Bars are average precision on lots held out from training, 2018 to 2022,
-      and on the sealed test.</p>
 
     <h2 id="s6">6. One sealed test</h2>
     <p>Eight ZIP codes (15% of the study area) were drawn at random and sealed, and the period 2022→2025 never entered
       training. Everything applied to the test was fixed on validation first: each head's threshold maximises F1, and
-      counts are calibrated by validation precision ÷ recall (0.90 for new construction). The test was run once.</p>
+      counts are calibrated by validation precision ÷ recall (0.90 for new buildings). The bar was set in advance too:
+      a correlation of at least 0.8 between the model's and LiDAR's counts per 250 m block. The test was run once.</p>
     <div class="fig square" data-chart="scatter"></div>
-    <p class="cap">New buildings per 250 m block, model vs. LiDAR, in the sealed ZIP codes.</p>
+    <p class="cap">New buildings per 250 m block in the sealed ZIP codes, model against LiDAR. The size of a circle is
+      the number of blocks with that pair of counts; 544 blocks have none in either.</p>
     <table>
       <tr><th></th><th>r, 100 m</th><th>r, 250 m</th><th>r, block group</th><th>count, model vs. LiDAR</th></tr>
-      <tr><td>New construction</td><td>0.90</td><td class="num">0.96</td><td>0.97</td><td>85 vs. 97</td></tr>
-      <tr><td>Extra storeys</td><td>0.31</td><td>0.42</td><td>0.43</td><td>212 vs. 46</td></tr>
+      <tr><td>New buildings</td><td>0.90</td><td class="num">0.96</td><td>0.97</td><td>85 vs. 97</td></tr>
+      <tr><td>Added floors</td><td>0.31</td><td>0.42</td><td>0.43</td><td>212 vs. 46</td></tr>
     </table>
-    <p>New construction passes the bar set in advance (r ≥ 0.8 at 250 m), so the model may fill the years between
-      flights. Single buildings are less reliable (about 70% precision and recall), so results are reported for blocks
-      and neighbourhoods.</p>
+    <p>New buildings pass the bar (r = 0.96, 95% interval 0.67–0.98), so the model fills the years between flights.
+      Single buildings are less reliable (about 70% precision and recall), so results are reported for blocks and
+      neighbourhoods.</p>
 
     <h2 id="s7">7. What it cannot see</h2>
-    <div class="fig square side" data-chart="iso"></div>
-    <p class="cap">An extra storey keeps the same roof from above; only its height changes.</p>
-    <p>Extra storeys fail the bar (r = 0.42). An added storey is nearly invisible in a photograph taken straight down,
-      and extra storeys were five times rarer in the test period than in validation, so false alarms outnumber them.
-      Extra storeys are therefore counted from LiDAR alone. Shadows could in principle reveal height, but in rowhouse
-      blocks they fall on neighbouring roofs, and flight dates and times differ between years.</p>
+    <figure class="aside">
+      <div class="fig side" data-chart="iso"></div>
+      <figcaption class="cap">An added floor keeps the same roof from above; only its height changes.</figcaption>
+    </figure>
+    <p>Added floors fail the bar (r = 0.42). An added floor is nearly invisible in a photograph taken straight down,
+      and added floors were five times rarer in the test period than in validation, so false alarms outnumber them.
+      Added floors are therefore counted from LiDAR alone.</p>
 
     <h2 id="s8">8. From the street</h2>
     <div class="fig triple">
       <img data-src="/data/street/a_2016.webp" alt="A row of two-storey houses seen from the street in 2016" />
       <img data-src="/data/street/a_2018.webp" alt="The same row in 2018, with a scaffold on one house" />
-      <img data-src="/data/street/a_2019.webp" alt="The same row in 2019: the house has a third storey" />
+      <img data-src="/data/street/a_2019.webp" alt="The same row in 2019: the house has a third floor" />
     </div>
-    <p class="cap">One row of houses in 2016, 2018 and 2019 (Google Street View, redrawn in two tones; the added storey
+    <p class="cap">One row of houses in 2016, 2018 and 2019 (Google Street View, redrawn in two tones; the added floor
       is set in orange). The model says between which two photographs a house grew.</p>
-    <p>An extra storey shows from the side, so the project looks at street-level photographs. Houses to check come from
-      three hints: the aerial model's own extra-storey score, building permits that describe an upward addition, and
+    <p>An added floor shows from the side, so the project looks at street-level photographs. Houses to check come from
+      three hints: the aerial model's own added-floor score, building permits that describe an upward addition, and
       zoning permits for an addition or new development. They are checked in the 571 blocks of 250 m where the aerial
       model marks at least three buildings as grown, which gives 15,401 houses, and then in the rest of the study area,
       8,418 more.</p>
-    <p>For each house, the capture point nearest its lot supplies one photograph per period (before the 2018 flight,
-      2018–2019, 2020–2023, 2024 on), cut from the panorama towards the lot. 16,738 houses (70%) have photographs on both
-      sides of 2018–2025. A vision-language model (Gemini 3.8 Flash; outside the 571 blocks the cheaper Gemini Decision 1) reads the two to five dated photographs of a house together
-      and answers whether it became taller, was newly built on an empty lot, did not change, or cannot be judged, and
-      between which two photographs it changed. The prompt, the choice of photographs and the list of hints were settled
-      in one ZIP code and then frozen.</p>
+    <p>For each house, the Google Street View capture point nearest its lot supplies one photograph per period (before
+      the 2018 flight, 2018–2019, 2020–2023, 2024 on), cut from the panorama towards the lot. 16,738 houses (70%) have
+      photographs on both sides of 2018–2025. A vision-language model (Gemini 3.8 Flash; outside the 571 blocks the
+      cheaper Gemini Decision 1) reads all the dated photographs of a house together and answers whether it became
+      taller, was newly built on an empty lot, did not change, or cannot be judged, and between which two photographs
+      it changed.</p>
     <div class="fig square" data-chart="streetmap"></div>
     <p class="cap">The 1,950 houses seen taller from the street between 2018 and 2025, coloured by the photographs in
       which the change first shows.</p>
@@ -157,19 +167,16 @@
       <tr><th></th><th>Result</th></tr>
       <tr><td>Houses marked as taller, 2018–2025</td><td class="num">1,950</td></tr>
       <tr><td>Read by Gemini 3.8 Flash, by Gemini Decision 1</td><td>1,538 and 412</td></tr>
-      <tr><td>Checked by hand, 58 of the first 1,437</td><td>47 extra storeys or taller rebuilds (81%), 10 new buildings, 1 wrong</td></tr>
+      <tr><td>58 houses marked by Gemini 3.8 Flash, checked by hand</td><td>47 added floors or taller rebuilds (81%), 10 new buildings, 1 wrong</td></tr>
+      <tr><td>Changed or not, on 80 houses judged by hand</td><td>Gemini 3.8 Flash right on 95%, Gemini Decision 1 on 87%</td></tr>
       <tr><td>Counted per 250 m block against LiDAR, sealed ZIP codes, run once</td><td>r = 0.54 (95% interval 0.39–0.66)</td></tr>
     </table>
-    <p>The street finds extra storeys but does not count them. The count per block misses the bar of 0.8, because three
-      in ten houses stand on streets with no recent photograph and an addition set back from the house front stays
-      hidden. Counts of extra storeys therefore remain those of LiDAR. The only street views shown on this site are
-      the three above.</p>
 
     <h2 id="s9">9. From the model to the city</h2>
     <ul>
       <li><b>Years between flights</b>: the model scores the 2019 and 2020 photographs against the 2018 LiDAR, and 2023
-        and 2024 against 2022, on one fixed set of 261,056 lots so that a change in coverage cannot pass for a trend.</li>
-      <li><b>Rates</b>: new buildings per 1,000 lots per year, mapped in 250 m cells and block groups.</li>
+        and 2024 against 2022, on one fixed set of 261,056 lots covered by all three flights.</li>
+      <li><b>Rates</b>: new buildings per 1,000 lots per year, mapped in 250 m blocks and block groups.</li>
       <li><b>Transit and income</b>: distance to the nearest rail-type stop; negative binomial models per block group with
         rail distance, income level and change, population change and rowhouse share.</li>
       <li><b>Permits</b>: matched to lots by property account, to measure how many permits became buildings and how many
@@ -179,12 +186,23 @@
     <h2 id="s10">10. Limitations</h2>
     <ul>
       <li>Results hold for blocks and neighbourhoods, not for single buildings.</li>
-      <li>The look from the street reaches only houses photographed both around 2018 and after 2024, and it finds extra
-        storeys without counting them.</li>
-      <li>Extra-storey trends rest on two LiDAR periods only.</li>
+      <li>The look from the street reaches only houses photographed both before 2020 and from 2024 on, and it finds
+        added floors without counting them.</li>
+      <li>Added-floor trends rest on two LiDAR periods only.</li>
       <li>The 2018 flight covers 64% of lots, mostly in the centre.</li>
       <li>The relationships with transit and income are associations, not causes.</li>
     </ul>
+
+    <h2 id="references">References</h2>
+    <ol class="refs">
+      <li id="ref-1">Meta AI and World Resources Institute (2026). <i>Canopy Height Maps v2.</i></li>
+      <li id="ref-2">Siméoni, O., et al. (2025). <i>DINOv3.</i> <a href="https://arxiv.org/abs/2508.10104" target="_blank" rel="noopener">arXiv:2508.10104</a>.</li>
+      <li id="ref-3">Ranftl, R., Bochkovskiy, A., Koltun, V. (2021). <i>Vision Transformers for Dense Prediction.</i> ICCV.</li>
+      <li id="ref-4">Lin, T.-Y., et al. (2017). <i>Focal Loss for Dense Object Detection.</i> ICCV.</li>
+      <li id="ref-5">Zhu, D., et al. (2024). <i>ChangeViT: Unleashing plain vision transformers for change detection.</i> <a href="https://arxiv.org/abs/2406.12847" target="_blank" rel="noopener">arXiv:2406.12847</a>.</li>
+      <li id="ref-6">Wang, Y., et al. (2026). <i>Multi-modal building change detection for large-scale small changes.</i> <a href="https://arxiv.org/abs/2603.19077" target="_blank" rel="noopener">arXiv:2603.19077</a>.</li>
+      <li id="ref-7">Pang, C., et al. (2023). <i>Detecting building changes with off-nadir aerial images.</i> <a href="https://arxiv.org/abs/2301.10922" target="_blank" rel="noopener">arXiv:2301.10922</a>.</li>
+    </ol>
   </main>
   <script type="module" src="/src/method.js"></script>
 </body>

@@ -169,7 +169,7 @@ export function card(level, id) {
       <p class="ch">Measured by LiDAR</p>
       <table class="mini"><tr><th></th><th>2018–22</th><th>2022–25</th></tr>
       <tr><td>New buildings</td><td>${Math.round(r.n18)}</td><td>${Math.round(r.n22)}</td></tr>
-      <tr><td>Added storeys</td><td>${Math.round(r.p18)}</td><td>${Math.round(r.p22)}</td></tr></table>
+      <tr><td>Added floors</td><td>${Math.round(r.p18)}</td><td>${Math.round(r.p22)}</td></tr></table>
       <p class="cn">Nearest rail stop ${r.rail_m < 1000 ? `${Math.round(r.rail_m / 50) * 50} m` : `${(r.rail_m / 1000).toFixed(1)} km`}. Income in 2023 dollars.</p>`;
   }
   if (level === "tracts") {
@@ -179,7 +179,7 @@ export function card(level, id) {
     return `<h4>Census Tract ${esc(id)}</h4><p class="cm">${place(r)}, 2010 boundaries</p>
       <table class="mini"><tr><th></th><th>2018–22</th><th>2022–25</th></tr>
       <tr><td>New buildings</td><td>${Math.round(r.n18)}</td><td>${Math.round(r.n22)}</td></tr>
-      <tr><td>Added storeys</td><td>${Math.round(r.p18)}</td><td>${Math.round(r.p22)}</td></tr></table>
+      <tr><td>Added floors</td><td>${Math.round(r.p18)}</td><td>${Math.round(r.p22)}</td></tr></table>
       <p class="cn">New buildings per 1,000 lots per year: ${rates}.</p>
       <p class="ch">Census (ACS)</p>
       <table class="mini"><tr><th></th><th>2015–19</th><th>2019–23</th></tr>

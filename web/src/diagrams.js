@@ -190,7 +190,7 @@ export function flow(div) {
     g.append("path").attr("d", `M${x + 116} ${y + 34}L${x + 180} ${y + 14}V${y + 78}L${x + 116} ${y + 58}Z`).attr("fill", "#f6dcd0").attr("stroke", SIGNAL).attr("stroke-width", 2);
   };
   const test = (g, x, y) => {
-    [["new buildings", "0.96", true], ["added storeys", "0.42", false]].forEach(([t, r, ok], k) => {
+    [["new buildings", "0.96", true], ["added floors", "0.42", false]].forEach(([t, r, ok], k) => {
       const yy = y + 12 + k * 38;
       g.append("rect").attr("x", x + 12).attr("y", yy).attr("width", CW - 24).attr("height", 30).attr("rx", 15)
         .attr("fill", ok ? INK : "#fffdf9").attr("stroke", ok ? INK : SIGNAL).attr("stroke-width", 2);
@@ -208,10 +208,10 @@ export function flow(div) {
   const aerial = card(0, 1, "Aerial photographs", "every spring", "/data/scenes/s2/photo_2022.webp", false, "#s1");
   const street = card(0, 2, "Street views, permits", "2007 to 2026", "/data/street/a_2016.webp", false, "#s8");
   const labels = card(1, 0, "Change labels", "per lot, from LiDAR", "/data/scenes/s3/iso_2025_new.webp", false, "#s2");
-  const mod = card(1, 1, "Change model", "DINOv3, two photographs", model, true, "#s3");
+  const mod = card(1, 1, "Change model", "DINOv3, two photos", model, true, "#s4");
   const exam = card(2, 1, "Sealed test", "r per block, run once", test, false, "#s6");
-  const city = card(3, 0, "New buildings by year", "when, where, rail, income", bars, false, "#s9");
-  const found = card(3, 2, "1,950 houses found", "Gemini Flash and Decision", "/data/street/a_2019.webp", true, "#s8");
+  const city = card(3, 0, "New buildings by year", "when, where, income", bars, false, "#s9");
+  const found = card(3, 2, "1,950 houses found", "read by Gemini", "/data/street/a_2019.webp", true, "#s8");
 
   arrow(`M${lidar.r + 4} ${lidar.cy}H${labels.l - 5}`);
   arrow(`M${labels.cx} ${labels.b + 4}V${mod.t - 5}`);
@@ -228,11 +228,11 @@ export function flow(div) {
 export function attempts(div) {
   const svg = d3.select(div).append("svg").attr("viewBox", "0 0 1000 610");
   const rows = [
-    { t: "One photograph, height", note: "finds 44% of added storeys" },
+    { t: "One photograph, height", note: "finds 44% of added floors" },
     { t: "Two photographs, height change", note: "answers no change everywhere" },
     { t: "Two photographs and measured height", note: "copies the measured height" },
     { t: "A score for every lot, 7 ZIP codes", g: 0.78, p: 0.31 },
-    { t: "Whole city, first recipe", g: 0.72, p: 0.12, note: "4 of 6 runs died" },
+    { t: "Whole city, first recipe", g: 0.72, p: 0.12 },
     { t: "Whole city, final recipe", g: 0.80, p: 0.43, hot: true },
     { t: "Sealed test, unseen places and years", g: 0.68, p: 0.15, test: true },
   ];
@@ -240,7 +240,7 @@ export function attempts(div) {
   svg.append("rect").attr("x", X0 - 8).attr("y", 26).attr("width", 18).attr("height", 18).attr("fill", INK);
   svg.append("text").attr("x", X0 + 18).attr("y", 41).attr("class", "flow-s").text("any growth");
   svg.append("rect").attr("x", X0 + 130).attr("y", 26).attr("width", 18).attr("height", 18).attr("fill", SIGNAL);
-  svg.append("text").attr("x", X0 + 156).attr("y", 41).attr("class", "flow-s").text("added storeys");
+  svg.append("text").attr("x", X0 + 156).attr("y", 41).attr("class", "flow-s").text("added floors");
   rows.forEach((r, k) => {
     const y = Y0 + k * H + (r.test ? 18 : 0);
     if (r.test) svg.append("line").attr("x1", 20).attr("x2", 980).attr("y1", y - 14).attr("y2", y - 14).attr("stroke", RULE).attr("stroke-width", 2);

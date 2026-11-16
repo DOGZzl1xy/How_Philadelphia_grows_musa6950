@@ -156,7 +156,7 @@ export async function cityMap(div) {
 // of growth peak at opposite ends: the peak of each panel is orange.
 export async function income(div) {
   const d = await get("income.json"), svg = base(div);
-  const panels = [["level", "new buildings", 0], ["popup_level", "added storeys", 4]];
+  const panels = [["level", "new buildings", 0], ["popup_level", "added floors", 4]];
   const y = d3.scaleLinear([0, 2.6], [820, 260]);
   panels.forEach(([k, title, hot], p) => {
     const x0 = 70 + p * 470, x = d3.scaleBand(d3.range(5), [x0, x0 + 400]).padding(0.25);

@@ -1,6 +1,6 @@
 import "./style.css";
 import { steps } from "./steps.js";
-import { fly, initZoom, showBlock, showHero } from "./zoom.js";
+import { fly, initZoom, showBlock, showHero, stopZoom } from "./zoom.js";
 import { drawChart, drawGrid, drawStack } from "./model.js";
 import { v } from "./data.js";
 import { heightImage, heightURL, loaded } from "./height.js";
@@ -111,7 +111,18 @@ const PREFETCH = {
   wall: ["street/wall_before.webp", "street/wall_after.webp"],
 };
 let busyUntil = 0;
-async function go(i) {
+// to or from the cover without the flight: the frame takes its new place at once
+function jump(change) {
+  stopZoom();
+  document.body.classList.add("jump");
+  change();
+  void el("frame").offsetWidth;           // the new layout applies before transitions are allowed again
+  requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove("jump")));
+}
+
+// `stepped`: one step by wheel, key or swipe. Only then does the flight between the cover and the block play;
+// a progress dot or a number in the address bar changes the screen directly.
+async function go(i, stepped = false) {
   if (i < 0 || i >= steps.length || i === current) return;
   const was = steps[current], s = steps[i], st = s.stage;
   const first = current === -1;
@@ -137,9 +148,11 @@ async function go(i) {
   let textDelay = 0;
   const LAYOUT = 1100;   // ms, the frame's size/position transition in style.css
   if (s.hero) {
-    zoomCanvas.style.opacity = 1;
-    if (first) { document.body.classList.add("hero"); showHero(); }
-    else {
+    if (first || !stepped) {
+      jump(() => { document.body.classList.add("hero"); zoomCanvas.style.opacity = 1; });
+      showHero();
+    } else {
+      zoomCanvas.style.opacity = 1;
       // back to the cover, all at once: the frame opens to full screen while the view zooms out; title at the end
       busyUntil = performance.now() + 2600;
       text.innerHTML = "";
@@ -148,13 +161,15 @@ async function go(i) {
       textDelay = 1700;
       fly(false, 2400);
     }
-  } else if (was?.hero) {
+  } else if (was?.hero && stepped) {
     // leaving the cover, all at once: the frame settles into the square while the view flies down to the block;
     // the text arrives as the frame lands, and the 2025 block on the canvas fades into this step's photo
     busyUntil = performance.now() + 2800;
     textDelay = LAYOUT - 200;
     document.body.classList.remove("hero");
     fly(true, 2600).then(() => { zoomCanvas.style.opacity = 0; });
+  } else if (first || was?.hero) {
+    jump(() => { document.body.classList.remove("hero"); zoomCanvas.style.opacity = 0; });
   } else {
     document.body.classList.remove("hero");
     zoomCanvas.style.opacity = 0;
@@ -180,7 +195,7 @@ function step(dir) {
   if (lock || performance.now() < busyUntil) return;
   lock = true;
   setTimeout(() => (lock = false), 900);
-  go(current + dir);
+  go(current + dir, true);
 }
 addEventListener("wheel", (e) => { if (Math.abs(e.deltaY) > 8) step(e.deltaY > 0 ? 1 : -1); }, { passive: true });
 addEventListener("keydown", (e) => {

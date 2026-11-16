@@ -62,23 +62,24 @@ export async function drawChart(div, name, opts = {}) {
   if (name === "wall") return wall(div);
 }
 
-function frame(div, m = { t: 70, r: 40, b: 70, l: 70 }) {
-  const W = 1000, H = 1000;
+function frame(div, m = { t: 70, r: 40, b: 70, l: 70 }, H = 1000) {
+  const W = 1000;
   const svg = d3.select(div).append("svg").attr("viewBox", `0 0 ${W} ${H}`);
   return { svg, W, H, m, iw: W - m.l - m.r, ih: H - m.t - m.b, g: svg.append("g").attr("transform", `translate(${m.l},${m.t})`) };
 }
 
 function training(div, d) {
-  const { svg, g, iw, ih, m } = frame(div);
+  const { svg, g, iw, ih, m, H } = frame(div, { t: 40, r: 40, b: 110, l: 70 }, 900);
   const x = d3.scaleLinear([0, 8000], [0, iw]), y = d3.scaleLinear([0, 1], [ih, 0]);
-  g.append("rect").attr("width", x(d.frozen_until)).attr("height", ih).attr("fill", "#e7e2d8");
+  // two phases of the schedule, parted by a line at the step where DINOv3 is unfrozen
+  g.append("line").attr("x1", x(d.frozen_until)).attr("x2", x(d.frozen_until)).attr("y1", 0).attr("y2", ih)
+    .attr("stroke", INK2).attr("stroke-width", 2).attr("stroke-dasharray", "2 8").attr("stroke-linecap", "round");
   g.append("text").attr("x", 14).attr("y", 30).attr("class", "c-note").text("DINOv3 frozen, decoder learns");
   g.append("text").attr("x", x(d.frozen_until) + 14).attr("y", 30).attr("class", "c-note").text("last 4 DINOv3 blocks fine-tuned");
   g.append("g").attr("transform", `translate(0,${ih})`).attr("class", "c-axis")
     .call(d3.axisBottom(x).ticks(8).tickFormat((v) => (v ? `${v / 1000}k` : "0")));
   g.append("g").attr("class", "c-axis").call(d3.axisLeft(y).ticks(5));
-  svg.append("text").attr("x", m.l).attr("y", 40).attr("class", "c-title").text("Validation average precision, every 500 steps");
-  svg.append("text").attr("x", m.l + iw).attr("y", 1000 - 18).attr("text-anchor", "end").attr("class", "c-note").text("training step");
+  svg.append("text").attr("x", m.l + iw / 2).attr("y", H - 22).attr("text-anchor", "middle").attr("class", "c-note").text("training step");
   const line = d3.line().x((p) => x(p.step)).y((p) => y(p.ap_grew)).curve(d3.curveMonotoneX);
   // the lines are revealed by a growing clip rectangle, so the dashed line stays dashed while it draws
   const id = `clip-${Math.random().toString(36).slice(2)}`;
@@ -108,14 +109,15 @@ function training(div, d) {
 }
 
 function backbones(div, d) {
-  const { svg, g, iw, ih, m } = frame(div, { t: 150, r: 60, b: 120, l: 330 });
+  const { svg, g, iw, ih, m } = frame(div, { t: 140, r: 60, b: 80, l: 330 }, 560);
   const x = d3.scaleLinear([0, 3.2], [0, iw]), y = d3.scaleBand(d.models.map((r) => r.model), [0, ih]).padding(0.45);
-  svg.append("text").attr("x", 60).attr("y", 60).attr("class", "c-title").text("Building height error from one photo (m), lower is better");
+  svg.append("text").attr("x", 60).attr("y", 60).attr("class", "c-title").text("Mean absolute error of building height (m), lower is better");
   // legend: each dot is one test (an unseen ZIP code in an unseen year); hollow 2022, filled 2025; the bar spans them
   svg.append("circle").attr("cx", 72).attr("cy", 92).attr("r", 10).attr("fill", "#fff").attr("stroke", INK2).attr("stroke-width", 4);
   svg.append("text").attr("x", 92).attr("y", 100).attr("class", "c-note").text("2022");
   svg.append("circle").attr("cx", 172).attr("cy", 92).attr("r", 10).attr("fill", INK2).attr("stroke", INK2).attr("stroke-width", 4);
-  svg.append("text").attr("x", 192).attr("y", 100).attr("class", "c-note").text("2025   one dot per unseen ZIP code and year");
+  svg.append("text").attr("x", 192).attr("y", 100).attr("class", "c-note").text("2025");
+  svg.append("text").attr("x", 940).attr("y", 100).attr("text-anchor", "end").attr("class", "c-note").text("one dot per unseen ZIP code and year");
   g.append("g").attr("transform", `translate(0,${ih})`).attr("class", "c-axis").call(d3.axisBottom(x).ticks(6));
   for (const r of d.models) {
     const best = r.model.includes("fine-tuned"), yc = y(r.model) + y.bandwidth() / 2, col = best ? SIGNAL : INK2;

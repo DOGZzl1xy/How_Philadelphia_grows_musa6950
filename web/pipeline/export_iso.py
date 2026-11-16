@@ -10,7 +10,7 @@ can be tinted in the site's orange. Only the assets already exported for the sce
   iso_{year}.webp        the block in that LiDAR year (2018, 2022, 2025)
   iso_{year}_new.webp    the same with the new buildings tinted
   iso_{year}_clay.webp   height only, without the photograph (what LiDAR sees)
-  s3/lots.webp           lot outlines over the faded photograph (Data & Code)
+  s3/lots.webp           lot outlines over a part of the photograph in grey (Data & Code)
 """
 import json
 from pathlib import Path
@@ -66,6 +66,21 @@ def render(photo, h, tint):
     return sq.resize((OUT_PX, OUT_PX), Image.LANCZOS)
 
 
+def lots_card(d, scene):
+    """The picture of the lots card on Data & Code: a part of the block, large enough for the outlines to stay
+    visible on a small card, the photograph in dark grey and the lot outlines in the paper colour."""
+    X0, Y0, W, H, K = 430, 560, 560, 350, 2.4          # the part shown (scene pixels) and its enlargement
+    im = Image.open(d / "photo_2025.webp").convert("L").convert("RGB")
+    im = Image.blend(im, Image.new("RGB", im.size, tuple(INK.astype(int))), 0.30)
+    im = im.crop((X0, Y0, X0 + W, Y0 + H)).resize((round(W * K), round(H * K)), Image.LANCZOS)
+    dr = ImageDraw.Draw(im)
+    for u in scene["units"]:
+        for ring in u["rings"]:
+            pts = [((x - X0) * K, (y - Y0) * K) for x, y in ring]
+            dr.line(pts + [pts[0]], fill=tuple(PAPER.astype(int)), width=6, joint="curve")
+    im.save(d / "lots.webp", quality=86, method=6)
+
+
 def main():
     for sid in ("s1", "s2", "s3"):
         d = SC / sid
@@ -90,15 +105,8 @@ def main():
             if year != 2018:
                 # only where there is a building now: the tint follows the measured height, not the lot outline
                 render(photo, h, new & (h > 2.0)).save(d / f"iso_{year}_new.webp", quality=84, method=6)
-        if sid == "s3":      # the picture of the lots card on Data & Code: lot outlines over the faded photograph
-            im = Image.open(d / "photo_2025.webp").convert("L").convert("RGB").resize((2048, 2048))
-            im = Image.blend(im, Image.new("RGB", im.size, tuple(PAPER.astype(int))), 0.62)
-            dr = ImageDraw.Draw(im)
-            for u in scene["units"]:
-                for ring in u["rings"]:
-                    pts = [(x * 2, y * 2) for x, y in ring]
-                    dr.line(pts + [pts[0]], fill=tuple(INK.astype(int)), width=3)
-            im.resize((1024, 1024), Image.LANCZOS).save(d / "lots.webp", quality=84, method=6)
+        if sid == "s3":
+            lots_card(d, scene)
         print(sid, "done")
 
 

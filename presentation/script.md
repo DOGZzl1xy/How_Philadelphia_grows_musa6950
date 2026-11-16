@@ -3,7 +3,8 @@
 MUSA 6950 final presentation, Xuanyu Zhou. The talk is given on the website itself:
 https://musa6950-philly-growth.xuanyuzhou.org
 
-- One key press (→, space or Page Down) moves one screen. `#n` in the address opens screen n.
+- One key press (→, space or Page Down) moves one screen. `#n` in the address or a dot on the right opens screen n
+  directly, without the flight from the cover.
 - Full version: about 10 minutes for the story, then 1.5 minutes on Explore. About 1,350 spoken words.
 - Short version, about 6 minutes: say only the first sentence on the screens marked *(short: one line)*.
 - Times are cumulative and assume a calm pace of about 130 words a minute.
@@ -35,17 +36,17 @@ https://musa6950-philly-growth.xuanyuzhou.org
 | 12 | Taught by LiDAR | *(short: one line)* Nobody labelled a building by hand. Every pair of LiDAR flights shows which buildings grew in between, and six such pairs became ten and a half thousand lessons. Eight ZIP codes and the years 2022 to 2025 were locked away for the final test. | 4:05 |
 | 13 | How well it sees new buildings | That test was run once. Counted block by block, the model's new buildings match LiDAR with a correlation of 0.96. It finds twelve percent fewer than LiDAR, and it is reliable for blocks, not for single houses. That is good enough to date new construction in the years with no flight. | 4:35 |
 | 14 | A year with no flight | Here is what that buys. These 28 buildings are marked as new by spring 2020, two years before the next LiDAR flight. | 4:50 |
-| 15 | The floor it cannot see | But the same test has a second result. A new building changes the photograph at once. An extra storey on an existing roof does not: from above, the roof looks just as it did before. For added floors the correlation was only 0.42. | 5:15 |
-| 16 | Seen from the side | From the side, the extra storey is plain to see. LiDAR sees it because it measures height. A camera sees it too, if it stands in the street. This was the instructor's suggestion, and it became the second half of the project. | 5:35 |
+| 15 | The floor it cannot see | But the same test has a second result. A new building changes the photograph at once. An added floor on an existing roof does not: from above, the roof looks just as it did before. For added floors the correlation was only 0.42. | 5:15 |
+| 16 | Seen from the side | From the side, the added floor is plain to see. LiDAR sees it because it measures height. A camera sees it too, if it stands in the street. This was the instructor's suggestion, and it became the second half of the project. | 5:35 |
 | 17 | Down to the street | This is one row of houses in 2016, 2018 and 2019. A scaffold goes up, and one house gains a third floor. For every house that might have grown, a vision-language model, Gemini, compares street photographs like these and says whether the house is taller, and between which two photographs it changed. | 6:05 |
 | 18 | House after house | *(short: one line)* Here are twenty-five of the houses found this way, each turning from before to after. Some gained one floor on the old walls. Others were torn down and came back taller. | 6:20 |
-| 19 | Found from the street | In all, 1,950 houses are seen taller between 2018 and 2025. I checked a sample by hand: about four in five are added floors or taller rebuilds, and nearly all the rest are new buildings. One caution. The street finds houses, but it cannot count them, because many streets have no recent photograph. The counts of added floors still come from LiDAR. | 6:55 |
-| 20 | When the city built | Now the city, once it can be seen. First, when. Construction peaked in 2020 and ran at about half that pace from 2023 to 2025. New buildings slowed by 26 percent and added floors by 33 percent. Only the years read from photographs show this peak. | 7:25 |
-| 21 | Where the city built | Second, where. Each column is one block, as tall as its number of new buildings. Ninety-four percent of new construction sits in one tenth of the city's blocks. | 7:45 |
-| 22 | Close to the train | *(short: one line)* Nearly all of it lies within a mile of a rail stop. Beyond that, new construction almost stops. | 7:55 |
-| 23 | Two kinds of neighbourhood | Third, who. The two kinds of growth go to opposite ends of the city. New buildings rise most in the poorest neighbourhoods, where the vacant lots are. Added floors rise with income, and the richest fifth adds them most often. These are associations, not causes. | 8:25 |
-| 24 | Permits and buildings | *(short: one line)* Last, the permits. Of every hundred new-construction permits, 61 became a visible building by 2025, about half within a year, and fewer than one new building in ten had no matching permit. | 8:45 |
-| 25 | Three ways to watch a city grow | So there are three ways to watch a city grow. A laser measures its height every few years. A camera above it, taught by that laser, dates its new buildings every spring. A camera in the street finds its added floors, wherever a car has passed. From above, we can see new buildings. New floors have to be found from the street. | 9:20 |
+| 19 | Found from the street | In all, 1,950 houses are seen taller between 2018 and 2025. I checked a sample by hand: about four in five are added floors or taller rebuilds, and nearly all the rest are new buildings. | 6:45 |
+| 20 | When the city built | Now the city, once it can be seen. First, when. Construction peaked in 2020 and ran at about half that pace from 2023 to 2025. New buildings slowed by 26 percent and added floors by 33 percent. Only the years read from photographs show this peak. | 7:15 |
+| 21 | Where the city built | Second, where. Each column is one block, as tall as its number of new buildings. Ninety-four percent of the new buildings stand in one tenth of the city's blocks. | 7:35 |
+| 22 | Close to the train | *(short: one line)* Nearly all of it lies within a mile of a rail stop. Beyond that, almost nothing new is built. | 7:45 |
+| 23 | Two kinds of neighbourhood | Third, who. The two kinds of growth go to opposite ends of the city. New buildings rise most in the poorest neighbourhoods, where the vacant lots are. Added floors rise with income, and the richest fifth adds them most often. These are associations, not causes. | 8:15 |
+| 24 | Permits and buildings | *(short: one line)* Last, the permits. Of every hundred new-construction permits, 61 became a visible building by 2025, about half within a year, and fewer than one new building in ten had no matching permit. | 8:35 |
+| 25 | Three ways to watch a city grow | So there are three ways to watch a city grow. A laser measures its height every few years. A camera above it, taught by that laser, dates its new buildings every spring. A camera in the street finds its added floors, wherever a car has passed. From above, we can see new buildings. New floors have to be found from the street. | 9:10 |
 
 ## Explore (about 1.5 minutes)
 
@@ -75,7 +76,7 @@ are about 70%, which is why every result is reported for blocks and neighbourhoo
 **Why can't the model see added floors?** Two reasons. From directly above the roof looks the same. And they are rare:
 0.07% of lots in the test period against 0.40% in validation, so false alarms outnumber them even at 52% recall.
 
-**Could shadows reveal the extra storey?** In principle. In rowhouse blocks the shadow falls on the neighbour's roof or
+**Could shadows reveal the added floor?** In principle. In rowhouse blocks the shadow falls on the neighbour's roof or
 into a yard that is already dark, and the flights differ in date and hour. It would need the sun position of each
 flight as an input.
 
@@ -100,7 +101,7 @@ periods. The relations with rail and income are associations.
 **Is construction without a permit common?** No. Between 3.6% and 9.1% of visible changes have no related permit, and
 counting permits on the neighbouring lot halves that.
 
-**How many homes is this?** Roughly 10,400 homes from new construction in 2018 to 2022 and 6,800 in 2022 to 2025.
+**How many homes is this?** Roughly 10,400 homes in new buildings in 2018 to 2022 and 6,800 in 2022 to 2025.
 
 **How long does training take?** One run of 8,000 steps takes 2 hours 36 minutes on an RTX 4080 SUPER with 32 GB.
 

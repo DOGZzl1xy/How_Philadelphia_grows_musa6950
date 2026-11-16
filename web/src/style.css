@@ -24,7 +24,11 @@ body { font-family: var(--text); font-size: calc(18 * var(--u)); line-height: 1.
 #outlines polygon { fill: transparent; stroke: transparent; stroke-width: 3; transition: fill .8s var(--ease), stroke .8s var(--ease); }
 #outlines polygon.on { stroke: var(--signal); fill: rgba(255, 90, 31, .28); }
 #outlines polygon.ghost { stroke: rgba(255, 255, 255, .55); stroke-width: 1.5; }
-#zoom { opacity: 1; transition: opacity .8s var(--ease); }
+/* the opening view: a canvas of the window's size, centred in the frame and clipped by it (zoom.js) */
+#frame > #zoom { inset: auto; top: 50%; left: 50%; width: 100vw; height: 100vh; transform: translate(-50%, -50%);
+  opacity: 1; transition: opacity .8s var(--ease); }
+/* a jump to or from the cover (progress dots, address bar): no flight, the frame takes its place at once */
+body.jump #frame, body.jump #frame > #zoom { transition: none; }
 
 /* model act: patch grid, three-input stack, charts (each fades in over the photo) */
 #grid, #stack, #chart { opacity: 0; transition: opacity .9s var(--ease); pointer-events: none; }
