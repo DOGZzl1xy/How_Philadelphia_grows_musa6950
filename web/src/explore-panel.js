@@ -149,13 +149,13 @@ export function card(level, id) {
     const cellT = tables.cells[id];
     if (!cellT) return `<h4>250 m block</h4><p class="cm">No change measured or estimated in this block.</p>`;
     const r = cellT;
-    const years = YEAR_ORDER.map((y) => [y, YEARS[y]]).map(([y, Y]) => [Y.label, r[`y${y}`]]);
+    // per year: 2021–22 covers two years, so its bar shows half of its count
+    const years = YEAR_ORDER.map((y) => [y, YEARS[y]]).map(([y, Y]) => [Y.label, (r[`y${y}`] || 0) / Y.years]);
     return `<h4>250 m block</h4><p class="cm">${place(r)}</p>
       ${r.hr ? `<p class="cm">High-rise block: left out of the results.</p>` : ""}
       ${growthRows(r)}
       <p class="ch">New buildings by year, estimated</p>
-      <div class="bars">${years.map(([l, val]) => `<span><b style="height:${Math.min(40, Math.max(0, val || 0) * 8)}px"></b>${l}</span>`).join("")}</div>
-      <p class="cn">Counts of lots; single buildings are not shown.</p>`;
+      <div class="bars">${years.map(([l, val]) => `<span><b style="height:${Math.min(40, Math.max(0, val || 0) * 8)}px"></b>${l}</span>`).join("")}</div>`;
   }
   const r = t[id];
   if (!r) return "";

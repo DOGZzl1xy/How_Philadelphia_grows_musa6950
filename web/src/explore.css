@@ -114,7 +114,7 @@ body.explore.mapped { height: 100vh; overflow: hidden; display: flex; flex-direc
 .mini th { font-weight: 500; color: var(--ink-2); font-size: 12.5px; }
 .mini tr.sub td { color: var(--ink-2); font-size: 12.5px; }
 .bars { display: flex; gap: 6px; align-items: flex-end; height: 60px; }
-.bars span { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; font-size: 11px; color: var(--ink-2); gap: 3px; }
+.bars span { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; font-size: 11px; color: var(--ink-2); gap: 3px; white-space: nowrap; }
 .bars b { width: 100%; background: var(--signal); border-radius: 2px 2px 0 0; min-height: 1px; }
 .maplibregl-ctrl-attrib { font-size: 11px; }
 
