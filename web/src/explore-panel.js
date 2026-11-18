@@ -149,8 +149,7 @@ export function card(level, id) {
     const cellT = tables.cells[id];
     if (!cellT) return `<h4>250 m block</h4><p class="cm">No change measured or estimated in this block.</p>`;
     const r = cellT;
-    // per year: 2021–22 covers two years, so its bar shows half of its count
-    const years = YEAR_ORDER.map((y) => [y, YEARS[y]]).map(([y, Y]) => [Y.label, (r[`y${y}`] || 0) / Y.years]);
+    const years = YEAR_ORDER.map((y) => [y, YEARS[y]]).map(([y, Y]) => [Y.label, r[`y${y}`]]);
     return `<h4>250 m block</h4><p class="cm">${place(r)}</p>
       ${r.hr ? `<p class="cm">High-rise block: left out of the results.</p>` : ""}
       ${growthRows(r)}
