@@ -9,7 +9,7 @@ export function systemPrompt(t: Tables): string {
   if (cached) return cached;
   const c = t.city;
   const both = c.rates_units_covered_in_both_periods;
-  const yr = c.yearly_new_per_1000_fixed_units.years.map((y: any) => `${y.year === 2022 ? "2021-22" : y.year} ${y.rate.toFixed(2)}${y.source === "model" ? " (model)" : " (LiDAR minus model)"}`).join(", ");
+  const yr = c.yearly_new_per_1000_fixed_units.years.map((y: any) => `${y.year === 2022 ? "2021-22" : y.year} ${y.rate.toFixed(2)}${y.source === "model" ? " (model estimate)" : " (LiDAR minus model)"}`).join(", ");
   const test = c.sealed_test_2022_2025.filter((x: any) => x.scale === "250 m").map((x: any) => `${x.class === "popup" ? "added floors" : x.class === "new" ? "new buildings" : "any growth"} r = ${x.r}`).join(", ");
   const p2c = c.permits.permit_to_construction.find((x: any) => x.permit === "new construction" && x.outcome.startsWith("new by 2025"));
   const unp = c.permits.unpermitted.filter((x: any) => x.rule === "related permit on the unit").map((x: any) => `${x.event === "new" ? "new buildings" : "added floors"} ${x.period} ${pct(x.share)}`).join(", ");

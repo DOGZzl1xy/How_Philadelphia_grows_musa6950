@@ -60,7 +60,7 @@ export function renderLayers(el) {
       ${growthOn ? seg("period", Object.entries(PERIODS).map(([k, p]) => [k, p.label]), f.period) : ""}
     </section>
     <section class="lg${modelOn ? " open" : ""}">
-      <h3>New buildings by year <span class="est">estimated from aerial photos</span>
+      <h3>New buildings by year <span class="est">estimates</span>
         <button type="button" class="play${playing ? " on" : ""}" data-play aria-pressed="${playing ? "true" : "false"}">${playing ? "Stop" : "Play"}</button></h3>
       ${seg("year", YEAR_ORDER.map((y) => [y, YEARS[y]]).map(([k, y]) => [k, y.label]), modelOn ? f.year : "")}
     </section>
@@ -112,10 +112,10 @@ function legend(f, compact) {
   if (!f.type) return `<p class="hint">Layers are off. Switch one on, or ask a question.</p>`;
   let title, breaks, colors, kind, note;
   if (f.type === "growth" || f.type === "model") {
-    title = f.type === "growth" ? `${GROWTH[f.kind].label}, ${PERIODS[f.period].label}` : `New buildings, ${YEARS[f.year].label} (estimate)`;
+    title = f.type === "growth" ? `${GROWTH[f.kind].label}, ${PERIODS[f.period].label}` : `New buildings, ${YEARS[f.year].label} (${YEARS[f.year].residual ? "LiDAR minus model" : "model estimate"})`;
     breaks = GROWTH_BREAKS; colors = ORANGE; kind = "rate";
     note = f.type === "growth" ? `${GROWTH[f.kind].note}. Per 1,000 lots per year, 250 m blocks; blocks with fewer than 10 measured lots and high-rise blocks are left blank.`
-      : `Model estimate on lots seen in both photos and both LiDAR flights${YEARS[f.year].residual ? "; this year is LiDAR minus the model's earlier years" : ""}. Per 1,000 lots per year.`;
+      : `${YEARS[f.year].residual ? "LiDAR's count minus the model's estimates for the other years" : "Model estimate"}, on lots seen in both photos and both LiDAR flights. Per 1,000 lots per year.`;
   } else {
     const A = ACS[f.field];
     title = `${A.label}${A.years ? `, ${f.year === "2019" ? "2015–19" : "2019–23"}` : ""}`;

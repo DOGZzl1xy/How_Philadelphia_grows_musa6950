@@ -105,7 +105,7 @@ export async function yearly(div) {
   g.selectAll("text.v").data(d.years).join("text").attr("class", "c-label v").attr("text-anchor", "middle")
     .attr("x", (v) => x(v.label) + x.bandwidth() / 2).attr("y", (v) => y(v.rate) - 16).text((v) => v.rate.toFixed(1))
     .attr("opacity", 0).transition().delay((v, k) => 120 * k + 800).duration(400).attr("opacity", 1);   // after the bar
-  const leg = [[SIGNAL, "from photographs"], [INK, "from LiDAR"]];
+  const leg = [[SIGNAL, "model estimate"], [INK, "LiDAR minus model"]];
   leg.forEach(([c, t], k) => {
     svg.append("rect").attr("x", 690).attr("y", 50 + k * 44).attr("width", 26).attr("height", 26).attr("fill", c);
     svg.append("text").attr("x", 730).attr("y", 72 + k * 44).attr("class", "c-note").text(t);
@@ -173,7 +173,7 @@ export async function income(div) {
     svg.append("text").attr("x", x0).attr("y", 862).attr("class", "c-note").text("lowest income");
     svg.append("text").attr("x", x0 + 400).attr("y", 862).attr("text-anchor", "end").attr("class", "c-note").text("highest");
   });
-  svg.append("text").attr("x", 70).attr("y", 120).attr("class", "c-note").text("per 1,000 lots per year, neighbourhoods in fifths by income");
+  svg.append("text").attr("x", 70).attr("y", 120).attr("class", "c-note").text("per 1,000 lots per year, CBGs in fifths by income");
 }
 
 // what kind of street: new construction per 1,000 lots per year by area type, the two LiDAR periods side by side

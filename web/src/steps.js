@@ -1,6 +1,6 @@
 // The story, one entry per screen. `stage` says what the frame shows; `html` is the text column.
 // Acts: 0 cover, 1 background (a city that grows lot by lot, and nobody counts), 2 three ways of looking,
-// 3 teaching photographs to see new buildings, 4 the exam and the floor it cannot see (down to the street),
+// 3 teaching photographs to see new buildings, 4 the sealed test and the floor it cannot see (down to the street),
 // 5 the city once seen, 6 close.
 
 import { ICONS, LINKS } from "./links.js";
@@ -113,17 +113,17 @@ export const steps = [
            <div class="facts"><div><b>10,559</b>examples</div><div><b>6</b>LiDAR periods</div><div><b>37</b>ZIP codes</div></div>
            <p>Every pair of LiDAR flights shows which buildings grew in between. Six such pairs, from 2010 to 2022,
            became the lessons, and nobody labelled a building by hand.</p>
-           <p>Eight ZIP codes and the 2022–2025 period were locked away for the final test.</p>`,
+           <p>Eight ZIP codes and the 2022–2025 period were sealed for the final test.</p>`,
   },
 
-  // ---------- act 4: the exam, and the floor it cannot see ----------
+  // ---------- act 4: the sealed test, and the floor it cannot see ----------
   {
     act: 4,
     stage: { scene: "s2", year: 2025, chart: "scatter" },
     html: `<h2>How well it sees new buildings</h2>
-           <p>The locked ZIP codes and years stayed closed until the model was finished. Then it was tested once.</p>
+           <p>The sealed ZIP codes and years stayed closed until the model was finished. Then it was tested once.</p>
            <span class="num">0.96</span>
-           <p>correlation with LiDAR when new buildings are counted block by block; the model finds 12% fewer than
+           <p>correlation with LiDAR when new buildings are counted in 250 m blocks; the model finds 12% fewer than
            LiDAR. It is reliable for blocks and neighbourhoods, though not for single houses.</p>`,
   },
   {
@@ -140,7 +140,7 @@ export const steps = [
     html: `<h2>The floor it cannot see</h2>
            <p>A photograph looks straight down. A new building changes the picture at once. An added floor on an
            existing roof does not, because the roof looks just as it did before.</p>
-           <p>On the same exam, added floors reached only <span class="hl">0.42</span>.</p>`,
+           <p>In the same sealed test, added floors reached only <span class="hl">0.42</span>.</p>`,
   },
   {
     act: 4,
@@ -189,8 +189,9 @@ export const steps = [
     stage: { scene: "s1", year: 2025, chart: "map" },
     html: `<h2>Where the city built</h2>
            <span class="num">94%</span>
-           <p>of the new buildings from 2018 to 2025 stand in one tenth of the city's blocks. Added floors are almost as
-           concentrated, at 90%.</p>`,
+           <p>of the new buildings from 2018 to 2025 stand in one tenth of the 250 m blocks. Added floors are almost as
+           concentrated, at 90%.</p>
+           <p>Most of it lies north of Center City and in Point Breeze to the south.</p>`,
   },
   {
     act: 5,
@@ -202,9 +203,8 @@ export const steps = [
     act: 5,
     stage: { scene: "s1", year: 2025, chart: "income" },
     html: `<h2>Two kinds of growth, two kinds of neighbourhood</h2>
-           <p>New buildings rise most in the poorest neighbourhoods, where the vacant lots are. Added floors rise with
-           income, and the richest fifth of neighbourhoods adds them most often.</p>
-           <p class="small">Construction itself also changes who lives in a neighbourhood.</p>`,
+           <p>New buildings rise most in the poorest census block groups (CBGs), where the vacant lots are. Added floors
+           rise with income, and the richest fifth of CBGs adds them most often.</p>`,
   },
   {
     act: 5,
@@ -212,7 +212,7 @@ export const steps = [
     html: `<h2>Permits and buildings</h2>
            <span class="num">61</span>
            <p>of every 100 new-construction permits became a visible building by 2025, and for about half of all
-           permits it took less than a year. Fewer than one in ten new buildings had no matching permit.</p>`,
+           permits it took less than a year. About one in twenty new buildings had no matching permit.</p>`,
   },
 
   // ---------- close ----------
@@ -222,7 +222,7 @@ export const steps = [
     html: `<h2>Three ways to watch a city grow</h2>
            <p>A laser measures its height every few years. A camera above it, taught by that laser, dates its new
            buildings every spring. A camera in the street finds its added floors, wherever a car has passed.</p>
-           <p><span class="hl">From above, we can see new buildings. New floors have to be found from the street.</span></p>
+           <p><span class="hl">From above, we can see new buildings. Added floors have to be found from the street.</span></p>
            <div class="cta">
              <a class="btn primary" href="${LINKS.report}" download>${ICONS.download}<span>Download report</span></a>
              <a class="btn" href="${LINKS.github}" target="_blank" rel="noopener">${ICONS.github}<span>GitHub</span></a>
